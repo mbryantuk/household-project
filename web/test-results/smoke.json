@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6153,
+                      "duration": 9726,
                       "errors": [],
                       "stdout": [
                         {
@@ -118,7 +118,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:58:51.047Z",
+                      "startTime": "2026-02-24T16:08:42.482Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -147,7 +147,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6003,
+                      "duration": 5653,
                       "errors": [],
                       "stdout": [
                         {
@@ -177,7 +177,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:58:57.395Z",
+                      "startTime": "2026-02-24T16:08:52.618Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -206,7 +206,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5742,
+                      "duration": 5839,
                       "errors": [],
                       "stdout": [
                         {
@@ -236,7 +236,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:03.423Z",
+                      "startTime": "2026-02-24T16:08:58.299Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -265,7 +265,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5454,
+                      "duration": 5646,
                       "errors": [],
                       "stdout": [
                         {
@@ -295,7 +295,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:09.189Z",
+                      "startTime": "2026-02-24T16:09:04.157Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -324,7 +324,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5322,
+                      "duration": 5709,
                       "errors": [],
                       "stdout": [
                         {
@@ -354,7 +354,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:14.665Z",
+                      "startTime": "2026-02-24T16:09:09.823Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -383,7 +383,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5972,
+                      "duration": 6480,
                       "errors": [],
                       "stdout": [
                         {
@@ -413,7 +413,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:20.012Z",
+                      "startTime": "2026-02-24T16:09:15.553Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -442,7 +442,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5421,
+                      "duration": 5720,
                       "errors": [],
                       "stdout": [
                         {
@@ -472,7 +472,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:26.004Z",
+                      "startTime": "2026-02-24T16:09:22.059Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -501,7 +501,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5204,
+                      "duration": 5352,
                       "errors": [],
                       "stdout": [
                         {
@@ -531,7 +531,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:31.449Z",
+                      "startTime": "2026-02-24T16:09:27.801Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -560,7 +560,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6767,
+                      "duration": 7554,
                       "errors": [],
                       "stdout": [
                         {
@@ -590,7 +590,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:36.675Z",
+                      "startTime": "2026-02-24T16:09:33.179Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -619,7 +619,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5496,
+                      "duration": 5239,
                       "errors": [],
                       "stdout": [
                         {
@@ -649,7 +649,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:43.465Z",
+                      "startTime": "2026-02-24T16:09:40.757Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -678,7 +678,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5703,
+                      "duration": 5864,
                       "errors": [],
                       "stdout": [
                         {
@@ -708,7 +708,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:48.984Z",
+                      "startTime": "2026-02-24T16:09:46.021Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -723,7 +723,7 @@
             },
             {
               "title": "Property Details Page",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -736,28 +736,9 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 27458,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('generic-object-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('generic-object-view')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('generic-object-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('generic-object-view')\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:179:59",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 59,
-                          "line": 179
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 177 |\u001b[39m   test(\u001b[32m'Property Details Page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 178 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`${getBaseUrl()}/house/details`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 179 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'generic-object-view'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 180 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 181 |\u001b[39m\n \u001b[90m 182 |\u001b[39m   test(\u001b[32m'Asset Register Page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 59,
-                            "line": 179
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('generic-object-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('generic-object-view')\u001b[22m\n\n\n\u001b[0m \u001b[90m 177 |\u001b[39m   test(\u001b[32m'Property Details Page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 178 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`${getBaseUrl()}/house/details`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 179 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'generic-object-view'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m20000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 180 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 181 |\u001b[39m\n \u001b[90m 182 |\u001b[39m   test(\u001b[32m'Asset Register Page'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:179:59\u001b[22m"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5846,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "Navigating to /login...\n"
@@ -786,33 +767,12 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T15:59:54.710Z",
+                      "startTime": "2026-02-24T16:09:51.911Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Property-Details-Page-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Property-Details-Page-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Property-Details-Page-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 59,
-                        "line": 179
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
@@ -833,20 +793,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5380,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T16:00:22.272Z",
+                      "startTime": "2026-02-24T16:09:57.779Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
@@ -867,20 +852,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5542,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T16:00:22.273Z",
+                      "startTime": "2026-02-24T16:10:03.179Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
@@ -901,20 +911,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14287,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation...\n"
+                        },
+                        {
+                          "text": "Current URL after login: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard or onboarding view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/732/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 732\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T16:00:22.274Z",
+                      "startTime": "2026-02-24T16:10:08.743Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
@@ -929,11 +964,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T15:58:48.875Z",
-    "duration": 93419.817,
-    "expected": 11,
-    "skipped": 3,
-    "unexpected": 1,
+    "startTime": "2026-02-24T16:08:40.181Z",
+    "duration": 102963.647,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }

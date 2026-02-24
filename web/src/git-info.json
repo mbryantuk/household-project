@@ -1,4 +1,4 @@
 {
-  "commitMessage": "stability: fixed redundant ID in household details API request URL",
-  "date": "Tue 24 Feb 16:00:27 GMT 2026"
+  "commitMessage": "infrastructure: Clerk authentication finalized and smoke tests stabilized",
+  "date": "Tue 24 Feb 16:13:12 GMT 2026"
 }
