@@ -1,11 +1,12 @@
 const request = require('supertest');
 const app = require('../../App');
-const { globalDb, dbRun } = require('../../db');
+const { db } = require('../../db/index');
+const { users } = require('../../db/schema');
+const { eq } = require('drizzle-orm');
 
 describe('🛡️ Tenant Export Verification', () => {
   let adminToken;
   let householdId;
-  let adminUser;
 
   beforeAll(async () => {
     const uniqueEmail = `admin_export_${Date.now()}@test.com`;
@@ -18,8 +19,8 @@ describe('🛡️ Tenant Export Verification', () => {
       lastName: 'User',
     });
 
-    // 2. Promote to System Admin in DB
-    await dbRun(globalDb, "UPDATE users SET system_role = 'admin' WHERE email = ?", [uniqueEmail]);
+    // 2. Promote to System Admin in Postgres
+    await db.update(users).set({ systemRole: 'admin' }).where(eq(users.email, uniqueEmail));
 
     // 3. Login to get token
     const loginRes = await request(app).post('/api/auth/login').send({
@@ -28,13 +29,10 @@ describe('🛡️ Tenant Export Verification', () => {
     });
 
     adminToken = loginRes.body.token;
-    adminUser = loginRes.body.user;
     householdId = loginRes.body.household.id;
   });
 
-  afterAll(async () => {
-    // No server to close if using app directly from App.js
-  });
+  afterAll(async () => {});
 
   test('GET /api/admin/households/:id/export should return a backup filename (System Admin)', async () => {
     const res = await request(app)

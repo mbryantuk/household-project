@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const { db } = require('../db/index');
 const { households, userHouseholds, users } = require('../db/schema');
-const { eq, and, ilike } = require('drizzle-orm');
-const {
-  authenticateToken,
-  requireHouseholdRole,
-  requireSystemRole,
-} = require('../middleware/auth');
+const { eq, ilike, and } = require('drizzle-orm');
+const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { auditLog } = require('../services/audit');
 
 /**
@@ -122,6 +120,13 @@ router.delete('/:id', authenticateToken, requireHouseholdRole('admin'), async (r
       await tx.delete(userHouseholds).where(eq(userHouseholds.householdId, householdId));
       await tx.delete(households).where(eq(households.id, householdId));
     });
+
+    // Cleanup SQLite file
+    const dbPath = path.join(__dirname, '../data', `household_${householdId}.db`);
+    if (fs.existsSync(dbPath)) {
+      fs.unlinkSync(dbPath);
+    }
+
     res.json({ message: 'Household deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -163,7 +168,6 @@ router.get('/:id/details', authenticateToken, requireHouseholdRole('viewer'), as
 router.put('/:id/details', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
   const updates = { ...req.body };
 
-  // Strip non-global fields that might have leaked from old tenant schema
   const allowed = [
     'name',
     'addressStreet',

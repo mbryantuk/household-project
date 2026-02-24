@@ -3,15 +3,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const fs = require('fs');
 const path = require('path');
-const cron = require('node-cron');
 const { apiReference } = require('@scalar/express-api-reference');
 const swaggerDocument = require('./swagger.json');
 const pkg = require('./package.json');
 
 // Import unified database instance
 const { SECRET_KEY } = require('./config');
-const { globalDb } = require('./db');
-console.log('System Initialized with Secret Key Length:', SECRET_KEY ? SECRET_KEY.length : 0);
 require('./services/crypto');
 
 // Rate Limiters
@@ -33,8 +30,6 @@ const shoppingScheduleRoutes = require('./routes/shopping_schedules');
 const choresRoutes = require('./routes/chores');
 const notificationRoutes = require('./routes/notifications');
 
-const { createBackup, cleanOldBackups } = require('./services/backup');
-
 const app = express();
 
 // Set Trust Proxy
@@ -53,7 +48,13 @@ app.use(
   cors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-bypass-maintenance', 'x-api-version'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-bypass-maintenance',
+      'x-api-version',
+      'x-household-id',
+    ],
     exposedHeaders: ['x-api-version'],
   })
 );
@@ -61,8 +62,6 @@ app.use(
 app.use(express.json());
 
 // --- RATE LIMITING ---
-// In test environment, limiters can cause flakiness.
-// We only apply them globally in production/dev.
 if (process.env.NODE_ENV !== 'test') {
   app.use(['/auth', '/api/auth', '/passkeys', '/api/passkeys'], authLimiter);
   app.use(['/api/households/:id/backups', '/api/export'], sensitiveLimiter);
@@ -111,6 +110,7 @@ const allRouters = [
   { path: '/households/:id/chores', router: choresRoutes },
   { path: '/households/:id/members', router: memberRoutes },
   { path: '/households/:id/calendar', router: calendarRoutes },
+  { path: '/households/:id/dates', router: calendarRoutes }, // Parity with Swagger/Tests
   { path: '/households/:id', router: detailsRoutes },
   { path: '/households/:id/meals', router: mealRoutes },
   { path: '/households/:id/shopping-list/schedules', router: shoppingScheduleRoutes },
@@ -120,22 +120,9 @@ const allRouters = [
   { path: '/export', router: require('./routes/export') },
 ];
 
-// 1. Mount at root
-allRouters.forEach((r) => {
-  app.use(r.path, r.router);
-});
-
-// 2. Mount under /api prefix
-const apiRouter = express.Router({ mergeParams: true });
-allRouters.forEach((r) => {
-  apiRouter.use(r.path, r.router);
-});
-app.use('/api', apiRouter);
-
-// Scalar API Reference
-app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
-
-app.get('/system/status', async (req, res) => {
+// System Routes
+const systemRouter = express.Router();
+systemRouter.get('/status', async (req, res) => {
   try {
     const { db } = require('./db/index');
     const { users } = require('./db/schema');
@@ -147,7 +134,7 @@ app.get('/system/status', async (req, res) => {
   }
 });
 
-app.get('/system/holidays', async (req, res) => {
+systemRouter.get('/holidays', async (req, res) => {
   try {
     const { getBankHolidays } = require('./services/bankHolidays');
     const holidays = await getBankHolidays();
@@ -156,6 +143,23 @@ app.get('/system/holidays', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch holidays' });
   }
 });
+
+// 1. Mount at root
+allRouters.forEach((r) => {
+  app.use(r.path, r.router);
+});
+app.use('/system', systemRouter);
+
+// 2. Mount under /api prefix
+const apiRouter = express.Router({ mergeParams: true });
+allRouters.forEach((r) => {
+  apiRouter.use(r.path, r.router);
+});
+apiRouter.use('/system', systemRouter);
+app.use('/api', apiRouter);
+
+// Scalar API Reference
+app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
 
 // FRONTEND SERVING
 const frontendPath = path.resolve(__dirname, '../web/dist');

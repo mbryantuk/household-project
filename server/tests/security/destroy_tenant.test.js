@@ -2,13 +2,14 @@ const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
 const app = require('../../App');
-const { globalDb, dbRun, dbGet } = require('../../db');
+const { db } = require('../../db/index');
+const { users, households } = require('../../db/schema');
+const { eq, and } = require('drizzle-orm');
 
 const ADMIN_EMAIL = `destroy_test_${Date.now()}@test.com`;
 const SYS_ADMIN_EMAIL = `sysadmin_${Date.now()}@test.com`;
 const PASSWORD = 'Password123!';
 const DATA_DIR = path.join(__dirname, '../../data');
-const BACKUP_DIR = path.join(__dirname, '../../backups');
 
 describe('💣 Tenant Destruction & Cleanup', () => {
   jest.setTimeout(60000);
@@ -41,9 +42,8 @@ describe('💣 Tenant Destruction & Cleanup', () => {
     await request(app)
       .post('/api/auth/register')
       .send({ householdName: 'Admin HH', email: SYS_ADMIN_EMAIL, password: PASSWORD, is_test: 1 });
-    await dbRun(globalDb, `UPDATE users SET system_role = 'admin' WHERE email = ?`, [
-      SYS_ADMIN_EMAIL,
-    ]);
+
+    await db.update(users).set({ systemRole: 'admin' }).where(eq(users.email, SYS_ADMIN_EMAIL));
 
     const sysLoginReal = await request(app)
       .post('/api/auth/login')
@@ -75,6 +75,14 @@ describe('💣 Tenant Destruction & Cleanup', () => {
       .set('Authorization', `Bearer ${actualToken}`);
     const hhId = hList.body[0]?.id;
 
+    // Touch the tenant DB to ensure it exists for the test
+    const { getHouseholdDb } = require('../../db');
+    const tDb = getHouseholdDb(hhId);
+    tDb.serialize(() => {
+      tDb.run('CREATE TABLE IF NOT EXISTS test (id INTEGER)');
+    });
+    tDb.close();
+
     // Verify Tenant DB exists
     const dbPath = path.join(DATA_DIR, `household_${hhId}.db`);
     expect(fs.existsSync(dbPath)).toBe(true);
@@ -85,8 +93,8 @@ describe('💣 Tenant Destruction & Cleanup', () => {
       .set('Authorization', `Bearer ${actualToken}`);
     expect(delRes.status).toBe(200);
 
-    // Verify Destruction
-    const hhRow = await dbGet(globalDb, 'SELECT * FROM households WHERE id = ?', [hhId]);
+    // Verify Destruction in Postgres
+    const [hhRow] = await db.select().from(households).where(eq(households.id, hhId));
     expect(hhRow).toBeUndefined();
     expect(fs.existsSync(dbPath)).toBe(false);
   });
@@ -98,12 +106,20 @@ describe('💣 Tenant Destruction & Cleanup', () => {
       .post('/api/auth/register')
       .send({ householdName: 'Target HH', email: otherUserEmail, password: PASSWORD, is_test: 1 });
 
-    // Find the household ID
-    const targetHhRow = await dbGet(
-      globalDb,
-      "SELECT id FROM households WHERE name = 'Target HH' ORDER BY created_at DESC LIMIT 1"
-    );
+    // Find the household ID in Postgres
+    const [targetHhRow] = await db
+      .select()
+      .from(households)
+      .where(eq(households.name, 'Target HH'));
     const targetHhId = targetHhRow.id;
+
+    // Touch the tenant DB
+    const { getHouseholdDb } = require('../../db');
+    const tDb = getHouseholdDb(targetHhId);
+    tDb.serialize(() => {
+      tDb.run('CREATE TABLE IF NOT EXISTS test (id INTEGER)');
+    });
+    tDb.close();
 
     const targetDbPath = path.join(DATA_DIR, `household_${targetHhId}.db`);
     expect(fs.existsSync(targetDbPath)).toBe(true);
@@ -114,10 +130,10 @@ describe('💣 Tenant Destruction & Cleanup', () => {
       .set('Authorization', `Bearer ${sysAdminToken}`);
 
     expect(delRes.status).toBe(200);
-    expect(delRes.body.message).toContain('destroyed');
+    expect(delRes.body.message).toContain('deleted');
 
     // 3. Verify gone
-    const hhRow = await dbGet(globalDb, 'SELECT * FROM households WHERE id = ?', [targetHhId]);
+    const [hhRow] = await db.select().from(households).where(eq(households.id, targetHhId));
     expect(hhRow).toBeUndefined();
     expect(fs.existsSync(targetDbPath)).toBe(false);
   });

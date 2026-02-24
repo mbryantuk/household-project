@@ -1,8 +1,8 @@
-const { addJob, mainQueue } = require('../../services/queue');
+const { addJob, closeAll } = require('../../services/queue');
 
 describe('Background Job Queue (BullMQ)', () => {
   afterAll(async () => {
-    await mainQueue.close();
+    await closeAll();
   });
 
   it('should add a job to the queue', async () => {

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../db/index');
 const { users, userSessions, userHouseholds, households } = require('../db/schema');
-const { eq, and, sql } = require('drizzle-orm');
+const { eq, and } = require('drizzle-orm');
 const config = require('../config');
 const pkg = require('../package.json');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
@@ -88,18 +88,17 @@ async function authenticateToken(req, res, next) {
             .select({
               role: userHouseholds.role,
               isActive: userHouseholds.isActive,
-              debugMode: households.debugMode,
             })
             .from(userHouseholds)
-            .innerJoin(households, eq(userHouseholds.householdId, households.id))
             .where(
               and(
                 eq(userHouseholds.userId, localUser.id),
-                eq(userHouseholds.householdId, parseInt(effectiveHhId))
+                eq(userHouseholds.householdId, parseInt(effectiveHhId)),
+                eq(userHouseholds.isActive, true)
               )
             )
             .limit(1);
-          if (results.length > 0 && results[0].isActive) {
+          if (results.length > 0) {
             req.user.role = results[0].role;
             req.user.householdId = parseInt(effectiveHhId);
           }
@@ -150,19 +149,18 @@ async function authenticateToken(req, res, next) {
           .select({
             role: userHouseholds.role,
             isActive: userHouseholds.isActive,
-            debugMode: households.debugMode,
           })
           .from(userHouseholds)
-          .innerJoin(households, eq(userHouseholds.householdId, households.id))
           .where(
             and(
               eq(userHouseholds.userId, decodedUser.id),
-              eq(userHouseholds.householdId, effectiveHhId)
+              eq(userHouseholds.householdId, effectiveHhId),
+              eq(userHouseholds.isActive, true)
             )
           )
           .limit(1);
 
-        if (results.length > 0 && results[0].isActive) {
+        if (results.length > 0) {
           req.user.role = results[0].role;
           req.user.householdId = effectiveHhId;
         }
@@ -193,64 +191,51 @@ function requireHouseholdRole(requiredRole) {
       return actualRoleIndex >= requiredRoleIndex;
     };
 
-    if (targetHouseholdId && userHouseholdId === targetHouseholdId) {
-      if (hasPermission(req.user.role)) return next();
-      return res.status(403).json({ error: `Required: ${requiredRole}` });
-    }
-
     if (targetHouseholdId) {
-      if (
-        userHouseholdId &&
-        userHouseholdId !== targetHouseholdId &&
-        req.user.systemRole !== 'admin'
-      ) {
-        return res.status(403).json({ error: 'Access denied' });
+      // 1. If user already has the correct household context in their session/token, trust it
+      if (userHouseholdId === targetHouseholdId && req.user.role) {
+        if (hasPermission(req.user.role)) return next();
+        return res.status(403).json({ error: `Required: ${requiredRole}` });
       }
 
+      // 2. System Admins have god-mode access
+      if (req.user.systemRole === 'admin') {
+        req.user.role = 'admin';
+        req.user.householdId = targetHouseholdId;
+        return next();
+      }
+
+      // 3. Otherwise, check the DB for a link to this SPECIFIC household
       try {
-        const [household] = await db
-          .select({ id: households.id, name: households.name })
-          .from(households)
-          .where(eq(households.id, targetHouseholdId))
-          .limit(1);
-
-        if (!household) return res.status(404).json({ error: 'Household not found' });
-
         const [link] = await db
           .select({ role: userHouseholds.role, isActive: userHouseholds.isActive })
           .from(userHouseholds)
           .where(
             and(
               eq(userHouseholds.userId, req.user.id),
-              eq(userHouseholds.householdId, targetHouseholdId)
+              eq(userHouseholds.householdId, targetHouseholdId),
+              eq(userHouseholds.isActive, true)
             )
           )
           .limit(1);
 
-        if (!link || !link.isActive) {
-          if (req.user.systemRole === 'admin') {
-            req.user.role = 'admin';
-            return next();
-          }
-          return res.status(403).json({ error: 'No active link' });
+        if (!link) {
+          return res.status(403).json({ error: 'No active link to this household' });
         }
 
         if (hasPermission(link.role)) {
           req.user.role = link.role;
-          next();
+          req.user.householdId = targetHouseholdId;
+          return next();
         } else {
-          if (req.user.systemRole === 'admin') {
-            req.user.role = 'admin';
-            return next();
-          }
-          res.status(403).json({ error: `Required: ${requiredRole}` });
+          return res.status(403).json({ error: `Required: ${requiredRole}` });
         }
       } catch (err) {
         console.error('[RBAC] Error:', err);
-        res.status(500).json({ error: 'Authorization failure' });
+        return res.status(500).json({ error: 'Authorization failure' });
       }
     } else {
-      res.status(400).json({ error: 'Household context required' });
+      return res.status(400).json({ error: 'Household context required' });
     }
   };
 }

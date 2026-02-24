@@ -1,4 +1,4 @@
 {
-  "commitMessage": "v3.2.360 - Persistence & Auth Fix: Resolve Clerk initialization and map customTheme properties",
-  "date": "Tue 24 Feb 09:10:26 GMT 2026"
+  "commitMessage": "v3.2.360 - Persistence, Auth & Test Fixes: Resolve 403s, route aliases, and Jest hangs",
+  "date": "Tue 24 Feb 09:24:38 GMT 2026"
 }
