@@ -88,25 +88,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 25671,
+                      "duration": 3116,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:61:54)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16",
+                        "message": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:38:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 54,
-                          "line": 61
+                          "column": 16,
+                          "line": 38
                         },
-                        "snippet": "  59 |\n  60 |     // Wait for dashboard to actually hydrate/settle\n> 61 |     await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });\n     |                                                      ^\n  62 |\n  63 |     const url = page.url();\n  64 |     const match = url.match(/household\\/(\\d+)\\//);"
+                        "snippet": "  36 |\n  37 |     console.log('Reloading to ensure clean state...');\n> 38 |     await page.goto('/login');\n     |                ^\n  39 |     await page.waitForLoadState('networkidle');\n  40 |\n  41 |     // INTERACT WITH LEGACY LOGIN FORM"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 54,
-                            "line": 61
+                            "column": 16,
+                            "line": 38
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('dashboard-view')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('dashboard-view')\u001b[22m\n\n\n  59 |\n  60 |     // Wait for dashboard to actually hydrate/settle\n> 61 |     await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });\n     |                                                      ^\n  62 |\n  63 |     const url = page.url();\n  64 |     const match = url.match(/household\\/(\\d+)\\//);\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:61:54)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16"
+                          "message": "Error: page.goto: Navigation to \"http://localhost:4001/login\" is interrupted by another navigation to \"http://localhost:4001/login\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"load\"\u001b[22m\n\n\n  36 |\n  37 |     console.log('Reloading to ensure clean state...');\n> 38 |     await page.goto('/login');\n     |                ^\n  39 |     await page.waitForLoadState('networkidle');\n  40 |\n  41 |     // INTERACT WITH LEGACY LOGIN FORM\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:38:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:75:16"
                         }
                       ],
                       "stdout": [
@@ -118,14 +118,11 @@
                         },
                         {
                           "text": "Reloading to ensure clean state...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:02.108Z",
+                      "startTime": "2026-02-24T11:10:03.023Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -137,12 +134,17 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 54,
-                        "line": 61
+                        "column": 16,
+                        "line": 38
                       }
                     }
                   ],
@@ -175,7 +177,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.214Z",
+                      "startTime": "2026-02-24T11:10:06.733Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -209,7 +211,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.215Z",
+                      "startTime": "2026-02-24T11:10:06.735Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -243,7 +245,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.215Z",
+                      "startTime": "2026-02-24T11:10:06.735Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -277,7 +279,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.215Z",
+                      "startTime": "2026-02-24T11:10:06.736Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -311,7 +313,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.215Z",
+                      "startTime": "2026-02-24T11:10:06.737Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -345,7 +347,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.216Z",
+                      "startTime": "2026-02-24T11:10:06.738Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -379,7 +381,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.216Z",
+                      "startTime": "2026-02-24T11:10:06.739Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -413,7 +415,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.217Z",
+                      "startTime": "2026-02-24T11:10:06.739Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -447,7 +449,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.217Z",
+                      "startTime": "2026-02-24T11:10:06.740Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -481,7 +483,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.217Z",
+                      "startTime": "2026-02-24T11:10:06.740Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -515,7 +517,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.217Z",
+                      "startTime": "2026-02-24T11:10:06.740Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -549,7 +551,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.217Z",
+                      "startTime": "2026-02-24T11:10:06.741Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -583,7 +585,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.218Z",
+                      "startTime": "2026-02-24T11:10:06.741Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -617,7 +619,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T10:49:28.218Z",
+                      "startTime": "2026-02-24T11:10:06.741Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -637,8 +639,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T10:48:59.732Z",
-    "duration": 28503.692,
+    "startTime": "2026-02-24T11:10:01.015Z",
+    "duration": 5748.207,
     "expected": 0,
     "skipped": 14,
     "unexpected": 1,

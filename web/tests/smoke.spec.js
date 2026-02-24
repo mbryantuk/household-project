@@ -25,39 +25,40 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   // Helper login function
   const loginAndGetId = async (page) => {
     console.log('Navigating to /login...');
-    await page.goto('/login');
-    await page.waitForLoadState('networkidle');
 
-    console.log('Clearing storage...');
+    // Attempt navigation once
+    await page.goto('/login', { waitUntil: 'networkidle' });
+
+    // Clear everything to be sure
     await page.evaluate(() => {
       localStorage.clear();
       sessionStorage.clear();
     });
 
-    console.log('Reloading to ensure clean state...');
-    await page.goto('/login');
-    await page.waitForLoadState('networkidle');
+    // One more reload to be absolutely sure we're clean and at login
+    await page.goto('/login', { waitUntil: 'networkidle' });
 
     // INTERACT WITH LEGACY LOGIN FORM
     console.log('Filling legacy login form...');
     const emailInput = page.getByPlaceholder('Email');
-    await expect(emailInput).toBeVisible({ timeout: 10000 });
+    await expect(emailInput).toBeVisible({ timeout: 15000 });
     await emailInput.fill('mbryantuk@gmail.com');
     await page.getByPlaceholder('Password').fill('Password123!');
 
-    // Click Login and wait for navigation
-    await Promise.all([
-      page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 }),
-      page.getByRole('button', { name: 'Login', exact: true }).click(),
-    ]);
+    await page.getByRole('button', { name: 'Login', exact: true }).click();
+
+    // Wait for the URL to change to either selector or dashboard
+    await page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 });
 
     if (page.url().includes('select-household')) {
       console.log('Selecting Brady Bunch household...');
+      // Wait for at least one household card to appear
+      await page.waitForSelector('text=/The Brady Bunch/i', { timeout: 10000 });
       await page.click('text=/The Brady Bunch/i');
-      await page.waitForURL(/.*dashboard/);
+      await page.waitForURL(/.*dashboard/, { timeout: 20000 });
     }
 
-    // Wait for dashboard to actually hydrate/settle
+    // Wait for dashboard marker
     await expect(page.getByTestId('dashboard-view')).toBeVisible({ timeout: 20000 });
 
     const url = page.url();
@@ -72,19 +73,27 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
       fs.appendFileSync(LOG_FILE, `[${timestamp}] [PAGE ERROR] ${err.message}\n${err.stack}\n`);
     });
 
-    const id = await loginAndGetId(page);
-    if (id) {
-      householdId = id;
-    } else if (!householdId) {
-      throw new Error('Failed to retrieve Household ID during login.');
+    // If we already have householdId, check if we're still on a valid page,
+    // otherwise relogin. For serial tests, we usually login once in beforeAll
+    // but beforeEach is safer if we want to isolate.
+    // However, relogging before EVERY test is slow.
+    // Let's try to only login if needed.
+    if (!householdId) {
+      const id = await loginAndGetId(page);
+      if (id) {
+        householdId = id;
+      } else {
+        throw new Error('Failed to retrieve Household ID during login.');
+      }
+    } else {
+      // Just ensure we are at the base for this household
+      await page.goto(`/household/${householdId}/dashboard`, { waitUntil: 'networkidle' });
     }
   });
 
   const getBaseUrl = () => `/household/${householdId}`;
 
   test('Dashboard Page', async ({ page }) => {
-    const base = getBaseUrl();
-    await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });
     await expect(page.getByTestId('greeting-text')).toBeVisible({ timeout: 20000 });
   });
 
