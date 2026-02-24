@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-02-24T09:19:31.651Z",
+  "timestamp": "2026-02-24T09:33:09.241Z",
   "accounts": {
-    "admin": "admin_1771924770043@test.com",
-    "viewer": "viewer_1771924770043@test.com"
+    "admin": "admin_1771925587232@test.com",
+    "viewer": "viewer_1771925587232@test.com"
   },
   "steps": [
-    "09:19:30: Loading Swagger schema for strict sync enforcement.",
-    "09:19:30: Initializing test environment.",
-    "09:19:31: Cleaning up: Deleting test household."
+    "09:33:07: Loading Swagger schema for strict sync enforcement.",
+    "09:33:07: Initializing test environment.",
+    "09:33:09: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 17,
-    "passed": 7,
+    "total_endpoints": 18,
+    "passed": 8,
     "failed": 10,
-    "swagger_coverage_pct": "19.1"
+    "swagger_coverage_pct": "20.2"
   },
   "results": {
     "POST /auth/register": "PASS",
@@ -29,7 +29,8 @@
     "POST /households/{id}/finance/income": "FAIL (403)",
     "GET /households/{id}/meals": "FAIL (403)",
     "POST /households/{id}/chores": "FAIL (403)",
-    "GET /system/holidays": "FAIL (404)",
+    "GET /system/holidays": "PASS",
+    "POST /households/{id}/dates": "FAIL (403)",
     "POST /households/{id}/shopping-list": "FAIL (403)",
     "GET /households/{id}/details": "FAIL (403)",
     "POST /households/{id}/finance/mortgages": "FAIL (403)"
@@ -57,7 +58,6 @@
       "PUT /households/{id}/assets/{itemId}",
       "DELETE /households/{id}/assets/{itemId}",
       "GET /households/{id}/dates",
-      "POST /households/{id}/dates",
       "GET /households/{id}/dates/{itemId}",
       "PUT /households/{id}/dates/{itemId}",
       "DELETE /households/{id}/dates/{itemId}",

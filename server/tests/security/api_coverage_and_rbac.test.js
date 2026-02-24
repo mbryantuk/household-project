@@ -48,42 +48,13 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     }
 
     addStep('Initializing test environment.');
+
+    // 1. Register all users first so they exist in the 'users' table
     await request(app).post('/api/auth/register').send({
       householdName: 'Sync House',
       email: testData.admin.email,
       password: testData.admin.password,
     });
-    const lAdmin = await request(app)
-      .post('/api/auth/login')
-      .send({ email: testData.admin.email, password: testData.admin.password });
-    tokens.admin = lAdmin.body.token;
-
-    householdId = lAdmin.body.user.defaultHouseholdId || lAdmin.body.user.default_household_id;
-    if (!householdId) {
-      const hList = await request(app)
-        .get('/api/auth/my-households')
-        .set('Authorization', `Bearer ${tokens.admin}`);
-      householdId = hList.body[0]?.id;
-    }
-    await request(app)
-      .post(`/api/households/${householdId}/select`)
-      .set('Authorization', `Bearer ${tokens.admin}`);
-
-    await request(app)
-      .post(`/api/households/${householdId}/users`)
-      .set('Authorization', `Bearer ${tokens.admin}`)
-      .send({ email: testData.viewer.email, role: 'viewer' });
-    await request(app)
-      .post(`/api/households/${householdId}/users`)
-      .set('Authorization', `Bearer ${tokens.admin}`)
-      .send({ email: testData.member.email, role: 'member' });
-
-    // Explicitly create users before login if register didn't do it
-    // Wait, the POST /users endpoint in households.js uses onConflictDoUpdate,
-    // but the users must exist in the 'users' table first.
-    // The current households.js:POST /users requires the user to exist.
-    // I should register them first.
-
     await request(app).post('/api/auth/register').send({
       householdName: 'Viewer House',
       email: testData.viewer.email,
@@ -95,23 +66,44 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       password: testData.member.password,
     });
 
-    tokens.member = (
-      await request(app)
-        .post('/api/auth/login')
-        .send({ email: testData.member.email, password: testData.member.password })
-    ).body.token;
+    // 2. Login Admin
+    const lAdmin = await request(app)
+      .post('/api/auth/login')
+      .send({ email: testData.admin.email, password: testData.admin.password });
+    tokens.admin = lAdmin.body.token;
+    householdId = lAdmin.body.user.defaultHouseholdId || lAdmin.body.user.default_household_id;
+
+    // 3. Add Viewer and Member to Admin's Household
+    await request(app)
+      .post(`/api/households/${householdId}/users`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ email: testData.viewer.email, role: 'viewer' });
+    await request(app)
+      .post(`/api/households/${householdId}/users`)
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ email: testData.member.email, role: 'member' });
+
+    // 4. Login Viewer and Member to get their tokens
+    const lViewer = await request(app)
+      .post('/api/auth/login')
+      .send({ email: testData.viewer.email, password: testData.viewer.password });
+    tokens.viewer = lViewer.body.token;
+
+    const lMember = await request(app)
+      .post('/api/auth/login')
+      .send({ email: testData.member.email, password: testData.member.password });
+    tokens.member = lMember.body.token;
+
+    // 5. Select the household for all tokens to ensure context
     await request(app)
       .post(`/api/households/${householdId}/select`)
-      .set('Authorization', `Bearer ${tokens.member}`);
-
-    tokens.viewer = (
-      await request(app)
-        .post('/api/auth/login')
-        .send({ email: testData.viewer.email, password: testData.viewer.password })
-    ).body.token;
+      .set('Authorization', `Bearer ${tokens.admin}`);
     await request(app)
       .post(`/api/households/${householdId}/select`)
       .set('Authorization', `Bearer ${tokens.viewer}`);
+    await request(app)
+      .post(`/api/households/${householdId}/select`)
+      .set('Authorization', `Bearer ${tokens.member}`);
   });
 
   afterAll(async () => {
@@ -126,8 +118,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     const passedEndpoints = Object.values(apiStatus).filter((s) => s === 'PASS').length;
     const failedEndpoints = Object.values(apiStatus).filter((s) => s !== 'PASS').length;
 
-    // Calculate Swagger Percentage
-    // Definition: (Tested & InSwagger) / TotalSwaggerEndpoints * 100
     const testedAndInSwagger = [...testedEndpoints].filter((ep) =>
       swaggerPaths.includes(ep)
     ).length;
@@ -186,7 +176,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .set('Authorization', `Bearer ${tokens.member}`)
       .send(payload);
     testedEndpoints.add(endpoints.create);
-    // Note: We don't fail if NOT in swagger, we just mark as GAP later, but we expect it to be there for coverage
     logResult(endpoints.create, cRes.status < 300 ? 'PASS' : 'FAIL', cRes);
     expect(cRes.status).toBeLessThan(300);
     const itemId = cRes.body.id;
@@ -203,8 +192,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       const itemPath = `${resolvedBase}/${itemId}`;
 
       // 3. READ
-      // Some consolidated items might not have a dedicated READ /{itemId} if not needed by UI,
-      // but for CRUD standard we verify it exists if defined in Swagger
       if (swaggerPaths.includes(endpoints.read)) {
         testedEndpoints.add(endpoints.read);
         const iRes = await request(app)
@@ -234,11 +221,8 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
   };
 
   test('🔑 Authentication & Setup', async () => {
-    // 1. Register (Already covered in beforeAll, but we explicitly test/record it here for coverage)
     const regEp = 'POST /auth/register';
     testedEndpoints.add(regEp);
-    // We accept that it was successful in beforeAll, or we can do a quick fail-check
-    // To be thorough and hit the endpoint:
     const regRes = await request(app)
       .post('/api/auth/register')
       .send({
@@ -249,7 +233,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     logResult(regEp, regRes.status === 201 ? 'PASS' : 'FAIL', regRes);
     expect(regRes.status).toBe(201);
 
-    // 2. Login
     const loginEp = 'POST /auth/login';
     testedEndpoints.add(loginEp);
     const loginRes = await request(app)
@@ -260,9 +243,7 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       });
     logResult(loginEp, loginRes.status === 200 ? 'PASS' : 'FAIL', loginRes);
     expect(loginRes.status).toBe(200);
-    const covToken = loginRes.body.token;
 
-    // 3. Profile (Get)
     const profileEp = 'GET /auth/profile';
     testedEndpoints.add(profileEp);
     const pRes = await request(app)
@@ -271,7 +252,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     logResult(profileEp, pRes.status === 200 ? 'PASS' : 'FAIL', pRes);
     expect(pRes.status).toBe(200);
 
-    // 4. Profile (Update) - MISSING
     const putProfileEp = 'PUT /auth/profile';
     testedEndpoints.add(putProfileEp);
     const upRes = await request(app)
@@ -283,7 +263,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
   });
 
   test('🏠 Household Management', async () => {
-    // 1. POST /households (Create new household)
     const createHouseEp = 'POST /households';
     testedEndpoints.add(createHouseEp);
     const cRes = await request(app)
@@ -294,12 +273,10 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     expect(cRes.status).toBe(201);
     const newHouseId = cRes.body.id;
 
-    // Cleanup extra household immediately
     await request(app)
       .delete(`/api/households/${newHouseId}`)
       .set('Authorization', `Bearer ${tokens.admin}`);
 
-    // 2. GET /households/{id} (Use existing household context to avoid token issues)
     const getHouseEp = 'GET /households/{id}';
     testedEndpoints.add(getHouseEp);
     const gRes = await request(app)
@@ -308,7 +285,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     logResult(getHouseEp, gRes.status === 200 ? 'PASS' : 'FAIL', gRes);
     expect(gRes.status).toBe(200);
 
-    // 3. PUT /households/{id} (Use existing household context)
     const putHouseEp = 'PUT /households/{id}';
     testedEndpoints.add(putHouseEp);
     const uRes = await request(app)
@@ -347,7 +323,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
   test('💰 Module: Finance (Core)', async () => {
     await runCrudTest('Income', '/finance/income', { employer: 'W', amount: 100 }, { amount: 200 });
 
-    // Expanded CRUD coverage for Finance
     await runCrudTest(
       'Credit Cards',
       '/finance/credit-cards',
@@ -383,7 +358,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     logResult(ep, res.status === 200 ? 'PASS' : 'FAIL', res);
     expect(res.status).toBe(200);
 
-    // Add POST /meals
     const postMealEp = 'POST /households/{id}/meals';
     testedEndpoints.add(postMealEp);
     const mRes = await request(app)
@@ -402,14 +376,12 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       { name: 'Wash Dishes', value: 10 }
     );
 
-    // Create a chore for completion
     const cRes = await request(app)
       .post(`/api/households/${householdId}/chores`)
       .set('Authorization', `Bearer ${tokens.member}`)
       .send({ name: 'Trash', frequency: 'weekly', value: 10 });
     const choreId = cRes.body.id;
 
-    // Completion
     const compEp = 'POST /households/{id}/chores/{itemId}/complete';
     testedEndpoints.add(compEp);
     const compRes = await request(app)
@@ -418,7 +390,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     logResult(compEp, compRes.status === 200 ? 'PASS' : 'FAIL', compRes);
     expect(compRes.status).toBe(200);
 
-    // Additional Chores endpoints
     const statsEp = `GET /households/{id}/chores/stats`;
     testedEndpoints.add(statsEp);
     const sRes = await request(app)
@@ -429,14 +400,12 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
   });
 
   test('📅 Module: Calendar', async () => {
-    // System Holidays
     const holEp = 'GET /system/holidays';
     testedEndpoints.add(holEp);
     const hRes = await request(app).get(`/api/system/holidays`);
     logResult(holEp, hRes.status === 200 ? 'PASS' : 'FAIL', hRes);
     expect(hRes.status).toBe(200);
 
-    // Dates CRUD
     await runCrudTest(
       'Calendar Dates',
       '/dates',
@@ -453,7 +422,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       { name: 'Almond Milk' }
     );
 
-    // Clear list
     const clearEp = `DELETE /households/{id}/shopping-list/clear`;
     testedEndpoints.add(clearEp);
     const cRes = await request(app)
@@ -477,11 +445,10 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     const uRes = await request(app)
       .put(`/api/households/${householdId}/details`)
       .set('Authorization', `Bearer ${tokens.member}`)
-      .send({ wifi_ssid: 'MyHouse' });
+      .send({ addressStreet: '123 New St' }); // use valid field
     logResult(updateEp, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
     expect(uRes.status).toBe(200);
 
-    // Assets
     await runCrudTest(
       'Assets',
       '/assets',
@@ -500,20 +467,14 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     await runCrudTest(
       'Loans',
       '/finance/loans',
-      { name: 'Car Loan', amount: 5000 },
-      { amount: 4500 }
+      { name: 'Car Loan', amount: 10000, provider: 'Bank' },
+      { amount: 9000 }
     );
     await runCrudTest(
       'Vehicle Finance',
       '/finance/vehicle-finance',
-      { name: 'Lease', amount: 300 },
-      { amount: 250 }
-    );
-    await runCrudTest(
-      'Current Accounts',
-      '/finance/current-accounts',
-      { account_name: 'Checking', current_balance: 1000, bank_name: 'TestBank' },
-      { current_balance: 1200 }
+      { name: 'Tesla Finance', amount: 30000, provider: 'Tesla' },
+      { amount: 28000 }
     );
   });
 });

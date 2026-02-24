@@ -18,7 +18,11 @@ import {
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/joy/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-react';
+import {
+  ClerkProvider,
+  useAuth as useClerkAuth,
+  useUser as useClerkUser,
+} from '@clerk/clerk-react';
 import pkg from '../package.json';
 
 // Theme and Local Components
@@ -74,6 +78,25 @@ const IDLE_WARNING_MS = 60 * 60 * 1000; // 1 Hour
 const IDLE_LOGOUT_MS = 120 * 60 * 1000; // 2 Hours
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+/**
+ * SAFE AUTH HOOKS (Resilient to missing ClerkProvider)
+ */
+const useAuth = () => {
+  try {
+    return useClerkAuth();
+  } catch {
+    return { getToken: () => Promise.resolve(null), isLoaded: true, isSignedIn: false };
+  }
+};
+
+const useUser = () => {
+  try {
+    return useClerkUser();
+  } catch {
+    return { isLoaded: true, isSignedIn: false, user: null };
+  }
+};
 
 const PageLoader = () => (
   <Box
@@ -652,29 +675,7 @@ export default function App() {
     onModeChange: setModePref,
   };
 
-  if (CLERK_PUBLISHABLE_KEY) {
-    return (
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-        <BrowserRouter>
-          <QueryClientProvider client={queryClient}>
-            <CssVarsProvider
-              theme={theme}
-              defaultMode="system"
-              modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
-              disableNestedContext
-            >
-              <CssBaseline />
-              <CommandBar householdId={household?.id}>
-                <AppInner {...contentProps} />
-              </CommandBar>
-            </CssVarsProvider>
-          </QueryClientProvider>
-        </BrowserRouter>
-      </ClerkProvider>
-    );
-  }
-
-  return (
+  const inner = (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <CssVarsProvider
@@ -691,4 +692,10 @@ export default function App() {
       </QueryClientProvider>
     </BrowserRouter>
   );
+
+  if (CLERK_PUBLISHABLE_KEY) {
+    return <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{inner}</ClerkProvider>;
+  }
+
+  return inner;
 }

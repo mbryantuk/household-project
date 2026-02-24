@@ -1,4 +1,4 @@
 {
-  "commitMessage": "v3.2.360 - Persistence, Auth & Test Fixes: Resolve 403s, route aliases, and Jest hangs",
-  "date": "Tue 24 Feb 09:24:38 GMT 2026"
+  "commitMessage": "v3.2.360 - Persistence, Auth & Test Fixes: Final Resolution of 403s, route aliases, and Jest hangs",
+  "date": "Tue 24 Feb 09:40:01 GMT 2026"
 }

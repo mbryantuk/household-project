@@ -74,7 +74,7 @@
           "specs": [
             {
               "title": "Dashboard Page",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -87,9 +87,36 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6728,
-                      "errors": [],
+                      "status": "timedOut",
+                      "duration": 137889,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:83:8",
+                        "location": {
+                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                          "column": 8,
+                          "line": 83
+                        },
+                        "snippet": "  81 |   };\n  82 |\n> 83 |   test.beforeEach(async ({ page }) => {\n     |        ^\n  84 |     page.on('console', logMessage);\n  85 |     page.on('pageerror', (err) => {\n  86 |       const timestamp = new Date().toISOString();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 8,
+                            "line": 83
+                          },
+                          "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  81 |   };\n  82 |\n> 83 |   test.beforeEach(async ({ page }) => {\n     |        ^\n  84 |     page.on('console', logMessage);\n  85 |     page.on('pageerror', (err) => {\n  86 |       const timestamp = new Date().toISOString();\n    at /home/matt/household-project/web/tests/smoke.spec.js:83:8"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                            "column": 16,
+                            "line": 62
+                          },
+                          "message": "Error: page.fill: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  60 |     }\n  61 |\n> 62 |     await page.fill('input[type=\"email\"]', 'mbryantuk@gmail.com');\n     |                ^\n  63 |     await page.click('button:has-text(\"Next\")');\n  64 |     await page.waitForSelector('input[type=\"password\"]');\n  65 |     await page.fill('input[type=\"password\"]', 'Password123!');\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:62:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:16"
+                        }
+                      ],
                       "stdout": [
                         {
                           "text": "Navigating to /login...\n"
@@ -106,12 +133,28 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:02.101Z",
+                      "startTime": "2026-02-24T09:33:54.858Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
+                        "column": 8,
+                        "line": 83
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
@@ -132,33 +175,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5931,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:09.546Z",
+                      "startTime": "2026-02-24T09:36:13.569Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
@@ -179,33 +209,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5775,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:15.505Z",
+                      "startTime": "2026-02-24T09:36:13.569Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
@@ -226,33 +243,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5092,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:21.333Z",
+                      "startTime": "2026-02-24T09:36:13.570Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
@@ -273,33 +277,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4761,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:26.470Z",
+                      "startTime": "2026-02-24T09:36:13.570Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
@@ -320,33 +311,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4951,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:31.262Z",
+                      "startTime": "2026-02-24T09:36:13.570Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
@@ -367,33 +345,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5107,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:36.236Z",
+                      "startTime": "2026-02-24T09:36:13.571Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
@@ -414,33 +379,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5051,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:41.362Z",
+                      "startTime": "2026-02-24T09:36:13.571Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
@@ -461,33 +413,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 7037,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:46.440Z",
+                      "startTime": "2026-02-24T09:36:13.571Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
@@ -508,33 +447,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5061,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:53.503Z",
+                      "startTime": "2026-02-24T09:36:13.571Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
@@ -555,33 +481,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4990,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:54:58.588Z",
+                      "startTime": "2026-02-24T09:36:13.572Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
@@ -602,33 +515,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5306,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:55:03.599Z",
+                      "startTime": "2026-02-24T09:36:13.572Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
@@ -649,33 +549,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5285,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:55:08.926Z",
+                      "startTime": "2026-02-24T09:36:13.572Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
@@ -696,33 +583,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4901,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-23T09:55:14.232Z",
+                      "startTime": "2026-02-24T09:36:13.573Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
@@ -743,55 +617,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 8271,
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Initial Token: MISSING\n"
-                        },
-                        {
-                          "text": "Clearing storage...\n"
-                        },
-                        {
-                          "text": "Reloading to ensure clean state...\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "steps": [
-                        {
-                          "title": "Profile Tab",
-                          "duration": 799
-                        },
-                        {
-                          "title": "Security Tab",
-                          "duration": 775
-                        },
-                        {
-                          "title": "Appearance Tab",
-                          "duration": 871
-                        },
-                        {
-                          "title": "API Tab",
-                          "duration": 755
-                        },
-                        {
-                          "title": "Admin Tab",
-                          "duration": 779
-                        }
-                      ],
-                      "startTime": "2026-02-23T09:55:19.153Z",
+                      "startTime": "2026-02-24T09:36:13.573Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "expected"
+                  "status": "skipped"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
@@ -806,11 +645,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-23T09:53:59.507Z",
-    "duration": 88027.568,
-    "expected": 15,
-    "skipped": 0,
-    "unexpected": 0,
+    "startTime": "2026-02-24T09:33:52.682Z",
+    "duration": 140909.38999999998,
+    "expected": 0,
+    "skipped": 14,
+    "unexpected": 1,
     "flaky": 0
   }
 }
