@@ -114,8 +114,10 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   });
 
   test('Calendar Page', async ({ page }) => {
-    await page.goto(`${getBaseUrl()}/calendar`, { waitUntil: 'networkidle' });
-    // Look for heading specifically
+    // Navigate via sidebar to avoid full reloads
+    const link = page.getByRole('link', { name: 'Calendar' });
+    await expect(link).toBeVisible({ timeout: 10000 });
+    await link.click();
     await expect(page.locator('h2', { hasText: 'Calendar' })).toBeVisible({ timeout: 20000 });
   });
 
