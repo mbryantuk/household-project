@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "timedOut",
-                      "duration": 137889,
+                      "duration": 120296,
                       "error": {
                         "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
                         "stack": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:83:8",
@@ -112,9 +112,9 @@
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 16,
-                            "line": 62
+                            "line": 63
                           },
-                          "message": "Error: page.fill: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"]')\u001b[22m\n\n\n  60 |     }\n  61 |\n> 62 |     await page.fill('input[type=\"email\"]', 'mbryantuk@gmail.com');\n     |                ^\n  63 |     await page.click('button:has-text(\"Next\")');\n  64 |     await page.waitForSelector('input[type=\"password\"]');\n  65 |     await page.fill('input[type=\"password\"]', 'Password123!');\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:62:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:16"
+                          "message": "Error: page.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Next\")')\u001b[22m\n\n\n  61 |\n  62 |     await page.fill('input[type=\"email\"]', 'mbryantuk@gmail.com');\n> 63 |     await page.click('button:has-text(\"Next\")');\n     |                ^\n  64 |     await page.waitForSelector('input[type=\"password\"]');\n  65 |     await page.fill('input[type=\"password\"]', 'Password123!');\n  66 |     await page.click('button:has-text(\"Log In\")');\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:63:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:16"
                         }
                       ],
                       "stdout": [
@@ -133,7 +133,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:33:54.858Z",
+                      "startTime": "2026-02-24T09:50:02.474Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -145,6 +145,11 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
@@ -183,7 +188,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.569Z",
+                      "startTime": "2026-02-24T09:52:03.640Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -217,7 +222,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.569Z",
+                      "startTime": "2026-02-24T09:52:03.642Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -251,7 +256,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.570Z",
+                      "startTime": "2026-02-24T09:52:03.642Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -285,7 +290,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.570Z",
+                      "startTime": "2026-02-24T09:52:03.642Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -319,7 +324,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.570Z",
+                      "startTime": "2026-02-24T09:52:03.642Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -353,7 +358,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.571Z",
+                      "startTime": "2026-02-24T09:52:03.643Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -387,7 +392,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.571Z",
+                      "startTime": "2026-02-24T09:52:03.643Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -421,7 +426,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.571Z",
+                      "startTime": "2026-02-24T09:52:03.644Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -455,7 +460,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.571Z",
+                      "startTime": "2026-02-24T09:52:03.644Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -489,7 +494,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.572Z",
+                      "startTime": "2026-02-24T09:52:03.645Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -523,7 +528,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.572Z",
+                      "startTime": "2026-02-24T09:52:03.645Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -557,7 +562,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.572Z",
+                      "startTime": "2026-02-24T09:52:03.645Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -591,7 +596,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.573Z",
+                      "startTime": "2026-02-24T09:52:03.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -625,7 +630,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:36:13.573Z",
+                      "startTime": "2026-02-24T09:52:03.646Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -645,8 +650,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T09:33:52.682Z",
-    "duration": 140909.38999999998,
+    "startTime": "2026-02-24T09:50:00.476Z",
+    "duration": 123188.241,
     "expected": 0,
     "skipped": 14,
     "unexpected": 1,

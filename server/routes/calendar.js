@@ -16,6 +16,27 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
 });
 
 /**
+ * GET /api/households/:id/calendar/:itemId
+ */
+router.get(
+  '/:itemId',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  (req, res) => {
+    req.tenantDb.get(
+      'SELECT * FROM dates WHERE id = ? AND household_id = ?',
+      [req.params.itemId, req.hhId],
+      (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: 'Date not found' });
+        res.json(decryptData('dates', row));
+      }
+    );
+  }
+);
+
+/**
  * POST /api/households/:id/calendar
  */
 router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
@@ -54,5 +75,64 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
     }
   );
 });
+
+/**
+ * PUT /api/households/:id/calendar/:itemId
+ */
+router.put(
+  '/:itemId',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  (req, res) => {
+    const { title, date } = req.body;
+    const updates = [];
+    const params = [];
+
+    if (title !== undefined) {
+      updates.push('title = ?');
+      params.push(title);
+    }
+    if (date !== undefined) {
+      updates.push('date = ?');
+      params.push(date);
+    }
+
+    if (updates.length === 0) return res.status(400).json({ error: 'Nothing to update' });
+
+    params.push(req.params.itemId, req.hhId);
+
+    req.tenantDb.run(
+      `UPDATE dates SET ${updates.join(', ')} WHERE id = ? AND household_id = ?`,
+      params,
+      function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ message: 'Updated' });
+      }
+    );
+  }
+);
+
+/**
+ * DELETE /api/households/:id/calendar/:itemId
+ */
+router.delete(
+  '/:itemId',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  (req, res) => {
+    req.tenantDb.run(
+      'DELETE FROM dates WHERE id = ? AND household_id = ?',
+      [req.params.itemId, req.hhId],
+      function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+        res.json({ message: 'Deleted' });
+      }
+    );
+  }
+);
 
 module.exports = router;

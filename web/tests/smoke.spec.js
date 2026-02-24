@@ -56,23 +56,24 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
         }
       });
     } catch {
-      // Ignore context destruction errors (e.g. if redirect happens fast)
+      // Ignore context destruction errors
     }
 
-    await page.fill('input[type="email"]', 'mbryantuk@gmail.com');
-    await page.click('button:has-text("Next")');
-    await page.waitForSelector('input[type="password"]');
-    await page.fill('input[type="password"]', 'Password123!');
-    await page.click('button:has-text("Log In")');
+    // INTERACT WITH LEGACY LOGIN FORM (Avoiding Clerk if present)
+    console.log('Filling legacy login form...');
+    await page.getByPlaceholder('Email').fill('mbryantuk@gmail.com');
+    await page.getByPlaceholder('Password').fill('Password123!');
+    await page.getByRole('button', { name: 'Login', exact: true }).click();
 
     await page.waitForURL(/.*(select-household|dashboard)/, { timeout: 30000 });
 
     if (page.url().includes('select-household')) {
+      console.log('Selecting Brady Bunch household...');
       await page.click('text=/The Brady Bunch/i');
       await page.waitForURL(/.*dashboard/);
     }
 
-    // Wait for dashboard to actually hydrate/settle to ensure auth is locked in
+    // Wait for dashboard to actually hydrate/settle
     await page.waitForTimeout(1000);
 
     const url = page.url();

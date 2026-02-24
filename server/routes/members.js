@@ -16,6 +16,27 @@ router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, 
 });
 
 /**
+ * GET /api/households/:id/members/:memberId
+ */
+router.get(
+  '/:memberId',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  (req, res) => {
+    req.tenantDb.get(
+      'SELECT * FROM members WHERE id = ? AND household_id = ?',
+      [req.params.memberId, req.hhId],
+      (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: 'Member not found' });
+        res.json(decryptData('members', row));
+      }
+    );
+  }
+);
+
+/**
  * POST /api/households/:id/members
  */
 router.post(
@@ -119,6 +140,7 @@ router.put(
       params,
       async function (err) {
         if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Member not found' });
 
         // AUDIT LOG
         await auditLog(
@@ -153,6 +175,7 @@ router.delete(
       [req.params.memberId, req.hhId],
       async function (err) {
         if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Member not found' });
 
         // AUDIT LOG
         await auditLog(
