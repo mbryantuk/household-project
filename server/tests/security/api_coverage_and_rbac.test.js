@@ -49,7 +49,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
 
     addStep('Initializing test environment.');
 
-    // 1. Register all users first so they exist in the 'users' table
     await request(app).post('/api/auth/register').send({
       householdName: 'Sync House',
       email: testData.admin.email,
@@ -66,14 +65,12 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       password: testData.member.password,
     });
 
-    // 2. Login Admin
     const lAdmin = await request(app)
       .post('/api/auth/login')
       .send({ email: testData.admin.email, password: testData.admin.password });
     tokens.admin = lAdmin.body.token;
     householdId = lAdmin.body.user.defaultHouseholdId || lAdmin.body.user.default_household_id;
 
-    // 3. Add Viewer and Member to Admin's Household
     await request(app)
       .post(`/api/households/${householdId}/users`)
       .set('Authorization', `Bearer ${tokens.admin}`)
@@ -83,7 +80,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .set('Authorization', `Bearer ${tokens.admin}`)
       .send({ email: testData.member.email, role: 'member' });
 
-    // 4. Login Viewer and Member to get their tokens
     const lViewer = await request(app)
       .post('/api/auth/login')
       .send({ email: testData.viewer.email, password: testData.viewer.password });
@@ -94,7 +90,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .send({ email: testData.member.email, password: testData.member.password });
     tokens.member = lMember.body.token;
 
-    // 5. Select the household for all tokens to ensure context
     await request(app)
       .post(`/api/households/${householdId}/select`)
       .set('Authorization', `Bearer ${tokens.admin}`);
@@ -113,7 +108,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         .delete(`/api/households/${householdId}`)
         .set('Authorization', `Bearer ${tokens.admin}`);
 
-    // Calculate Coverage
     const totalEndpoints = testedEndpoints.size;
     const passedEndpoints = Object.values(apiStatus).filter((s) => s === 'PASS').length;
     const failedEndpoints = Object.values(apiStatus).filter((s) => s !== 'PASS').length;
@@ -170,7 +164,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       delete: `DELETE ${fullBase}/{itemId}`,
     };
 
-    // 1. CREATE
     const cRes = await request(app)
       .post(resolvedBase)
       .set('Authorization', `Bearer ${tokens.member}`)
@@ -180,7 +173,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     expect(cRes.status).toBeLessThan(300);
     const itemId = cRes.body.id;
 
-    // 2. LIST
     testedEndpoints.add(endpoints.list);
     const lRes = await request(app)
       .get(resolvedBase)
@@ -191,7 +183,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     if (itemId) {
       const itemPath = `${resolvedBase}/${itemId}`;
 
-      // 3. READ
       if (swaggerPaths.includes(endpoints.read)) {
         testedEndpoints.add(endpoints.read);
         const iRes = await request(app)
@@ -201,7 +192,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
         expect(iRes.status).toBe(200);
       }
 
-      // 4. UPDATE
       testedEndpoints.add(endpoints.update);
       const uRes = await request(app)
         .put(itemPath)
@@ -210,7 +200,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       logResult(endpoints.update, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
       expect(uRes.status).toBe(200);
 
-      // 5. DELETE
       testedEndpoints.add(endpoints.delete);
       const dRes = await request(app)
         .delete(itemPath)
@@ -442,10 +431,11 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
 
     const updateEp = `PUT /households/{id}/details`;
     testedEndpoints.add(updateEp);
+    // USE ADMIN TOKEN FOR DETAILS UPDATE
     const uRes = await request(app)
       .put(`/api/households/${householdId}/details`)
-      .set('Authorization', `Bearer ${tokens.member}`)
-      .send({ addressStreet: '123 New St' }); // use valid field
+      .set('Authorization', `Bearer ${tokens.admin}`)
+      .send({ addressStreet: '123 New St' });
     logResult(updateEp, uRes.status === 200 ? 'PASS' : 'FAIL', uRes);
     expect(uRes.status).toBe(200);
 

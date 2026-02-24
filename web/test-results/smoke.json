@@ -87,34 +87,26 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 120296,
+                      "status": "failed",
+                      "duration": 11154,
                       "error": {
-                        "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:83:8",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    9 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    9 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n    at /home/matt/household-project/web/tests/smoke.spec.js:105:40",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 8,
-                          "line": 83
+                          "column": 40,
+                          "line": 105
                         },
-                        "snippet": "  81 |   };\n  82 |\n> 83 |   test.beforeEach(async ({ page }) => {\n     |        ^\n  84 |     page.on('console', logMessage);\n  85 |     page.on('pageerror', (err) => {\n  86 |       const timestamp = new Date().toISOString();"
+                        "snippet": "  103 |     const base = getBaseUrl();\n  104 |     await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });\n> 105 |     await expect(page.locator('body')).toBeVisible();\n      |                                        ^\n  106 |     await expect(page.locator('body')).not.toContainText('Endpoint not found');\n  107 |     await expect(page.getByText(/Good|Welcome/i).first()).toBeVisible({ timeout: 15000 });\n  108 |   });"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 8,
-                            "line": 83
+                            "column": 40,
+                            "line": 105
                           },
-                          "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  81 |   };\n  82 |\n> 83 |   test.beforeEach(async ({ page }) => {\n     |        ^\n  84 |     page.on('console', logMessage);\n  85 |     page.on('pageerror', (err) => {\n  86 |       const timestamp = new Date().toISOString();\n    at /home/matt/household-project/web/tests/smoke.spec.js:83:8"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 16,
-                            "line": 63
-                          },
-                          "message": "Error: page.click: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Next\")')\u001b[22m\n\n\n  61 |\n  62 |     await page.fill('input[type=\"email\"]', 'mbryantuk@gmail.com');\n> 63 |     await page.click('button:has-text(\"Next\")');\n     |                ^\n  64 |     await page.waitForSelector('input[type=\"password\"]');\n  65 |     await page.fill('input[type=\"password\"]', 'Password123!');\n  66 |     await page.click('button:has-text(\"Log In\")');\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:63:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:91:16"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('body')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    9 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m      - unexpected value \"hidden\"\u001b[22m\n\n\n  103 |     const base = getBaseUrl();\n  104 |     await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });\n> 105 |     await expect(page.locator('body')).toBeVisible();\n      |                                        ^\n  106 |     await expect(page.locator('body')).not.toContainText('Endpoint not found');\n  107 |     await expect(page.getByText(/Good|Welcome/i).first()).toBeVisible({ timeout: 15000 });\n  108 |   });\n    at /home/matt/household-project/web/tests/smoke.spec.js:105:40"
                         }
                       ],
                       "stdout": [
@@ -129,11 +121,14 @@
                         },
                         {
                           "text": "Reloading to ensure clean state...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:50:02.474Z",
+                      "startTime": "2026-02-24T10:05:14.856Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -145,17 +140,12 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 8,
-                        "line": 83
+                        "column": 40,
+                        "line": 105
                       }
                     }
                   ],
@@ -164,7 +154,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
-              "line": 101,
+              "line": 102,
               "column": 3
             },
             {
@@ -188,7 +178,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.640Z",
+                      "startTime": "2026-02-24T10:05:26.693Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -198,7 +188,7 @@
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
-              "line": 109,
+              "line": 110,
               "column": 3
             },
             {
@@ -222,7 +212,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.642Z",
+                      "startTime": "2026-02-24T10:05:26.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -232,7 +222,7 @@
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
-              "line": 116,
+              "line": 117,
               "column": 3
             },
             {
@@ -256,7 +246,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.642Z",
+                      "startTime": "2026-02-24T10:05:26.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -266,7 +256,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
-              "line": 123,
+              "line": 124,
               "column": 3
             },
             {
@@ -290,7 +280,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.642Z",
+                      "startTime": "2026-02-24T10:05:26.694Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -300,7 +290,7 @@
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
-              "line": 130,
+              "line": 131,
               "column": 3
             },
             {
@@ -324,7 +314,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.642Z",
+                      "startTime": "2026-02-24T10:05:26.695Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -334,7 +324,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
               "file": "smoke.spec.js",
-              "line": 137,
+              "line": 138,
               "column": 3
             },
             {
@@ -358,7 +348,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.643Z",
+                      "startTime": "2026-02-24T10:05:26.695Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -368,7 +358,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
               "file": "smoke.spec.js",
-              "line": 144,
+              "line": 145,
               "column": 3
             },
             {
@@ -392,7 +382,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.643Z",
+                      "startTime": "2026-02-24T10:05:26.696Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -402,7 +392,7 @@
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
-              "line": 154,
+              "line": 155,
               "column": 3
             },
             {
@@ -426,7 +416,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.644Z",
+                      "startTime": "2026-02-24T10:05:26.696Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -436,7 +426,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
               "file": "smoke.spec.js",
-              "line": 161,
+              "line": 162,
               "column": 3
             },
             {
@@ -460,7 +450,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.644Z",
+                      "startTime": "2026-02-24T10:05:26.696Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -470,7 +460,7 @@
               ],
               "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
               "file": "smoke.spec.js",
-              "line": 197,
+              "line": 198,
               "column": 3
             },
             {
@@ -494,7 +484,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.645Z",
+                      "startTime": "2026-02-24T10:05:26.697Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -504,7 +494,7 @@
               ],
               "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
               "file": "smoke.spec.js",
-              "line": 211,
+              "line": 212,
               "column": 3
             },
             {
@@ -528,7 +518,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.645Z",
+                      "startTime": "2026-02-24T10:05:26.697Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -538,7 +528,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
               "file": "smoke.spec.js",
-              "line": 217,
+              "line": 218,
               "column": 3
             },
             {
@@ -562,7 +552,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.645Z",
+                      "startTime": "2026-02-24T10:05:26.697Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -572,7 +562,7 @@
               ],
               "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
               "file": "smoke.spec.js",
-              "line": 223,
+              "line": 224,
               "column": 3
             },
             {
@@ -596,7 +586,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.646Z",
+                      "startTime": "2026-02-24T10:05:26.697Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -606,7 +596,7 @@
               ],
               "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
               "file": "smoke.spec.js",
-              "line": 229,
+              "line": 230,
               "column": 3
             },
             {
@@ -630,7 +620,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-24T09:52:03.646Z",
+                      "startTime": "2026-02-24T10:05:26.697Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -640,7 +630,7 @@
               ],
               "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
               "file": "smoke.spec.js",
-              "line": 235,
+              "line": 236,
               "column": 3
             }
           ]
@@ -650,8 +640,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-24T09:50:00.476Z",
-    "duration": 123188.241,
+    "startTime": "2026-02-24T10:05:12.502Z",
+    "duration": 14218.383,
     "expected": 0,
     "skipped": 14,
     "unexpected": 1,

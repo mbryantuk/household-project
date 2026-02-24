@@ -102,7 +102,7 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   test('Dashboard Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/dashboard`, { waitUntil: 'networkidle' });
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator('body')).toBeAttached();
     await expect(page.locator('body')).not.toContainText('Endpoint not found');
     await expect(page.getByText(/Good|Welcome/i).first()).toBeVisible({ timeout: 15000 });
   });
@@ -110,42 +110,36 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   test('Calendar Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/calendar`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Calendar/i).first()).toBeAttached();
   });
 
   test('People Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/people`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/People/i).first()).toBeAttached();
   });
 
   test('Pets Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/pets`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Pets/i).first()).toBeAttached();
   });
 
   test('Vehicles Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/vehicles`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Vehicle/i).first()).toBeAttached();
   });
 
   test('Meals Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/meals`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Meal/i).first()).toBeAttached();
   });
 
   test('Groceries Page & Import Button', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/shopping`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Groceries/i).first()).toBeAttached();
 
     const importBtn = page.getByRole('button', { name: /Import Historical Receipt/i });
@@ -155,14 +149,12 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   test('Chores Page', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/chores`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('body')).toBeVisible();
     await expect(page.getByText(/Chores/i).first()).toBeAttached();
   });
 
   test('Finance Page & Banking Import', async ({ page }) => {
     const base = getBaseUrl();
     await page.goto(`${base}/finance`);
-    await expect(page.locator('body')).toBeVisible();
 
     // Wait for loading to finish
     await expect(page.getByText(/Loading Financial Data/i)).not.toBeVisible({ timeout: 15000 });

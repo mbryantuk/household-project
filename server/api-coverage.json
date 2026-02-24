@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-02-24T09:49:21.940Z",
+  "timestamp": "2026-02-24T10:04:26.958Z",
   "accounts": {
-    "admin": "admin_1771926555533@test.com",
-    "viewer": "viewer_1771926555533@test.com"
+    "admin": "admin_1771927441249@test.com",
+    "viewer": "viewer_1771927441249@test.com"
   },
   "steps": [
-    "09:49:15: Loading Swagger schema for strict sync enforcement.",
-    "09:49:15: Initializing test environment.",
-    "09:49:21: Cleaning up: Deleting test household."
+    "10:04:01: Loading Swagger schema for strict sync enforcement.",
+    "10:04:01: Initializing test environment.",
+    "10:04:26: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 71,
-    "passed": 66,
-    "failed": 5,
-    "swagger_coverage_pct": "79.8"
+    "total_endpoints": 79,
+    "passed": 77,
+    "failed": 2,
+    "swagger_coverage_pct": "88.8"
   },
   "results": {
     "POST /auth/register": "PASS",
@@ -25,10 +25,13 @@
     "PUT /households/{id}": "PASS",
     "POST /households/{id}/finance/recurring-costs": "PASS",
     "GET /households/{id}/finance/recurring-costs": "PASS",
-    "PUT /households/{id}/finance/recurring-costs/{itemId}": "FAIL (404)",
+    "PUT /households/{id}/finance/recurring-costs/{itemId}": "PASS",
+    "DELETE /households/{id}/finance/recurring-costs/{itemId}": "PASS",
     "POST /households/{id}/members": "PASS",
     "GET /households/{id}/members": "PASS",
-    "GET /households/{id}/members/{itemId}": "FAIL (404)",
+    "GET /households/{id}/members/{itemId}": "PASS",
+    "PUT /households/{id}/members/{itemId}": "PASS",
+    "DELETE /households/{id}/members/{itemId}": "PASS",
     "POST /households/{id}/vehicles": "PASS",
     "GET /households/{id}/vehicles": "PASS",
     "GET /households/{id}/vehicles/{itemId}": "PASS",
@@ -63,11 +66,16 @@
     "POST /households/{id}/meals": "PASS",
     "POST /households/{id}/chores": "PASS",
     "GET /households/{id}/chores": "PASS",
-    "PUT /households/{id}/chores/{itemId}": "FAIL (404)",
+    "PUT /households/{id}/chores/{itemId}": "PASS",
+    "DELETE /households/{id}/chores/{itemId}": "PASS",
+    "POST /households/{id}/chores/{itemId}/complete": "PASS",
+    "GET /households/{id}/chores/stats": "FAIL (404)",
     "GET /system/holidays": "PASS",
     "POST /households/{id}/dates": "PASS",
     "GET /households/{id}/dates": "PASS",
-    "GET /households/{id}/dates/{itemId}": "FAIL (404)",
+    "GET /households/{id}/dates/{itemId}": "PASS",
+    "PUT /households/{id}/dates/{itemId}": "PASS",
+    "DELETE /households/{id}/dates/{itemId}": "PASS",
     "POST /households/{id}/shopping-list": "PASS",
     "GET /households/{id}/shopping-list": "PASS",
     "PUT /households/{id}/shopping-list/{itemId}": "PASS",
@@ -91,19 +99,11 @@
   "swagger_discrepancies": {
     "missing_in_swagger": [],
     "not_tested_from_swagger": [
-      "PUT /households/{id}/members/{itemId}",
-      "DELETE /households/{id}/members/{itemId}",
-      "DELETE /households/{id}/chores/{itemId}",
-      "POST /households/{id}/chores/{itemId}/complete",
-      "GET /households/{id}/chores/stats",
       "GET /households/{id}/assets",
       "POST /households/{id}/assets",
       "GET /households/{id}/assets/{itemId}",
       "PUT /households/{id}/assets/{itemId}",
       "DELETE /households/{id}/assets/{itemId}",
-      "PUT /households/{id}/dates/{itemId}",
-      "DELETE /households/{id}/dates/{itemId}",
-      "DELETE /households/{id}/finance/recurring-costs/{itemId}",
       "GET /households/{id}/finance/current-accounts",
       "POST /households/{id}/finance/current-accounts",
       "GET /households/{id}/finance/current-accounts/{itemId}",
