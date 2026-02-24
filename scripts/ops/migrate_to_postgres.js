@@ -59,6 +59,7 @@ async function migrate() {
 
     // 2. Users
     const userData = await getSqliteData('SELECT * FROM users');
+    const validUserIds = new Set(userData.map((u) => u.id));
     console.log(`👤 Found ${userData.length} users in SQLite.`);
     for (const user of userData) {
       await db
@@ -92,6 +93,10 @@ async function migrate() {
     const uhData = await getSqliteData('SELECT * FROM user_households');
     console.log(`🔗 Found ${uhData.length} user-household links in SQLite.`);
     for (const uh of uhData) {
+      if (!validUserIds.has(uh.user_id)) {
+        console.warn(`Skipping orphaned user_household link: user_id ${uh.user_id}`);
+        continue;
+      }
       await db
         .insert(userHouseholds)
         .values({

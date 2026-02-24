@@ -2,13 +2,22 @@ const jwt = require('jsonwebtoken');
 const { db } = require('../db/index');
 const { users, userSessions, userHouseholds, households } = require('../db/schema');
 const { eq, and, sql } = require('drizzle-orm');
-const { SECRET_KEY, CLERK_SECRET_KEY } = require('../config');
+const config = require('../config');
 const pkg = require('../package.json');
 const { createClerkClient } = require('@clerk/clerk-sdk-node');
 
-let clerkClient = null;
-if (CLERK_SECRET_KEY) {
-  clerkClient = createClerkClient({ secretKey: CLERK_SECRET_KEY });
+let _clerkClient = null;
+
+/**
+ * LAZY CLERK CLIENT GETTER
+ */
+function getClerkClient() {
+  if (_clerkClient) return _clerkClient;
+  if (config.CLERK_SECRET_KEY) {
+    _clerkClient = createClerkClient({ secretKey: config.CLERK_SECRET_KEY });
+    return _clerkClient;
+  }
+  return null;
 }
 
 /**
@@ -56,12 +65,12 @@ async function authenticateToken(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   // 1. Try Clerk
+  const clerkClient = getClerkClient();
   if (clerkClient) {
     try {
-      const { sessionId } = await clerkClient.verifyToken(token);
-      if (sessionId) {
-        const session = await clerkClient.sessions.getSession(sessionId);
-        const clerkUser = await clerkClient.users.getUser(session.userId);
+      const auth = await clerkClient.authenticateRequest(req);
+      if (auth.isSignedIn) {
+        const clerkUser = await clerkClient.users.getUser(auth.userId);
         const localUser = await syncClerkUser(clerkUser);
 
         req.user = {
@@ -98,12 +107,12 @@ async function authenticateToken(req, res, next) {
         return next();
       }
     } catch (err) {
-      /* fallback */
+      /* fallback if not a clerk token */
     }
   }
 
   // 2. Fallback JWT
-  jwt.verify(token, SECRET_KEY, async (err, decodedUser) => {
+  jwt.verify(token, config.SECRET_KEY, async (err, decodedUser) => {
     if (err) return res.status(403).json({ error: 'Invalid token' });
 
     try {
@@ -253,4 +262,9 @@ function requireSystemRole(role) {
   };
 }
 
-module.exports = { authenticateToken, requireHouseholdRole, requireSystemRole, SECRET_KEY };
+module.exports = {
+  authenticateToken,
+  requireHouseholdRole,
+  requireSystemRole,
+  SECRET_KEY: config.SECRET_KEY,
+};

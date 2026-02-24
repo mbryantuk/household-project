@@ -151,6 +151,7 @@ router.post('/login', async (req, res) => {
       dashboard_layout: user.dashboardLayout,
       sticky_note: user.stickyNote,
       custom_theme: user.customTheme,
+      customTheme: user.customTheme,
       mfa_enabled: user.mfaEnabled,
     };
 
@@ -230,6 +231,7 @@ router.post('/mfa/login', async (req, res) => {
       dashboard_layout: user.dashboardLayout,
       sticky_note: user.stickyNote,
       custom_theme: user.customTheme,
+      customTheme: user.customTheme,
       mfa_enabled: user.mfaEnabled,
     };
 
@@ -294,14 +296,32 @@ router.get('/profile', authenticateToken, async (req, res) => {
     const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({
-      ...user,
+      id: user.id,
+      email: user.email,
+      username: user.username,
       first_name: user.firstName,
       last_name: user.lastName,
-      dashboard_layout: user.dashboardLayout,
-      sticky_note: user.stickyNote,
-      budget_settings: user.budgetSettings,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+      theme: user.theme,
+      mode: user.mode || 'system',
       custom_theme: user.customTheme,
+      customTheme: user.customTheme,
+      dashboard_layout: user.dashboardLayout,
+      dashboardLayout: user.dashboardLayout,
+      sticky_note: user.stickyNote,
+      stickyNote: user.stickyNote,
+      mfa_enabled: !!user.mfaEnabled,
+      mfaEnabled: !!user.mfaEnabled,
       default_household_id: user.defaultHouseholdId,
+      defaultHouseholdId: user.defaultHouseholdId,
+      system_role: user.systemRole,
+      systemRole: user.systemRole,
+      last_household_id: user.lastHouseholdId,
+      lastHouseholdId: user.lastHouseholdId,
+      budget_settings: user.budgetSettings,
+      budgetSettings: user.budgetSettings,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -309,50 +329,43 @@ router.get('/profile', authenticateToken, async (req, res) => {
 });
 
 router.put('/profile', authenticateToken, async (req, res) => {
-  const {
-    email,
-    password,
-    first_name,
-    last_name,
-    avatar,
-    dashboard_layout,
-    sticky_note,
-    budget_settings,
-    theme,
-    mode,
-    custom_theme,
-    default_household_id,
-  } = req.body;
+  const b = req.body;
+  const updateObj = {};
 
-  const updates = {};
-  if (email !== undefined) updates.email = email;
-  if (password) updates.passwordHash = bcrypt.hashSync(password, 8);
-  if (first_name !== undefined) updates.firstName = first_name;
-  if (last_name !== undefined) updates.lastName = last_name;
-  if (avatar !== undefined) updates.avatar = avatar;
-  if (theme !== undefined) updates.theme = theme;
-  if (mode !== undefined) updates.mode = mode;
-  if (custom_theme !== undefined)
-    updates.customTheme =
-      typeof custom_theme === 'string' ? custom_theme : JSON.stringify(custom_theme);
-  if (sticky_note !== undefined)
-    updates.stickyNote =
-      typeof sticky_note === 'string' ? sticky_note : JSON.stringify(sticky_note);
-  if (default_household_id !== undefined) updates.defaultHouseholdId = default_household_id;
-  if (dashboard_layout !== undefined)
-    updates.dashboardLayout =
-      typeof dashboard_layout === 'string' ? dashboard_layout : JSON.stringify(dashboard_layout);
-  if (budget_settings !== undefined)
-    updates.budgetSettings =
-      typeof budget_settings === 'string' ? budget_settings : JSON.stringify(budget_settings);
+  if (b.email !== undefined) updateObj.email = b.email;
+  if (b.password) updateObj.passwordHash = bcrypt.hashSync(b.password, 8);
+  if (b.firstName !== undefined) updateObj.firstName = b.firstName;
+  if (b.first_name !== undefined) updateObj.firstName = b.first_name;
+  if (b.lastName !== undefined) updateObj.lastName = b.lastName;
+  if (b.last_name !== undefined) updateObj.lastName = b.last_name;
+  if (b.avatar !== undefined) updateObj.avatar = b.avatar;
+  if (b.theme !== undefined) updateObj.theme = b.theme;
+  if (b.mode !== undefined) updateObj.mode = b.mode;
 
-  if (Object.keys(updates).length === 0)
+  const ct = b.customTheme !== undefined ? b.customTheme : b.custom_theme;
+  if (ct !== undefined) updateObj.customTheme = typeof ct === 'string' ? ct : JSON.stringify(ct);
+
+  const sn = b.stickyNote !== undefined ? b.stickyNote : b.sticky_note;
+  if (sn !== undefined) updateObj.stickyNote = typeof sn === 'string' ? sn : JSON.stringify(sn);
+
+  if (b.defaultHouseholdId !== undefined) updateObj.defaultHouseholdId = b.defaultHouseholdId;
+  if (b.default_household_id !== undefined) updateObj.defaultHouseholdId = b.default_household_id;
+
+  const dl = b.dashboardLayout !== undefined ? b.dashboardLayout : b.dashboard_layout;
+  if (dl !== undefined)
+    updateObj.dashboardLayout = typeof dl === 'string' ? dl : JSON.stringify(dl);
+
+  const bs = b.budgetSettings !== undefined ? b.budgetSettings : b.budget_settings;
+  if (bs !== undefined) updateObj.budgetSettings = typeof bs === 'string' ? bs : JSON.stringify(bs);
+
+  if (Object.keys(updateObj).length === 0)
     return res.status(400).json({ error: 'Nothing to update' });
 
   try {
-    await db.update(users).set(updates).where(eq(users.id, req.user.id));
+    await db.update(users).set(updateObj).where(eq(users.id, req.user.id));
     res.json({ message: 'Profile updated' });
   } catch (err) {
+    console.error('[AUTH] Profile Update Error:', err);
     res.status(500).json({ error: err.message });
   }
 });

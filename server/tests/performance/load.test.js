@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, server } = require('../../server');
+const app = require('../../App');
 const { performance } = require('perf_hooks');
 
 describe('Performance & Speed Tests', () => {
@@ -53,7 +53,6 @@ describe('Performance & Speed Tests', () => {
       await request(app)
         .delete(`/admin/households/${householdId}`)
         .set('Authorization', `Bearer ${sysAdminToken}`);
-    if (server && server.close) server.close();
   });
 
   const measureSpeed = async (label, fn, iterations = 50) => {

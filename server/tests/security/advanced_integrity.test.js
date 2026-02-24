@@ -1,7 +1,7 @@
 const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
-const { app, server } = require('../../server');
+const app = require('../../App');
 
 const ADMIN_EMAIL = `integrity_admin_${Date.now()}@test.com`;
 const PASSWORD = 'Password123!';
@@ -42,7 +42,6 @@ describe('🛡️ Advanced System Integrity & Security', () => {
       await request(app)
         .delete(`/api/households/${householdId}`)
         .set('Authorization', `Bearer ${token}`);
-    if (server && server.close) server.close();
   });
 
   test('📅 Friday Rule: Creation with valid payload', async () => {

@@ -9,9 +9,14 @@ import logger from '../utils/logger';
  * This replaces the globalDb SQLite instance for core identity and tenancy.
  */
 
-const pool = new Pool({
-  connectionString: config.DATABASE_URL,
-});
+// Use a getter for the pool to ensure it uses the latest process.env values (critical for tests)
+const getPool = () => {
+  return new Pool({
+    connectionString: process.env.DATABASE_URL || config.DATABASE_URL,
+  });
+};
+
+export const pool = getPool();
 
 pool.on('error', (err) => {
   logger.error('Unexpected error on idle postgres client', err);

@@ -43,7 +43,7 @@ describe('🚀 JSON Tenant Export Verification', () => {
     expect(res.header['content-disposition']).toContain('attachment');
 
     const data = res.body;
-    expect(data.metadata.household_id).toBe(householdId.toString());
+    expect(data.metadata.household_id.toString()).toBe(householdId.toString());
     expect(data.household.name).toBe('Export JSON House');
     expect(data.users.length).toBeGreaterThan(0);
     expect(data.users[0].email).toBe(email);

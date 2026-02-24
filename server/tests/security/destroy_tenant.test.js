@@ -1,7 +1,7 @@
 const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
-const { app, server } = require('../../server');
+const app = require('../../App');
 const { globalDb, dbRun, dbGet } = require('../../db');
 
 const ADMIN_EMAIL = `destroy_test_${Date.now()}@test.com`;
@@ -58,9 +58,7 @@ describe('💣 Tenant Destruction & Cleanup', () => {
     }
   });
 
-  afterAll(async () => {
-    if (server && server.close) server.close();
-  });
+  afterAll(async () => {});
 
   test('🧨 Destroy Tenant: Regular Admin should remove all traces', async () => {
     const email = `reg_${Date.now()}@test.com`;

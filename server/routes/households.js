@@ -11,6 +11,124 @@ const {
 const { auditLog } = require('../services/audit');
 
 /**
+ * POST /api/households
+ * Create a new household. Creator becomes admin.
+ */
+router.post('/', authenticateToken, async (req, res) => {
+  const { name, currency, is_test } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [hh] = await tx
+        .insert(households)
+        .values({
+          name,
+          currency: currency || 'GBP',
+          isTest: is_test ? 1 : 0,
+        })
+        .returning();
+
+      await tx.insert(userHouseholds).values({
+        userId: req.user.id,
+        householdId: hh.id,
+        role: 'admin',
+      });
+
+      return hh;
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/households/:id
+ */
+router.get('/:id', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
+  try {
+    const [hh] = await db
+      .select()
+      .from(households)
+      .where(eq(households.id, parseInt(req.params.id)))
+      .limit(1);
+    if (!hh) return res.status(404).json({ error: 'Household not found' });
+    res.json(hh);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * PUT /api/households/:id
+ */
+router.put('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+  const { name, currency } = req.body;
+  const updates = {};
+  if (name !== undefined) updates.name = name;
+  if (currency !== undefined) updates.currency = currency;
+
+  if (Object.keys(updates).length === 0)
+    return res.status(400).json({ error: 'Nothing to update' });
+
+  try {
+    const hhId = parseInt(req.params.id);
+    await db.update(households).set(updates).where(eq(households.id, hhId));
+    res.json({ message: 'Household updated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/households/:id/backups (List)
+ */
+router.get('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+  try {
+    const { listBackups } = require('../services/backup');
+    const backups = await listBackups(req.params.id);
+    res.json(backups);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/households/:id/backups (Create)
+ */
+router.post('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+  try {
+    const { createBackup } = require('../services/backup');
+    const filename = await createBackup(req.params.id, {
+      source: 'User Triggered',
+      created_by: req.user.id,
+      exported_at: new Date().toISOString(),
+    });
+    res.json({ message: 'Backup created', filename });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * DELETE /api/households/:id
+ */
+router.delete('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+  const householdId = parseInt(req.params.id);
+  try {
+    await db.transaction(async (tx) => {
+      await tx.delete(userHouseholds).where(eq(userHouseholds.householdId, householdId));
+      await tx.delete(households).where(eq(households.id, householdId));
+    });
+    res.json({ message: 'Household deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/households/:id/select
  */
 router.post('/:id/select', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {

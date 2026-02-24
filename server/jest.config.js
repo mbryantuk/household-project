@@ -5,6 +5,7 @@ module.exports = {
     '@scalar/express-api-reference': '<rootDir>/tests/scalar-mock.js',
   },
   setupFiles: ['<rootDir>/tests/setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setupAfterEnv.js'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },

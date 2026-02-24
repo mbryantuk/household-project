@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, server } = require('../../server');
+const app = require('../../App');
 
 const ADMIN_EMAIL = `stress_admin_${Date.now()}@test.com`;
 const PASSWORD = 'Password123!';
@@ -42,7 +42,6 @@ describe('⚡ SQLite Concurrency Stress', () => {
         .delete(`/api/households/${householdId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('x-bypass-maintenance', 'true');
-    if (server && server.close) server.close();
   });
 
   test('🧬 WAL Mode Concurrency (20 Parallel Writes)', async () => {

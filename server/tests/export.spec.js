@@ -1,6 +1,6 @@
 // server/tests/export.spec.js
 const request = require('supertest');
-const { app } = require('../server');
+const app = require('../App');
 const { globalDb, dbRun } = require('../db');
 const { seedHousehold } = require('./utils');
 

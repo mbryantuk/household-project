@@ -1,46 +1,53 @@
 {
-  "timestamp": "2026-02-23T19:37:40.233Z",
+  "timestamp": "2026-02-24T00:06:15.037Z",
   "accounts": {
-    "admin": "admin_1771875460163@test.com",
-    "viewer": "viewer_1771875460163@test.com"
+    "admin": "admin_1771891573468@test.com",
+    "viewer": "viewer_1771891573468@test.com"
   },
   "steps": [
-    "19:37:40: Loading Swagger schema for strict sync enforcement.",
-    "19:37:40: Initializing test environment.",
-    "19:37:40: Cleaning up: Deleting test household."
+    "00:06:13: Loading Swagger schema for strict sync enforcement.",
+    "00:06:13: Initializing test environment.",
+    "00:06:14: Cleaning up: Deleting test household."
   ],
   "summary": {
-    "total_endpoints": 0,
-    "passed": 0,
-    "failed": 0,
-    "swagger_coverage_pct": "0.0"
+    "total_endpoints": 17,
+    "passed": 7,
+    "failed": 10,
+    "swagger_coverage_pct": "19.1"
   },
-  "results": {},
+  "results": {
+    "POST /auth/register": "PASS",
+    "POST /auth/login": "PASS",
+    "GET /auth/profile": "PASS",
+    "PUT /auth/profile": "PASS",
+    "POST /households": "PASS",
+    "GET /households/{id}": "PASS",
+    "PUT /households/{id}": "PASS",
+    "POST /households/{id}/finance/recurring-costs": "FAIL (403)",
+    "POST /households/{id}/members": "FAIL (403)",
+    "POST /households/{id}/vehicles": "FAIL (403)",
+    "POST /households/{id}/finance/income": "FAIL (403)",
+    "GET /households/{id}/meals": "FAIL (403)",
+    "POST /households/{id}/chores": "FAIL (403)",
+    "GET /system/holidays": "FAIL (404)",
+    "POST /households/{id}/shopping-list": "FAIL (403)",
+    "GET /households/{id}/details": "FAIL (403)",
+    "POST /households/{id}/finance/mortgages": "FAIL (403)"
+  },
   "swagger_discrepancies": {
     "missing_in_swagger": [],
     "not_tested_from_swagger": [
-      "POST /auth/register",
-      "POST /auth/login",
-      "GET /auth/profile",
-      "PUT /auth/profile",
-      "POST /households",
-      "GET /households/{id}",
-      "PUT /households/{id}",
-      "GET /households/{id}/details",
       "PUT /households/{id}/details",
       "GET /households/{id}/members",
-      "POST /households/{id}/members",
       "GET /households/{id}/members/{itemId}",
       "PUT /households/{id}/members/{itemId}",
       "DELETE /households/{id}/members/{itemId}",
       "GET /households/{id}/chores",
-      "POST /households/{id}/chores",
       "PUT /households/{id}/chores/{itemId}",
       "DELETE /households/{id}/chores/{itemId}",
       "POST /households/{id}/chores/{itemId}/complete",
       "GET /households/{id}/chores/stats",
       "GET /households/{id}/vehicles",
-      "POST /households/{id}/vehicles",
       "GET /households/{id}/vehicles/{itemId}",
       "PUT /households/{id}/vehicles/{itemId}",
       "DELETE /households/{id}/vehicles/{itemId}",
@@ -55,11 +62,9 @@
       "PUT /households/{id}/dates/{itemId}",
       "DELETE /households/{id}/dates/{itemId}",
       "GET /households/{id}/finance/recurring-costs",
-      "POST /households/{id}/finance/recurring-costs",
       "PUT /households/{id}/finance/recurring-costs/{itemId}",
       "DELETE /households/{id}/finance/recurring-costs/{itemId}",
       "GET /households/{id}/finance/income",
-      "POST /households/{id}/finance/income",
       "GET /households/{id}/finance/income/{itemId}",
       "PUT /households/{id}/finance/income/{itemId}",
       "DELETE /households/{id}/finance/income/{itemId}",
@@ -89,7 +94,6 @@
       "PUT /households/{id}/finance/current-accounts/{itemId}",
       "DELETE /households/{id}/finance/current-accounts/{itemId}",
       "GET /households/{id}/finance/mortgages",
-      "POST /households/{id}/finance/mortgages",
       "PUT /households/{id}/finance/mortgages/{itemId}",
       "DELETE /households/{id}/finance/mortgages/{itemId}",
       "GET /households/{id}/finance/loans",
@@ -101,12 +105,9 @@
       "PUT /households/{id}/finance/vehicle-finance/{itemId}",
       "DELETE /households/{id}/finance/vehicle-finance/{itemId}",
       "GET /households/{id}/shopping-list",
-      "POST /households/{id}/shopping-list",
       "PUT /households/{id}/shopping-list/{itemId}",
       "DELETE /households/{id}/shopping-list/{itemId}",
       "DELETE /households/{id}/shopping-list/clear",
-      "GET /system/holidays",
-      "GET /households/{id}/meals",
       "POST /households/{id}/meals"
     ]
   }

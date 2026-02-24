@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../server');
+const app = require('../App');
 const { globalDb, dbGet } = require('../db');
 
 const seedHousehold = async (name = 'Test Household') => {

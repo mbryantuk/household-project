@@ -28,6 +28,7 @@ export const users = pgTable('users', {
   stickyNote: text('sticky_note'),
   budgetSettings: text('budget_settings'),
   theme: text('theme').default('hearth'),
+  customTheme: text('custom_theme'), // PERSISTENCE FIX: Added missing custom_theme column
   mode: text('mode').default('system'),
   defaultHouseholdId: integer('default_household_id'),
   lastHouseholdId: integer('last_household_id'),

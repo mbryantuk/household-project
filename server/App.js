@@ -135,11 +135,26 @@ app.use('/api', apiRouter);
 // Scalar API Reference
 app.use('/api-docs', apiReference({ spec: { content: swaggerDocument } }));
 
-app.get('/system/status', (req, res) => {
-  globalDb.get('SELECT COUNT(*) as count FROM users', [], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ needsSetup: row.count === 0 });
-  });
+app.get('/system/status', async (req, res) => {
+  try {
+    const { db } = require('./db/index');
+    const { users } = require('./db/schema');
+    const { count } = require('drizzle-orm');
+    const [row] = await db.select({ val: count() }).from(users);
+    res.json({ needsSetup: Number(row.val) === 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/system/holidays', async (req, res) => {
+  try {
+    const { getBankHolidays } = require('./services/bankHolidays');
+    const holidays = await getBankHolidays();
+    res.json(holidays);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch holidays' });
+  }
 });
 
 // FRONTEND SERVING

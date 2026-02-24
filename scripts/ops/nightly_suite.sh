@@ -93,6 +93,7 @@ fi
 if [ "$SKIP_BACKEND" = false ]; then
     echo "🏗️  [2/6] Running Backend Tests..."
     cd "$PROJECT_ROOT/server"
+    export DATABASE_URL="postgres://hearth_user:hearth_password@127.0.0.1:5432/hearthstone"
     if npm test -- --json --outputFile=test-report.json; then
         echo "   🟢 Backend: SUCCESS"
         cd "$PROJECT_ROOT"

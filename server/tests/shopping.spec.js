@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app } = require('../server');
+const app = require('../App');
 const { globalDb } = require('../db');
 
 describe('Shopping List API', () => {

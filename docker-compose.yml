@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: hearth_user
       POSTGRES_PASSWORD: hearth_password
       POSTGRES_DB: hearthstone
+    ports:
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always

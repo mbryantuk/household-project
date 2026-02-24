@@ -31,11 +31,13 @@ const envSchema = z.object({
   INFISICAL_PROJECT_ID: z.string().optional(),
 });
 
+type ConfigType = z.infer<typeof envSchema>;
+
 /**
  * ASYNCHRONOUS SECRET LOADER
  */
 async function loadSecrets() {
-  const env = { ...process.env };
+  const env: Record<string, string | undefined> = { ...process.env };
 
   if (process.env.INFISICAL_CLIENT_ID && process.env.INFISICAL_CLIENT_SECRET) {
     try {
@@ -66,14 +68,18 @@ async function loadSecrets() {
     process.exit(1);
   }
 
+  // Update the singleton export
+  Object.assign(config, parsed.data);
   return parsed.data;
 }
 
-// Initial synchronous parse
-const config = envSchema.parse({
-  ...process.env,
-  SECRET_KEY: process.env.SECRET_KEY || 'super_secret_dev_key_must_be_long_enough',
-});
+// Initial synchronous parse for immediate module requirements
+const config = {
+  ...envSchema.parse({
+    ...process.env,
+    SECRET_KEY: process.env.SECRET_KEY || 'super_secret_dev_key_must_be_long_enough',
+  }),
+} as ConfigType;
 
 export default config;
 export { loadSecrets };
@@ -81,3 +87,4 @@ export { loadSecrets };
 // CJS compatibility
 module.exports = config;
 module.exports.loadSecrets = loadSecrets;
+module.exports.default = config;

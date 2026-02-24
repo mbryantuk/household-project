@@ -1,7 +1,7 @@
 const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
-const { app, server } = require('../../server');
+const app = require('../../App');
 
 const COV_REPORT_PATH = path.join(process.cwd(), 'api-coverage.json');
 const SWAGGER_PATH = path.join(process.cwd(), 'swagger.json');
@@ -58,7 +58,7 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .send({ email: testData.admin.email, password: testData.admin.password });
     tokens.admin = lAdmin.body.token;
 
-    householdId = lAdmin.body.user.default_household_id;
+    householdId = lAdmin.body.user.defaultHouseholdId || lAdmin.body.user.default_household_id;
     if (!householdId) {
       const hList = await request(app)
         .get('/api/auth/my-households')
@@ -72,11 +72,28 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     await request(app)
       .post(`/api/households/${householdId}/users`)
       .set('Authorization', `Bearer ${tokens.admin}`)
-      .send({ email: testData.viewer.email, role: 'viewer', password: testData.viewer.password });
+      .send({ email: testData.viewer.email, role: 'viewer' });
     await request(app)
       .post(`/api/households/${householdId}/users`)
       .set('Authorization', `Bearer ${tokens.admin}`)
-      .send({ email: testData.member.email, role: 'member', password: testData.member.password });
+      .send({ email: testData.member.email, role: 'member' });
+
+    // Explicitly create users before login if register didn't do it
+    // Wait, the POST /users endpoint in households.js uses onConflictDoUpdate,
+    // but the users must exist in the 'users' table first.
+    // The current households.js:POST /users requires the user to exist.
+    // I should register them first.
+
+    await request(app).post('/api/auth/register').send({
+      householdName: 'Viewer House',
+      email: testData.viewer.email,
+      password: testData.viewer.password,
+    });
+    await request(app).post('/api/auth/register').send({
+      householdName: 'Member House',
+      email: testData.member.email,
+      password: testData.member.password,
+    });
 
     tokens.member = (
       await request(app)
@@ -103,7 +120,6 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       await request(app)
         .delete(`/api/households/${householdId}`)
         .set('Authorization', `Bearer ${tokens.admin}`);
-    if (server && server.close) server.close();
 
     // Calculate Coverage
     const totalEndpoints = testedEndpoints.size;

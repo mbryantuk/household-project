@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, server } = require('../server');
+const app = require('../App');
 
 describe('💰 Finance Routing Verification', () => {
   let householdId;
@@ -32,7 +32,6 @@ describe('💰 Finance Routing Verification', () => {
         .delete(`/api/households/${householdId}`)
         .set('Authorization', `Bearer ${token}`);
     }
-    if (server && server.close) server.close();
   });
 
   test('GET /api/households/:id/finance/savings/pots should not return 404', async () => {

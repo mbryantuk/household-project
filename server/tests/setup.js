@@ -1,3 +1,6 @@
+process.env.DATABASE_URL =
+  process.env.DATABASE_URL || 'postgres://hearth_user:hearth_password@127.0.0.1:5432/hearthstone';
+
 jest.mock('otplib', () => ({
   authenticator: {
     generateSecret: jest.fn(() => 'KVKFKRJTJ5YFMND7'),

@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { globalDb, getHouseholdDb, dbAll, dbGet } = require('../db');
+const { getHouseholdDb, dbAll } = require('../db');
+const { db } = require('../db/index');
+const { households, users, userHouseholds } = require('../db/schema');
+const { eq } = require('drizzle-orm');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 
 /**
@@ -9,37 +12,48 @@ const { authenticateToken, requireHouseholdRole } = require('../middleware/auth'
  * Accessible by Household Admins or System Admins.
  */
 router.get('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-  const householdId = req.params.id;
+  const householdId = parseInt(req.params.id);
 
   try {
-    // 1. Fetch Global Metadata
-    const household = await dbGet(globalDb, 'SELECT * FROM households WHERE id = ?', [householdId]);
-    if (!household) return res.status(404).json({ error: 'Household not found' });
+    // 1. Fetch Global Metadata from Postgres
+    const [hh] = await db.select().from(households).where(eq(households.id, householdId)).limit(1);
+    if (!hh) return res.status(404).json({ error: 'Household not found' });
 
-    const users = await dbAll(
-      globalDb,
-      `
-            SELECT u.email, u.first_name, u.last_name, uh.role, uh.joined_at
-            FROM users u
-            JOIN user_households uh ON u.id = uh.user_id
-            WHERE uh.household_id = ?
-        `,
-      [householdId]
-    );
+    const hhUsers = await db
+      .select({
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: userHouseholds.role,
+        joinedAt: userHouseholds.joinedAt,
+      })
+      .from(users)
+      .innerJoin(userHouseholds, eq(users.id, userHouseholds.userId))
+      .where(eq(userHouseholds.householdId, householdId));
 
-    // 2. Fetch all data from the tenant database
+    // 2. Fetch all data from the tenant database (SQLite)
     const hhDb = getHouseholdDb(householdId);
 
     // Get all tables
-    const tables = await dbAll(
-      hhDb,
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-    );
+    const tables = await new Promise((resolve, reject) => {
+      hhDb.all(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
 
     const tenantData = {};
     for (const table of tables) {
       const tableName = table.name;
-      tenantData[tableName] = await dbAll(hhDb, `SELECT * FROM ${tableName}`);
+      tenantData[tableName] = await new Promise((resolve, reject) => {
+        hhDb.all(`SELECT * FROM ${tableName}`, (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
     }
 
     hhDb.close();
@@ -52,8 +66,8 @@ router.get('/:id', authenticateToken, requireHouseholdRole('admin'), async (req,
         household_id: householdId,
         source: 'Hearth Tenant Export',
       },
-      household,
-      users,
+      household: hh,
+      users: hhUsers,
       data: tenantData,
     };
 

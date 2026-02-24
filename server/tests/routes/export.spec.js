@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { globalDb, dbRun, getHouseholdDb } = require('../../db');
-const { app } = require('../../server');
+const app = require('../../App');
 const { seedHousehold } = require('../utils');
 
 describe('Export Route', () => {

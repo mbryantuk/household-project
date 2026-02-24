@@ -1,11 +1,11 @@
 {
   "name": "totem-server",
-  "version": "3.2.359",
+  "version": "3.2.361",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "NODE_ENV=test jest && npm run test:tidy",
-    "test:tidy": "node scripts/cleanup_test_data.js",
+    "test:tidy": "NODE_ENV=test node scripts/cleanup_test_data.js",
     "test:full": "NODE_ENV=test jest --config jest.config.js --verbose; npm run test:tidy",
     "test:perf": "NODE_ENV=test jest tests/performance; npm run test:tidy",
     "db:generate": "drizzle-kit generate",

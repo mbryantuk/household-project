@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db/index');
-const { users, households, testResults, versionHistory, auditLogs } = require('../db/schema');
+const {
+  users,
+  households,
+  userHouseholds,
+  testResults,
+  versionHistory,
+  auditLogs,
+} = require('../db/schema');
 const { eq, sql, desc } = require('drizzle-orm');
 const { authenticateToken, requireSystemRole } = require('../middleware/auth');
 
@@ -89,6 +96,42 @@ router.get('/version-history', async (req, res) => {
     res.json(history);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/admin/households/:id/export
+ * Admin-only trigger for full tenant export (ZIP format)
+ */
+router.get('/households/:id/export', async (req, res) => {
+  const householdId = req.params.id;
+  try {
+    const { createBackup } = require('../services/backup');
+    const filename = await createBackup(householdId, {
+      version: '1.0',
+      exported_at: new Date().toISOString(),
+      household_id: householdId,
+    });
+    res.json({ message: 'Export ready', filename });
+  } catch (err) {
+    res.status(500).json({ error: 'Export failed: ' + err.message });
+  }
+});
+
+/**
+ * DELETE /api/admin/households/:id
+ * Admin-only trigger for tenant destruction.
+ */
+router.delete('/households/:id', async (req, res) => {
+  const householdId = parseInt(req.params.id);
+  try {
+    await db.transaction(async (tx) => {
+      await tx.delete(userHouseholds).where(eq(userHouseholds.householdId, householdId));
+      await tx.delete(households).where(eq(households.id, householdId));
+    });
+    res.json({ message: 'Household destroyed' });
+  } catch (err) {
+    res.status(500).json({ error: 'Destruction failed: ' + err.message });
   }
 });
 
