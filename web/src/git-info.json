@@ -1,4 +1,4 @@
 {
-  "commitMessage": "stability: routing for pets and people, plus data-testid for headings and consistent smoke tests",
-  "date": "Tue 24 Feb 15:19:16 GMT 2026"
+  "commitMessage": "stability: added missing onboarding route and improved data-testid coverage for finance and onboarding",
+  "date": "Tue 24 Feb 15:32:08 GMT 2026"
 }

@@ -164,8 +164,9 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
   test('Onboarding Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/onboarding`, { waitUntil: 'networkidle' });
-    await expect(page.locator('role=progressbar')).not.toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Welcome to Hearthstone/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('page-loader')).not.toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('onboarding-view')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText(/Welcome to/i)).toBeVisible({ timeout: 15000 });
   });
 
   test('House Overview Page', async ({ page }) => {

@@ -261,7 +261,7 @@ export default function FinanceView() {
   // If no profiles exist, show empty state
   if (profiles.length === 0) {
     return (
-      <Box>
+      <Box data-testid="finance-view">
         <AppHeader
           title="Financial Matrix"
           description="Select a domain to manage your household wealth and liabilities."

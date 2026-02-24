@@ -199,7 +199,7 @@ export default function OnboardingWizard() {
     );
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
+    <Box data-testid="onboarding-view" sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
       <Typography level="h1" textAlign="center" mb={1}>
         Welcome to {household?.name}
       </Typography>

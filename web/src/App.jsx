@@ -61,6 +61,7 @@ const ChoresView = lazy(() => import('./features/ChoresView'));
 const AssetsView = lazy(() => import('./features/AssetsView'));
 const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'));
 const SecurityAuditView = lazy(() => import('./features/SecurityAuditView'));
+const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -500,6 +501,7 @@ function AppInner({
               <Route path="shopping" element={<ShoppingListView />} />
               <Route path="chores" element={<ChoresView />} />
               <Route path="finance" element={<FinanceView />} />
+              <Route path="onboarding" element={<OnboardingWizard />} />
               <Route
                 path="settings"
                 element={
