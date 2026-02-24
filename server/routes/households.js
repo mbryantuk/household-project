@@ -215,6 +215,32 @@ router.put('/:id/details', authenticateToken, requireHouseholdRole('admin'), asy
 });
 
 /**
+ * GET /api/households/:id/users
+ */
+router.get('/:id/users', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
+  try {
+    const results = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        avatar: users.avatar,
+        role: userHouseholds.role,
+        isActive: userHouseholds.isActive,
+        joinedAt: userHouseholds.joinedAt,
+      })
+      .from(users)
+      .innerJoin(userHouseholds, eq(users.id, userHouseholds.userId))
+      .where(eq(userHouseholds.householdId, parseInt(req.params.id)));
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * POST /api/households/:id/users
  */
 router.post('/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {

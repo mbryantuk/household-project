@@ -6,7 +6,6 @@ import {
   Stack,
   Button,
   LinearProgress,
-  Chip,
   CircularProgress,
   Avatar,
   Divider,
@@ -16,7 +15,6 @@ import {
   AccountBalance,
   Event,
   ShoppingBag,
-  DirectionsCar,
   Add,
   Payments,
   TrendingUp,
@@ -30,7 +28,9 @@ import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 
-const { WidthProvider, Responsive } = RGL;
+// Vite/ESM Compatibility Fix for react-grid-layout
+const WidthProvider = RGL.WidthProvider || RGL.default?.WidthProvider;
+const Responsive = RGL.Responsive || RGL.default?.Responsive;
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Sparkline = ({ color = '#22c55e', height = 40 }) => (

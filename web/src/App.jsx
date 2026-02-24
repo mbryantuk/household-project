@@ -28,14 +28,6 @@ import pkg from '../package.json';
 // Theme and Local Components
 import { getAppTheme, getThemeSpec } from './theme';
 import { APP_NAME } from './constants';
-import FloatingCalculator from './components/FloatingCalculator';
-import FloatingCalendar from './components/FloatingCalendar';
-import FloatingSavings from './components/FloatingSavings';
-import FloatingInvestments from './components/FloatingInvestments';
-import FloatingPensions from './components/FloatingPensions';
-import FinancialCalculator from './components/FinancialCalculator';
-import TaxCalculator from './components/TaxCalculator';
-import PostItNote from './components/PostItNote';
 import CommandBar from './components/CommandBar';
 
 // Layouts & Pages
@@ -69,7 +61,6 @@ const ChoresView = lazy(() => import('./features/ChoresView'));
 const AssetsView = lazy(() => import('./features/AssetsView'));
 const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'));
 const SecurityAuditView = lazy(() => import('./features/SecurityAuditView'));
-const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const API_BASE = window.location.origin;
 const API_URL = `${API_BASE}/api`;
@@ -83,16 +74,22 @@ const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
  * SAFE AUTH HOOKS (Resilient to missing ClerkProvider)
  */
 const useAuth = () => {
+  const hasKey = !!CLERK_PUBLISHABLE_KEY;
   try {
-    return useClerkAuth();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const auth = hasKey ? useClerkAuth() : null;
+    return auth || { getToken: () => Promise.resolve(null), isLoaded: true, isSignedIn: false };
   } catch {
     return { getToken: () => Promise.resolve(null), isLoaded: true, isSignedIn: false };
   }
 };
 
 const useUser = () => {
+  const hasKey = !!CLERK_PUBLISHABLE_KEY;
   try {
-    return useClerkUser();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const user = hasKey ? useClerkUser() : null;
+    return user || { isLoaded: true, isSignedIn: false, user: null };
   } catch {
     return { isLoaded: true, isSignedIn: false, user: null };
   }
@@ -142,7 +139,7 @@ function AppInner({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authLoaded && isSignedIn && clerkUser) {
+    if (CLERK_PUBLISHABLE_KEY && authLoaded && isSignedIn && clerkUser) {
       getToken().then((clerkToken) => {
         if (clerkToken && clerkToken !== token) {
           axios
@@ -694,7 +691,25 @@ export default function App() {
   );
 
   if (CLERK_PUBLISHABLE_KEY) {
-    return <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{inner}</ClerkProvider>;
+    return (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <CssVarsProvider
+              theme={theme}
+              defaultMode="system"
+              modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
+              disableNestedContext
+            >
+              <CssBaseline />
+              <CommandBar householdId={household?.id}>
+                <AppInner {...contentProps} />
+              </CommandBar>
+            </CssVarsProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
+      </ClerkProvider>
+    );
   }
 
   return inner;
