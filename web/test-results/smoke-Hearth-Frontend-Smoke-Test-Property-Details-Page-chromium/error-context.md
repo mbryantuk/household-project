@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic "Dashboard" [ref=e10] [cursor=pointer]: 🏠
+        - list [ref=e11]:
+          - listitem [ref=e12]:
+            - link "House" [ref=e13] [cursor=pointer]:
+              - /url: /household/732/house
+              - img [ref=e15]
+              - generic [ref=e17]: House
+        - separator [ref=e18]
+      - list [ref=e20]:
+        - listitem [ref=e21]:
+          - button "Alerts" [ref=e22] [cursor=pointer]:
+            - img [ref=e25]
+            - generic [ref=e27]: Alerts
+        - listitem [ref=e28]:
+          - link "Calendar" [ref=e29] [cursor=pointer]:
+            - /url: /household/732/calendar
+            - img [ref=e31]
+            - generic [ref=e33]: Calendar
+        - listitem [ref=e34]:
+          - link "Finance" [ref=e35] [cursor=pointer]:
+            - /url: /household/732/finance
+            - img [ref=e37]
+            - generic [ref=e39]: Finance
+        - listitem [ref=e40]:
+          - link "Groceries" [ref=e41] [cursor=pointer]:
+            - /url: /household/732/shopping
+            - img [ref=e43]
+            - generic [ref=e45]: Groceries
+        - listitem [ref=e46]:
+          - link "Chores" [ref=e47] [cursor=pointer]:
+            - /url: /household/732/chores
+            - img [ref=e49]
+            - generic [ref=e51]: Chores
+        - listitem [ref=e52]:
+          - link "Meals" [ref=e53] [cursor=pointer]:
+            - /url: /household/732/meals
+            - img [ref=e55]
+            - generic [ref=e57]: Meals
+      - generic [ref=e58]:
+        - separator [ref=e60]
+        - button "Account" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]: 🐧
+    - generic [ref=e63]:
+      - main [ref=e64]:
+        - generic [ref=e65]:
+          - heading "Failed to load household." [level=3] [ref=e66]
+          - button "Retry" [ref=e67] [cursor=pointer]
+      - generic [ref=e71]:
+        - button "Notes" [ref=e73] [cursor=pointer]:
+          - img [ref=e74]
+        - button "Calculator" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - separator
+        - button "Income" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+        - button "Banking" [ref=e85] [cursor=pointer]:
+          - img [ref=e86]
+        - button "Savings & Pots" [ref=e89] [cursor=pointer]:
+          - img [ref=e90]
+        - button "Investments" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+        - button "Pensions" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+        - button "Credit Cards" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+        - button "Personal Loans" [ref=e105] [cursor=pointer]:
+          - img [ref=e106]
+        - button "Mortgages" [ref=e110] [cursor=pointer]:
+          - img [ref=e111]
+        - button "Car Finance" [ref=e114] [cursor=pointer]:
+          - img [ref=e115]
+        - separator
+        - button "Budget Health" [ref=e118] [cursor=pointer]:
+          - img [ref=e119]
+        - button "Wealth Tracking" [ref=e122] [cursor=pointer]:
+          - img [ref=e123]
+        - separator
+        - button "Calendar" [ref=e126] [cursor=pointer]:
+          - img [ref=e127]
+```

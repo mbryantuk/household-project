@@ -509,10 +509,10 @@ export default function HouseholdDetailsView() {
     <GenericObjectView
       key={householdId}
       type="household"
-      id={householdId}
+      id="details"
       householdId={householdId}
       api={api}
-      endpoint={`/households/${householdId}/details`}
+      endpoint={`/households/${householdId}`}
       initialData={initialData}
       fields={FIELDS}
       costSegments={COST_SEGMENTS}
