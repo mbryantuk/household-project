@@ -1,4 +1,4 @@
 {
-  "commitMessage": "Fix brady seed database concurrency, resolve Swagger gaps, and patch full E2E pipelines",
-  "date": "Wed 25 Feb 21:26:25 GMT 2026"
+  "commitMessage": "fix: resolve brady seed db concurrency and swagger gaps",
+  "date": "Wed 25 Feb 21:34:47 GMT 2026"
 }
