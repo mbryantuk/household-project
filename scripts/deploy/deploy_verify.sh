@@ -76,7 +76,7 @@ fi
 
 # 3.5. System Hygiene
 echo "🧹 Cleaning up test data..."
-node server/scripts/cleanup_test_data.js
+cd server && npm run test:tidy
 
 # 4. Disk Cleanup
 echo "🧹 Reclaiming disk space..."
