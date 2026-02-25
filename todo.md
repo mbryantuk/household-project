@@ -293,3 +293,23 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 - [ ] **Item 198:** Add "Estimated Complexity" or reading time markers for extensive Audit Log deep-dives.
 - [ ] **Item 199:** Provide "Recent Searches" history directly within the Global Command Bar dropdown.
 - [ ] **Item 200:** Ensure the "Back" button behavior correctly restores scroll position when returning from a detail view to a paginated list.
+
+## Phase 14: Authentication Re-architecture (Replacing Clerk)
+
+_Goal: Remove the dependency on the third-party Clerk identity provider and implement a fully self-hosted, robust authentication system using JWTs, HTTP-only cookies, and WebAuthn (Passkeys)._
+
+### Chunk 41: Clerk Removal & Core Routing
+
+- [ ] **Item 201:** Remove Clerk SDKs from the frontend (`@clerk/clerk-react`) and backend (`@clerk/clerk-sdk-node`), along with their environment variables.
+- [ ] **Item 202:** Strip out Clerk-specific UI components (`<SignedIn>`, `<SignedOut>`, `<UserButton>`) and replace them with standard React Router guarded routes.
+- [ ] **Item 203:** Replace the Clerk Express middleware with a custom session validation middleware that verifies HTTP-only JWTs or session cookies.
+- [ ] **Item 204:** Update the `users` and `user_profiles` database schema to natively manage identities, storing securely hashed passwords (`bcrypt` or `argon2`).
+- [ ] **Item 205:** Audit the frontend API client (Axios) to remove Clerk token injection and instead rely on native cookie credentials (`withCredentials: true`).
+
+### Chunk 42: Custom Identity & Session Management
+
+- [ ] **Item 206:** Build custom Registration and Login views matching the Hearthstone Joy UI design system, replacing the Clerk hosted modals.
+- [ ] **Item 207:** Implement secure, short-lived JWT generation and a silent refresh token mechanism via HTTP-only cookies.
+- [ ] **Item 208:** Reactivate and polish the native WebAuthn (Passkeys) flow in `server/routes/auth_passkeys.js` to provide seamless passwordless login.
+- [ ] **Item 209:** Build a complete "Forgot Password" / Password Reset flow generating secure, expiring email tokens.
+- [ ] **Item 210:** Create a "Security Profile" settings page for users to manage their own passwords, revoke active sessions, and manage their passkeys directly within the app.
