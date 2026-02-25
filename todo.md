@@ -209,3 +209,87 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 ---
 
 _Updated by Gemini CLI - 2026-02-25_
+
+## Phase 13: Usability & Micro-Interactions (The "Polish" Pass)
+
+_Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility (WCAG AA) across the entire application without adding major new features._
+
+### Chunk 31: Micro-Interactions
+
+- [ ] **Item 151:** Add subtle "press" scale animations to all `AppButton` instances (scale 0.98).
+- [ ] **Item 152:** Implement "Pull to Refresh" on mobile list views (Shopping, Chores) integrating with TanStack Query.
+- [ ] **Item 153:** Add a canvas-confetti burst on completion of a major task (e.g., clearing the shopping list or zeroing a debt).
+- [ ] **Item 154:** Implement smooth height transitions when expanding/collapsing sidebar modules and accordion items.
+- [ ] **Item 155:** Add hover-sensitive "Copy to Clipboard" icons to ID fields, serial numbers, or currency values.
+
+### Chunk 32: Accessibility (a11y)
+
+- [ ] **Item 156:** Audit and ensure all "Emoji" icons have proper `aria-label` or `aria-hidden` attributes.
+- [ ] **Item 157:** Improve "Focus Visible" ring contrast across all interactive elements for keyboard navigation.
+- [ ] **Item 158:** Implement `aria-live` regions for toast notifications to ensure immediate screen reader announcement.
+- [ ] **Item 159:** Ensure all modal dialogs follow strict "Focus Trap" standards and return focus to the trigger element upon close.
+- [ ] **Item 160:** Add a hidden "Skip to Content" link for keyboard users accessible on the initial page load.
+
+### Chunk 33: Error Prevention & Feedback
+
+- [ ] **Item 161:** Add a system-wide "Unsaved Changes" browser warning when navigating away from partially filled forms.
+- [ ] **Item 162:** Implement a floating "Undo" toast for destructive actions (Delete item/Clear list) that delays the DB commit by 5 seconds.
+- [ ] **Item 163:** Add strict inline validation for currency inputs to visually block negative values where inappropriate.
+- [ ] **Item 164:** Implement "Duplicate Detection" warnings when adding an item that already exists (e.g., Shopping list item or recurring cost name).
+- [ ] **Item 165:** Show a "Network Offline" banner immediately when connectivity is lost (beyond the full-page offline overlay).
+
+### Chunk 34: Form Ergonomics
+
+- [ ] **Item 166:** Auto-focus the first empty input field in any newly opened modal or slide-over drawer.
+- [ ] **Item 167:** Implement intelligent "Input Masks" for specific formats (Phone numbers, Date of Birth, Sort Codes).
+- [ ] **Item 168:** Add a quick "Clear" (X) button to the right side of all search and filter inputs.
+- [ ] **Item 169:** Enable "Enter to Submit" functionality on all single-field forms or modal dialogs.
+- [ ] **Item 170:** Implement numeric-only keyboards (`inputMode="decimal"`) that trigger automatically for price/quantity fields on mobile.
+
+### Chunk 35: Cognitive Load Reduction
+
+- [ ] **Item 171:** Replace raw timestamps with "Relative Time" (e.g., '2 mins ago', 'yesterday') for recent activity and audit logs.
+- [ ] **Item 172:** Add contextual 'Tooltips' explaining complex financial terms (e.g., "AER", "Depreciation") in the Finance view.
+- [ ] **Item 173:** Collapse "Advanced" or less frequently used options by default in complex forms (e.g., Asset details).
+- [ ] **Item 174:** Implement "Search Highlighting" where the matching text snippet is bolded in the Command Bar and list filters.
+- [ ] **Item 175:** Standardize "Module Headers" to ensure Page Title, Subtitle, and Primary Actions are exactly in the same DOM position across all views.
+
+### Chunk 36: Responsive Layout & Mobile
+
+- [ ] **Item 176:** Optimize touch target padding for `Select` options and list actions (minimum 44x44px).
+- [ ] **Item 177:** Implement sticky action bars (`Save`/`Cancel`) for long forms on mobile to prevent excessive scrolling.
+- [ ] **Item 178:** Add swipable actions (e.g., Swipe right to complete, swipe left to delete) on mobile list items.
+- [ ] **Item 179:** Ensure deep navigation breadcrumbs truncate correctly with an ellipsis (`...`) on narrow screens.
+- [ ] **Item 180:** Use `bottom-sheet` style drawers instead of center-aligned modals for mobile data entry.
+
+### Chunk 37: Performance Perception
+
+- [ ] **Item 181:** Implement skeleton loading states specifically for individual dashboard widgets during their initial data fetch.
+- [ ] **Item 182:** Add a subtle pulsing animation to "Optimistic UI" elements while they wait for the background server sync to complete.
+- [ ] **Item 183:** Disable "Submit" buttons instantly when clicked and show a loading spinner inline to prevent double-clicks.
+- [ ] **Item 184:** Add a non-blocking "Slow Connection" toast hint if a critical API request takes longer than 3 seconds to resolve.
+- [ ] **Item 185:** Pre-load the Javascript/CSS chunks for adjacent pages (e.g., pre-fetch Finance module when hovering its sidebar link).
+
+### Chunk 38: Smart Defaults & Assistance
+
+- [ ] **Item 186:** Implement "Smart Defaults" for date pickers (e.g., defaulting to the nearest upcoming weekend for chore scheduling).
+- [ ] **Item 187:** Group related form fields into visual "Sections" with subtle divider lines and clear subheaders.
+- [ ] **Item 188:** Auto-fill common fields based on context (e.g., automatically setting the "Provider" dropdown based on the uploaded receipt logo).
+- [ ] **Item 189:** Provide "Select All" / "Deselect All" master toggles for bulk operations on long lists.
+- [ ] **Item 190:** Add +/- stepper controls to quantity inputs on mobile, minimizing the need to open the numeric keyboard.
+
+### Chunk 39: UI Polish & Consistency
+
+- [ ] **Item 191:** Support the `prefers-reduced-motion` media query to instantly disable all UI transitions/animations for sensitive users.
+- [ ] **Item 192:** Ensure the contrast of all "Secondary" or "Muted" text meets the strict WCAG AA (4.5:1) requirement across all 100 themes.
+- [ ] **Item 193:** Add descriptive SR-only text to "Icon-only" buttons (e.g., Trash can, Edit pencil) to clarify their action.
+- [ ] **Item 194:** Implement a "Scroll to Top" floating button on long vertical lists (like the transaction ledger).
+- [ ] **Item 195:** Add a temporary "Newly Added" highlight (e.g., background flashes light blue then fades) when an item is added to a list.
+
+### Chunk 40: Navigation & Context
+
+- [ ] **Item 196:** Add a keyboard shortcut (e.g., `N`) to trigger the "New Item" modal for the currently active view, visible via a tooltip.
+- [ ] **Item 197:** Group "Settings" visually into categories (Security, Profile, Preferences) rather than a single monolithic list.
+- [ ] **Item 198:** Add "Estimated Complexity" or reading time markers for extensive Audit Log deep-dives.
+- [ ] **Item 199:** Provide "Recent Searches" history directly within the Global Command Bar dropdown.
+- [ ] **Item 200:** Ensure the "Back" button behavior correctly restores scroll position when returning from a detail view to a paginated list.
