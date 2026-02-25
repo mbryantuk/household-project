@@ -26,315 +26,9 @@
     "unmatched": 0,
     "updated": 0
   },
-  "startTime": 1771968241279,
+  "startTime": 1771977936827,
   "success": false,
   "testResults": [
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 2,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968243450,
-        "loadTestEnvironmentEnd": 1771968241336,
-        "loadTestEnvironmentStart": 1771968241295,
-        "runtime": 2112,
-        "setupAfterEnvEnd": 1771968242058,
-        "setupAfterEnvStart": 1771968241635,
-        "setupFilesEnd": 1771968241364,
-        "setupFilesStart": 1771968241338,
-        "slow": false,
-        "start": 1771968241338
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/routes/admin_audit.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Admin Audit Log API (Pagination)"
-          ],
-          "duration": 42,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Admin Audit Log API (Pagination) should list audit logs with default limit",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968243346,
-          "status": "passed",
-          "title": "should list audit logs with default limit"
-        },
-        {
-          "ancestorTitles": [
-            "Admin Audit Log API (Pagination)"
-          ],
-          "duration": 49,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Admin Audit Log API (Pagination) should support pagination with limit and cursor",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 7,
-          "retryReasons": [],
-          "startAt": 1771968243390,
-          "status": "passed",
-          "title": "should support pagination with limit and cursor"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 12,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968248392,
-        "loadTestEnvironmentEnd": 1771968243531,
-        "loadTestEnvironmentStart": 1771968243526,
-        "runtime": 4860,
-        "setupAfterEnvEnd": 1771968243991,
-        "setupAfterEnvStart": 1771968243716,
-        "setupFilesEnd": 1771968243533,
-        "setupFilesStart": 1771968243532,
-        "slow": false,
-        "start": 1771968243532
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 139,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication & Setup",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968245011,
-          "status": "passed",
-          "title": "🔑 Authentication & Setup"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 69,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Household Management",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 3,
-          "retryReasons": [],
-          "startAt": 1771968245152,
-          "status": "passed",
-          "title": "🏠 Household Management"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 374,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968245222,
-          "status": "passed",
-          "title": "🔄 Module: Recurring Costs (Consolidated)"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 207,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968245596,
-          "status": "passed",
-          "title": "👥 Module: People"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 178,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968245804,
-          "status": "passed",
-          "title": "🚗 Module: Vehicles"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 885,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 20,
-          "retryReasons": [],
-          "startAt": 1771968245982,
-          "status": "passed",
-          "title": "💰 Module: Finance (Core)"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 110,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "startAt": 1771968246868,
-          "status": "passed",
-          "title": "🍱 Module: Meals"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 189,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🧹 Module: Chores",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "startAt": 1771968246979,
-          "status": "passed",
-          "title": "🧹 Module: Chores"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 279,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 📅 Module: Calendar",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "startAt": 1771968247169,
-          "status": "passed",
-          "title": "📅 Module: Calendar"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 205,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🛒 Module: Shopping",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 5,
-          "retryReasons": [],
-          "startAt": 1771968247448,
-          "status": "passed",
-          "title": "🛒 Module: Shopping"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 193,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Module: House Details",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 6,
-          "retryReasons": [],
-          "startAt": 1771968247654,
-          "status": "passed",
-          "title": "🏠 Module: House Details"
-        },
-        {
-          "ancestorTitles": [
-            "🛡️ Comprehensive Backend API & RBAC Verification"
-          ],
-          "duration": 515,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏦 Module: Finance (Extended)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 12,
-          "retryReasons": [],
-          "startAt": 1771968247847,
-          "status": "passed",
-          "title": "🏦 Module: Finance (Extended)"
-        }
-      ],
-      "failureMessage": null
-    },
     {
       "leaks": false,
       "numFailingTests": 0,
@@ -343,16 +37,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968253649,
-        "loadTestEnvironmentEnd": 1771968248671,
-        "loadTestEnvironmentStart": 1771968248666,
-        "runtime": 4977,
-        "setupAfterEnvEnd": 1771968249201,
-        "setupAfterEnvStart": 1771968248848,
-        "setupFilesEnd": 1771968248673,
-        "setupFilesStart": 1771968248672,
-        "slow": false,
-        "start": 1771968248672
+        "end": 1771977946787,
+        "loadTestEnvironmentEnd": 1771977936904,
+        "loadTestEnvironmentStart": 1771977936847,
+        "runtime": 9881,
+        "setupAfterEnvEnd": 1771977938023,
+        "setupAfterEnvStart": 1771977937269,
+        "setupFilesEnd": 1771977936967,
+        "setupFilesStart": 1771977936906,
+        "slow": true,
+        "start": 1771977936906
       },
       "skipped": false,
       "snapshot": {
@@ -370,7 +64,7 @@
           "ancestorTitles": [
             "👪 Master Seed: The Brady Bunch"
           ],
-          "duration": 3745,
+          "duration": 7242,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -379,9 +73,247 @@
           "location": null,
           "numPassingAsserts": 14,
           "retryReasons": [],
-          "startAt": 1771968249895,
+          "startAt": 1771977939535,
           "status": "passed",
           "title": "Should successfully seed the entire Brady Bunch household via API"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 12,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977954062,
+        "loadTestEnvironmentEnd": 1771977946862,
+        "loadTestEnvironmentStart": 1771977946857,
+        "runtime": 7199,
+        "setupAfterEnvEnd": 1771977947299,
+        "setupAfterEnvStart": 1771977947015,
+        "setupFilesEnd": 1771977946864,
+        "setupFilesStart": 1771977946863,
+        "slow": true,
+        "start": 1771977946863
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/security/api_coverage_and_rbac.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 288,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔑 Authentication & Setup",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "startAt": 1771977948908,
+          "status": "passed",
+          "title": "🔑 Authentication & Setup"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 324,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Household Management",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 3,
+          "retryReasons": [],
+          "startAt": 1771977949197,
+          "status": "passed",
+          "title": "🏠 Household Management"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 2256,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🔄 Module: Recurring Costs (Consolidated)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "startAt": 1771977949522,
+          "status": "passed",
+          "title": "🔄 Module: Recurring Costs (Consolidated)"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 180,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 👥 Module: People",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "startAt": 1771977951778,
+          "status": "passed",
+          "title": "👥 Module: People"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 145,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🚗 Module: Vehicles",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "startAt": 1771977951959,
+          "status": "passed",
+          "title": "🚗 Module: Vehicles"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 711,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 💰 Module: Finance (Core)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 20,
+          "retryReasons": [],
+          "startAt": 1771977952104,
+          "status": "passed",
+          "title": "💰 Module: Finance (Core)"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 64,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🍱 Module: Meals",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1771977952815,
+          "status": "passed",
+          "title": "🍱 Module: Meals"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 157,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🧹 Module: Chores",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "startAt": 1771977952879,
+          "status": "passed",
+          "title": "🧹 Module: Chores"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 250,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 📅 Module: Calendar",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "startAt": 1771977953036,
+          "status": "passed",
+          "title": "📅 Module: Calendar"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 173,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🛒 Module: Shopping",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "startAt": 1771977953287,
+          "status": "passed",
+          "title": "🛒 Module: Shopping"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 163,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏠 Module: House Details",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 6,
+          "retryReasons": [],
+          "startAt": 1771977953461,
+          "status": "passed",
+          "title": "🏠 Module: House Details"
+        },
+        {
+          "ancestorTitles": [
+            "🛡️ Comprehensive Backend API & RBAC Verification"
+          ],
+          "duration": 417,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🛡️ Comprehensive Backend API & RBAC Verification 🏦 Module: Finance (Extended)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 12,
+          "retryReasons": [],
+          "startAt": 1771977953624,
+          "status": "passed",
+          "title": "🏦 Module: Finance (Extended)"
         }
       ],
       "failureMessage": null
@@ -394,16 +326,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968255997,
-        "loadTestEnvironmentEnd": 1771968253661,
-        "loadTestEnvironmentStart": 1771968253657,
-        "runtime": 2336,
-        "setupAfterEnvEnd": 1771968254088,
-        "setupAfterEnvStart": 1771968253838,
-        "setupFilesEnd": 1771968253662,
-        "setupFilesStart": 1771968253661,
-        "slow": false,
-        "start": 1771968253661
+        "end": 1771977959672,
+        "loadTestEnvironmentEnd": 1771977954138,
+        "loadTestEnvironmentStart": 1771977954134,
+        "runtime": 5534,
+        "setupAfterEnvEnd": 1771977954565,
+        "setupAfterEnvStart": 1771977954276,
+        "setupFilesEnd": 1771977954139,
+        "setupFilesStart": 1771977954138,
+        "slow": true,
+        "start": 1771977954138
       },
       "skipped": false,
       "snapshot": {
@@ -421,7 +353,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 259,
+          "duration": 3377,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -430,7 +362,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968254784,
+          "startAt": 1771977955446,
           "status": "passed",
           "title": "should add a shopping item"
         },
@@ -438,7 +370,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 95,
+          "duration": 80,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -447,7 +379,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968255044,
+          "startAt": 1771977958824,
           "status": "passed",
           "title": "should list shopping items and calculate budget"
         },
@@ -455,7 +387,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 103,
+          "duration": 85,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -464,7 +396,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968255139,
+          "startAt": 1771977958905,
           "status": "passed",
           "title": "should update an item"
         },
@@ -481,7 +413,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968255243,
+          "startAt": 1771977958991,
           "status": "passed",
           "title": "should delete an item"
         },
@@ -489,7 +421,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 236,
+          "duration": 218,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -498,7 +430,7 @@
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
-          "startAt": 1771968255344,
+          "startAt": 1771977959093,
           "status": "passed",
           "title": "should NOT see items from another household (Tenancy Rule)"
         },
@@ -506,7 +438,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 223,
+          "duration": 206,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -515,7 +447,7 @@
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
-          "startAt": 1771968255581,
+          "startAt": 1771977959311,
           "status": "passed",
           "title": "should clear checked items"
         },
@@ -523,7 +455,7 @@
           "ancestorTitles": [
             "Shopping List API"
           ],
-          "duration": 187,
+          "duration": 150,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -532,9 +464,77 @@
           "location": null,
           "numPassingAsserts": 5,
           "retryReasons": [],
-          "startAt": 1771968255804,
+          "startAt": 1771977959517,
           "status": "passed",
           "title": "should perform bulk actions (Item 108)"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 2,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977960822,
+        "loadTestEnvironmentEnd": 1771977959680,
+        "loadTestEnvironmentStart": 1771977959677,
+        "runtime": 1141,
+        "setupAfterEnvEnd": 1771977960082,
+        "setupAfterEnvStart": 1771977959817,
+        "setupFilesEnd": 1771977959681,
+        "setupFilesStart": 1771977959681,
+        "slow": false,
+        "start": 1771977959681
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/routes/admin_audit.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Admin Audit Log API (Pagination)"
+          ],
+          "duration": 34,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Audit Log API (Pagination) should list audit logs with default limit",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 4,
+          "retryReasons": [],
+          "startAt": 1771977960738,
+          "status": "passed",
+          "title": "should list audit logs with default limit"
+        },
+        {
+          "ancestorTitles": [
+            "Admin Audit Log API (Pagination)"
+          ],
+          "duration": 41,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Admin Audit Log API (Pagination) should support pagination with limit and cursor",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 7,
+          "retryReasons": [],
+          "startAt": 1771977960773,
+          "status": "passed",
+          "title": "should support pagination with limit and cursor"
         }
       ],
       "failureMessage": null
@@ -547,16 +547,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968257665,
-        "loadTestEnvironmentEnd": 1771968256008,
-        "loadTestEnvironmentStart": 1771968256004,
-        "runtime": 1657,
-        "setupAfterEnvEnd": 1771968256429,
-        "setupAfterEnvStart": 1771968256171,
-        "setupFilesEnd": 1771968256009,
-        "setupFilesStart": 1771968256008,
+        "end": 1771977962467,
+        "loadTestEnvironmentEnd": 1771977960831,
+        "loadTestEnvironmentStart": 1771977960827,
+        "runtime": 1636,
+        "setupAfterEnvEnd": 1771977961226,
+        "setupAfterEnvStart": 1771977960963,
+        "setupFilesEnd": 1771977960832,
+        "setupFilesStart": 1771977960831,
         "slow": false,
-        "start": 1771968256008
+        "start": 1771977960831
       },
       "skipped": false,
       "snapshot": {
@@ -574,7 +574,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 109,
+          "duration": 110,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -583,7 +583,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968256938,
+          "startAt": 1771977961791,
           "status": "passed",
           "title": "should measure login speed (Heavy Bcrypt)"
         },
@@ -591,7 +591,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 106,
+          "duration": 95,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -600,7 +600,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968257048,
+          "startAt": 1771977961902,
           "status": "passed",
           "title": "should measure GET assets speed (Plain Read)"
         },
@@ -608,7 +608,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 102,
+          "duration": 92,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -617,7 +617,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968257154,
+          "startAt": 1771977961998,
           "status": "passed",
           "title": "should measure GET finance savings speed (Decryption Overhead)"
         },
@@ -625,7 +625,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 46,
+          "duration": 36,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -634,7 +634,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968257256,
+          "startAt": 1771977962091,
           "status": "passed",
           "title": "should measure POST asset speed (Plain Write)"
         },
@@ -642,7 +642,7 @@
           "ancestorTitles": [
             "Performance & Speed Tests"
           ],
-          "duration": 357,
+          "duration": 334,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -651,60 +651,9 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968257302,
+          "startAt": 1771977962127,
           "status": "passed",
           "title": "should handle \"Load\" (Concurrent requests)"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 1,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968259114,
-        "loadTestEnvironmentEnd": 1771968257679,
-        "loadTestEnvironmentStart": 1771968257675,
-        "runtime": 1434,
-        "setupAfterEnvEnd": 1771968258117,
-        "setupAfterEnvStart": 1771968257853,
-        "setupFilesEnd": 1771968257680,
-        "setupFilesStart": 1771968257680,
-        "slow": false,
-        "start": 1771968257680
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "⚡ SQLite Concurrency Stress"
-          ],
-          "duration": 333,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "startAt": 1771968258737,
-          "status": "passed",
-          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
         }
       ],
       "failureMessage": null
@@ -717,16 +666,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968260785,
-        "loadTestEnvironmentEnd": 1771968259131,
-        "loadTestEnvironmentStart": 1771968259126,
-        "runtime": 1653,
-        "setupAfterEnvEnd": 1771968259566,
-        "setupAfterEnvStart": 1771968259304,
-        "setupFilesEnd": 1771968259132,
-        "setupFilesStart": 1771968259132,
+        "end": 1771977965720,
+        "loadTestEnvironmentEnd": 1771977962489,
+        "loadTestEnvironmentStart": 1771977962483,
+        "runtime": 3231,
+        "setupAfterEnvEnd": 1771977962881,
+        "setupAfterEnvStart": 1771977962627,
+        "setupFilesEnd": 1771977962490,
+        "setupFilesStart": 1771977962489,
         "slow": false,
-        "start": 1771968259132
+        "start": 1771977962489
       },
       "skipped": false,
       "snapshot": {
@@ -744,7 +693,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 253,
+          "duration": 2022,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -753,7 +702,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968260304,
+          "startAt": 1771977963509,
           "status": "passed",
           "title": "📅 Friday Rule: Creation with valid payload"
         },
@@ -761,7 +710,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 127,
+          "duration": 106,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -770,7 +719,7 @@
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
-          "startAt": 1771968260558,
+          "startAt": 1771977965532,
           "status": "passed",
           "title": "♻️ Idempotency: Duplicate creation check"
         },
@@ -778,7 +727,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 22,
+          "duration": 21,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -787,7 +736,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968260686,
+          "startAt": 1771977965639,
           "status": "passed",
           "title": "🛑 Security: Path Traversal prevention"
         },
@@ -795,7 +744,7 @@
           "ancestorTitles": [
             "🛡️ Advanced System Integrity & Security"
           ],
-          "duration": 44,
+          "duration": 41,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -804,77 +753,9 @@
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
-          "startAt": 1771968260709,
+          "startAt": 1771977965661,
           "status": "passed",
           "title": "💾 Integrity: Backup Trigger"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 2,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968262296,
-        "loadTestEnvironmentEnd": 1771968260803,
-        "loadTestEnvironmentStart": 1771968260795,
-        "runtime": 1493,
-        "setupAfterEnvEnd": 1771968261251,
-        "setupAfterEnvStart": 1771968260998,
-        "setupFilesEnd": 1771968260805,
-        "setupFilesStart": 1771968260803,
-        "slow": false,
-        "start": 1771968260803
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
-          ],
-          "duration": 47,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 10,
-          "retryReasons": [],
-          "startAt": 1771968262133,
-          "status": "passed",
-          "title": "GET /api/export/:id should return a full JSON package"
-        },
-        {
-          "ancestorTitles": [
-            "🚀 JSON Tenant Export Verification"
-          ],
-          "duration": 109,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "startAt": 1771968262181,
-          "status": "passed",
-          "title": "Unauthorized user should not be able to export"
         }
       ],
       "failureMessage": null
@@ -887,16 +768,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968263887,
-        "loadTestEnvironmentEnd": 1771968262319,
-        "loadTestEnvironmentStart": 1771968262313,
-        "runtime": 1567,
-        "setupAfterEnvEnd": 1771968262755,
-        "setupAfterEnvStart": 1771968262491,
-        "setupFilesEnd": 1771968262321,
-        "setupFilesStart": 1771968262320,
+        "end": 1771977970375,
+        "loadTestEnvironmentEnd": 1771977965730,
+        "loadTestEnvironmentStart": 1771977965725,
+        "runtime": 4645,
+        "setupAfterEnvEnd": 1771977966101,
+        "setupAfterEnvStart": 1771977965867,
+        "setupFilesEnd": 1771977965730,
+        "setupFilesStart": 1771977965730,
         "slow": false,
-        "start": 1771968262320
+        "start": 1771977965730
       },
       "skipped": false,
       "snapshot": {
@@ -914,7 +795,7 @@
           "ancestorTitles": [
             "💰 Finance Routing Verification"
           ],
-          "duration": 260,
+          "duration": 3305,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -923,7 +804,7 @@
           "location": null,
           "numPassingAsserts": 2,
           "retryReasons": [],
-          "startAt": 1771968263390,
+          "startAt": 1771977966867,
           "status": "passed",
           "title": "GET /api/households/:id/finance/savings/pots should not return 404"
         },
@@ -931,7 +812,7 @@
           "ancestorTitles": [
             "💰 Finance Routing Verification"
           ],
-          "duration": 154,
+          "duration": 140,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -940,7 +821,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968263651,
+          "startAt": 1771977970173,
           "status": "passed",
           "title": "GET /api/households/:id/finance/savings/:itemId should still work for valid items"
         },
@@ -948,7 +829,7 @@
           "ancestorTitles": [
             "💰 Finance Routing Verification"
           ],
-          "duration": 61,
+          "duration": 43,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -957,7 +838,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968263806,
+          "startAt": 1771977970314,
           "status": "passed",
           "title": "GET /api/households/:id/finance/savings/999999 should return 404"
         }
@@ -972,16 +853,135 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968265260,
-        "loadTestEnvironmentEnd": 1771968263900,
-        "loadTestEnvironmentStart": 1771968263895,
-        "runtime": 1359,
-        "setupAfterEnvEnd": 1771968264316,
-        "setupAfterEnvStart": 1771968264075,
-        "setupFilesEnd": 1771968263902,
-        "setupFilesStart": 1771968263901,
+        "end": 1771977974954,
+        "loadTestEnvironmentEnd": 1771977970386,
+        "loadTestEnvironmentStart": 1771977970381,
+        "runtime": 4567,
+        "setupAfterEnvEnd": 1771977970779,
+        "setupAfterEnvStart": 1771977970533,
+        "setupFilesEnd": 1771977970387,
+        "setupFilesStart": 1771977970387,
         "slow": false,
-        "start": 1771968263901
+        "start": 1771977970387
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/export_json.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "🚀 JSON Tenant Export Verification"
+          ],
+          "duration": 37,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 JSON Tenant Export Verification GET /api/export/:id should return a full JSON package",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 10,
+          "retryReasons": [],
+          "startAt": 1771977974800,
+          "status": "passed",
+          "title": "GET /api/export/:id should return a full JSON package"
+        },
+        {
+          "ancestorTitles": [
+            "🚀 JSON Tenant Export Verification"
+          ],
+          "duration": 112,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "🚀 JSON Tenant Export Verification Unauthorized user should not be able to export",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1771977974838,
+          "status": "passed",
+          "title": "Unauthorized user should not be able to export"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977977374,
+        "loadTestEnvironmentEnd": 1771977974964,
+        "loadTestEnvironmentStart": 1771977974960,
+        "runtime": 2410,
+        "setupAfterEnvEnd": 1771977975347,
+        "setupAfterEnvStart": 1771977975092,
+        "setupFilesEnd": 1771977974965,
+        "setupFilesStart": 1771977974964,
+        "slow": false,
+        "start": 1771977974964
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/performance/concurrency.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "⚡ SQLite Concurrency Stress"
+          ],
+          "duration": 591,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "⚡ SQLite Concurrency Stress 🧬 WAL Mode Concurrency (20 Parallel Writes)",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1771977976085,
+          "status": "passed",
+          "title": "🧬 WAL Mode Concurrency (20 Parallel Writes)"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 2,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977979135,
+        "loadTestEnvironmentEnd": 1771977977386,
+        "loadTestEnvironmentStart": 1771977977381,
+        "runtime": 1749,
+        "setupAfterEnvEnd": 1771977977767,
+        "setupAfterEnvStart": 1771977977525,
+        "setupFilesEnd": 1771977977387,
+        "setupFilesStart": 1771977977386,
+        "slow": false,
+        "start": 1771977977386
       },
       "skipped": false,
       "snapshot": {
@@ -999,7 +999,7 @@
           "ancestorTitles": [
             "💣 Tenant Destruction & Cleanup"
           ],
-          "duration": 139,
+          "duration": 273,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1008,7 +1008,7 @@
           "location": null,
           "numPassingAsserts": 4,
           "retryReasons": [],
-          "startAt": 1771968265043,
+          "startAt": 1771977978675,
           "status": "passed",
           "title": "🧨 Destroy Tenant: Regular Admin should remove all traces"
         },
@@ -1016,7 +1016,7 @@
           "ancestorTitles": [
             "💣 Tenant Destruction & Cleanup"
           ],
-          "duration": 70,
+          "duration": 179,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1025,7 +1025,7 @@
           "location": null,
           "numPassingAsserts": 5,
           "retryReasons": [],
-          "startAt": 1771968265183,
+          "startAt": 1771977978949,
           "status": "passed",
           "title": "👑 Destroy Tenant: System Admin should be able to destroy ANY household"
         }
@@ -1040,16 +1040,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968266630,
-        "loadTestEnvironmentEnd": 1771968265272,
-        "loadTestEnvironmentStart": 1771968265267,
-        "runtime": 1358,
-        "setupAfterEnvEnd": 1771968265662,
-        "setupAfterEnvStart": 1771968265437,
-        "setupFilesEnd": 1771968265273,
-        "setupFilesStart": 1771968265272,
+        "end": 1771977980498,
+        "loadTestEnvironmentEnd": 1771977979145,
+        "loadTestEnvironmentStart": 1771977979141,
+        "runtime": 1353,
+        "setupAfterEnvEnd": 1771977979527,
+        "setupAfterEnvStart": 1771977979286,
+        "setupFilesEnd": 1771977979146,
+        "setupFilesStart": 1771977979145,
         "slow": false,
-        "start": 1771968265272
+        "start": 1771977979145
       },
       "skipped": false,
       "snapshot": {
@@ -1067,7 +1067,7 @@
           "ancestorTitles": [
             "Immutable Audit Logging"
           ],
-          "duration": 300,
+          "duration": 259,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1076,7 +1076,7 @@
           "location": null,
           "numPassingAsserts": 4,
           "retryReasons": [],
-          "startAt": 1771968266234,
+          "startAt": 1771977980137,
           "status": "passed",
           "title": "should log a MEMBER_CREATE action"
         },
@@ -1084,7 +1084,7 @@
           "ancestorTitles": [
             "Immutable Audit Logging"
           ],
-          "duration": 86,
+          "duration": 96,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1093,7 +1093,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968266535,
+          "startAt": 1771977980397,
           "status": "passed",
           "title": "should log a MEMBER_UPDATE action"
         }
@@ -1108,16 +1108,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968267852,
-        "loadTestEnvironmentEnd": 1771968266642,
-        "loadTestEnvironmentStart": 1771968266638,
-        "runtime": 1210,
-        "setupAfterEnvEnd": 1771968267062,
-        "setupAfterEnvStart": 1771968266804,
-        "setupFilesEnd": 1771968266643,
-        "setupFilesStart": 1771968266642,
+        "end": 1771977981924,
+        "loadTestEnvironmentEnd": 1771977980509,
+        "loadTestEnvironmentStart": 1771977980505,
+        "runtime": 1414,
+        "setupAfterEnvEnd": 1771977980914,
+        "setupAfterEnvStart": 1771977980662,
+        "setupFilesEnd": 1771977980511,
+        "setupFilesStart": 1771977980510,
         "slow": false,
-        "start": 1771968266642
+        "start": 1771977980510
       },
       "skipped": false,
       "snapshot": {
@@ -1135,7 +1135,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 43,
+          "duration": 37,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1144,7 +1144,7 @@
           "location": null,
           "numPassingAsserts": 4,
           "retryReasons": [],
-          "startAt": 1771968267660,
+          "startAt": 1771977981591,
           "status": "passed",
           "title": "GET /api/admin/households/:id/export should return a backup filename (System Admin)"
         },
@@ -1152,7 +1152,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 124,
+          "duration": 203,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1161,7 +1161,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968267704,
+          "startAt": 1771977981629,
           "status": "passed",
           "title": "Non-system-admin should not be able to export (even if household admin)"
         },
@@ -1169,7 +1169,7 @@
           "ancestorTitles": [
             "🛡️ Tenant Export Verification"
           ],
-          "duration": 18,
+          "duration": 23,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1178,7 +1178,7 @@
           "location": null,
           "numPassingAsserts": 4,
           "retryReasons": [],
-          "startAt": 1771968267828,
+          "startAt": 1771977981832,
           "status": "passed",
           "title": "Export should contain manifest.json in the zip"
         }
@@ -1188,21 +1188,21 @@
     {
       "leaks": false,
       "numFailingTests": 0,
-      "numPassingTests": 1,
+      "numPassingTests": 3,
       "numPendingTests": 0,
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968268934,
-        "loadTestEnvironmentEnd": 1771968267865,
-        "loadTestEnvironmentStart": 1771968267860,
-        "runtime": 1069,
-        "setupAfterEnvEnd": 1771968268278,
-        "setupAfterEnvStart": 1771968268028,
-        "setupFilesEnd": 1771968267866,
-        "setupFilesStart": 1771968267865,
+        "end": 1771977983085,
+        "loadTestEnvironmentEnd": 1771977981934,
+        "loadTestEnvironmentStart": 1771977981930,
+        "runtime": 1151,
+        "setupAfterEnvEnd": 1771977982319,
+        "setupAfterEnvStart": 1771977982064,
+        "setupFilesEnd": 1771977981935,
+        "setupFilesStart": 1771977981934,
         "slow": false,
-        "start": 1771968267865
+        "start": 1771977981934
       },
       "skipped": false,
       "snapshot": {
@@ -1214,24 +1214,58 @@
         "unmatched": 0,
         "updated": 0
       },
-      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
+      "testFilePath": "/home/matt/household-project/server/tests/profile.spec.js",
       "testResults": [
         {
           "ancestorTitles": [
-            "Export Route"
+            "Profile API"
           ],
-          "duration": 52,
+          "duration": 30,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
-          "fullName": "Export Route should export household data as JSON",
+          "fullName": "Profile API should retrieve the user profile with custom_theme",
           "invocations": 1,
           "location": null,
-          "numPassingAsserts": 5,
+          "numPassingAsserts": 4,
           "retryReasons": [],
-          "startAt": 1771968268873,
+          "startAt": 1771977982872,
           "status": "passed",
-          "title": "should export household data as JSON"
+          "title": "should retrieve the user profile with custom_theme"
+        },
+        {
+          "ancestorTitles": [
+            "Profile API"
+          ],
+          "duration": 69,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Profile API should update the user theme",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1771977982903,
+          "status": "passed",
+          "title": "should update the user theme"
+        },
+        {
+          "ancestorTitles": [
+            "Profile API"
+          ],
+          "duration": 60,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Profile API should update the custom_theme",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1771977982972,
+          "status": "passed",
+          "title": "should update the custom_theme"
         }
       ],
       "failureMessage": null
@@ -1244,16 +1278,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968270026,
-        "loadTestEnvironmentEnd": 1771968268949,
-        "loadTestEnvironmentStart": 1771968268945,
-        "runtime": 1077,
-        "setupAfterEnvEnd": 1771968269366,
-        "setupAfterEnvStart": 1771968269123,
-        "setupFilesEnd": 1771968268950,
-        "setupFilesStart": 1771968268949,
+        "end": 1771977984236,
+        "loadTestEnvironmentEnd": 1771977983099,
+        "loadTestEnvironmentStart": 1771977983092,
+        "runtime": 1136,
+        "setupAfterEnvEnd": 1771977983498,
+        "setupAfterEnvStart": 1771977983236,
+        "setupFilesEnd": 1771977983100,
+        "setupFilesStart": 1771977983100,
         "slow": false,
-        "start": 1771968268949
+        "start": 1771977983100
       },
       "skipped": false,
       "snapshot": {
@@ -1280,7 +1314,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968269958,
+          "startAt": 1771977984160,
           "status": "passed",
           "title": "should return 404 if household_id is missing (route not matched)"
         },
@@ -1288,7 +1322,7 @@
           "ancestorTitles": [
             "GET /api/export/:household_id"
           ],
-          "duration": 49,
+          "duration": 37,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1297,9 +1331,60 @@
           "location": null,
           "numPassingAsserts": 5,
           "retryReasons": [],
-          "startAt": 1771968269969,
+          "startAt": 1771977984171,
           "status": "passed",
           "title": "should return 200 and export data if household_id is valid"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977985340,
+        "loadTestEnvironmentEnd": 1771977984247,
+        "loadTestEnvironmentStart": 1771977984243,
+        "runtime": 1093,
+        "setupAfterEnvEnd": 1771977984633,
+        "setupAfterEnvStart": 1771977984390,
+        "setupFilesEnd": 1771977984248,
+        "setupFilesStart": 1771977984247,
+        "slow": false,
+        "start": 1771977984247
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/routes/export.spec.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "Export Route"
+          ],
+          "duration": 41,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "Export Route should export household data as JSON",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 5,
+          "retryReasons": [],
+          "startAt": 1771977985279,
+          "status": "passed",
+          "title": "should export household data as JSON"
         }
       ],
       "failureMessage": null
@@ -1312,16 +1397,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968271048,
-        "loadTestEnvironmentEnd": 1771968270037,
-        "loadTestEnvironmentStart": 1771968270034,
-        "runtime": 1011,
-        "setupAfterEnvEnd": 1771968270436,
-        "setupAfterEnvStart": 1771968270192,
-        "setupFilesEnd": 1771968270038,
-        "setupFilesStart": 1771968270037,
+        "end": 1771977986339,
+        "loadTestEnvironmentEnd": 1771977985350,
+        "loadTestEnvironmentStart": 1771977985346,
+        "runtime": 989,
+        "setupAfterEnvEnd": 1771977985736,
+        "setupAfterEnvStart": 1771977985480,
+        "setupFilesEnd": 1771977985350,
+        "setupFilesStart": 1771977985350,
         "slow": false,
-        "start": 1771968270037
+        "start": 1771977985350
       },
       "skipped": false,
       "snapshot": {
@@ -1339,7 +1424,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 6,
+          "duration": 5,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1348,7 +1433,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968270864,
+          "startAt": 1771977986124,
           "status": "passed",
           "title": "Vulnerability 1: Hardcoded SECRET_KEY"
         },
@@ -1356,7 +1441,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 53,
+          "duration": 46,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1365,7 +1450,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968270884,
+          "startAt": 1771977986130,
           "status": "passed",
           "title": "Vulnerability 2: Path Traversal in Backup Download (FIXED)"
         },
@@ -1373,7 +1458,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 97,
+          "duration": 149,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1382,7 +1467,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968270938,
+          "startAt": 1771977986177,
           "status": "passed",
           "title": "Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)"
         },
@@ -1390,7 +1475,7 @@
           "ancestorTitles": [
             "Security Audit Proof of Concept"
           ],
-          "duration": 8,
+          "duration": 9,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1399,94 +1484,9 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968271035,
+          "startAt": 1771977986326,
           "status": "passed",
           "title": "Tenancy Verification: Viewer of HH 60 cannot access HH 3294"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968272189,
-        "loadTestEnvironmentEnd": 1771968271060,
-        "loadTestEnvironmentStart": 1771968271056,
-        "runtime": 1129,
-        "setupAfterEnvEnd": 1771968271475,
-        "setupAfterEnvStart": 1771968271229,
-        "setupFilesEnd": 1771968271061,
-        "setupFilesStart": 1771968271060,
-        "slow": false,
-        "start": 1771968271060
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/profile.spec.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "Profile API"
-          ],
-          "duration": 35,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Profile API should retrieve the user profile with custom_theme",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 4,
-          "retryReasons": [],
-          "startAt": 1771968272087,
-          "status": "passed",
-          "title": "should retrieve the user profile with custom_theme"
-        },
-        {
-          "ancestorTitles": [
-            "Profile API"
-          ],
-          "duration": 38,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Profile API should update the user theme",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "startAt": 1771968272123,
-          "status": "passed",
-          "title": "should update the user theme"
-        },
-        {
-          "ancestorTitles": [
-            "Profile API"
-          ],
-          "duration": 15,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "Profile API should update the custom_theme",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "startAt": 1771968272161,
-          "status": "passed",
-          "title": "should update the custom_theme"
         }
       ],
       "failureMessage": null
@@ -1499,16 +1499,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968272863,
-        "loadTestEnvironmentEnd": 1771968272206,
-        "loadTestEnvironmentStart": 1771968272201,
-        "runtime": 656,
-        "setupAfterEnvEnd": 1771968272646,
-        "setupAfterEnvStart": 1771968272380,
-        "setupFilesEnd": 1771968272208,
-        "setupFilesStart": 1771968272207,
+        "end": 1771977986920,
+        "loadTestEnvironmentEnd": 1771977986350,
+        "loadTestEnvironmentStart": 1771977986346,
+        "runtime": 570,
+        "setupAfterEnvEnd": 1771977986733,
+        "setupAfterEnvStart": 1771977986477,
+        "setupFilesEnd": 1771977986350,
+        "setupFilesStart": 1771977986350,
         "slow": false,
-        "start": 1771968272207
+        "start": 1771977986350
       },
       "skipped": false,
       "snapshot": {
@@ -1526,7 +1526,7 @@
           "ancestorTitles": [
             "API Rate Limiting Middleware"
           ],
-          "duration": 45,
+          "duration": 49,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1535,7 +1535,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968272779,
+          "startAt": 1771977986837,
           "status": "passed",
           "title": "should block auth requests after too many attempts"
         },
@@ -1543,7 +1543,7 @@
           "ancestorTitles": [
             "API Rate Limiting Middleware"
           ],
-          "duration": 33,
+          "duration": 28,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1552,7 +1552,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968272825,
+          "startAt": 1771977986887,
           "status": "passed",
           "title": "should bypass limit when bypass header is present"
         }
@@ -1567,16 +1567,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968273356,
-        "loadTestEnvironmentEnd": 1771968272870,
-        "loadTestEnvironmentStart": 1771968272867,
-        "runtime": 485,
-        "setupAfterEnvEnd": 1771968273297,
-        "setupAfterEnvStart": 1771968273033,
-        "setupFilesEnd": 1771968272871,
-        "setupFilesStart": 1771968272871,
+        "end": 1771977987360,
+        "loadTestEnvironmentEnd": 1771977986930,
+        "loadTestEnvironmentStart": 1771977986927,
+        "runtime": 429,
+        "setupAfterEnvEnd": 1771977987312,
+        "setupAfterEnvStart": 1771977987058,
+        "setupFilesEnd": 1771977986931,
+        "setupFilesStart": 1771977986931,
         "slow": false,
-        "start": 1771968272871
+        "start": 1771977986931
       },
       "skipped": false,
       "snapshot": {
@@ -1594,7 +1594,7 @@
           "ancestorTitles": [
             "Background Job Queue (BullMQ)"
           ],
-          "duration": 40,
+          "duration": 29,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1603,7 +1603,7 @@
           "location": null,
           "numPassingAsserts": 3,
           "retryReasons": [],
-          "startAt": 1771968273303,
+          "startAt": 1771977987317,
           "status": "passed",
           "title": "should add a job to the queue"
         },
@@ -1611,7 +1611,7 @@
           "ancestorTitles": [
             "Background Job Queue (BullMQ)"
           ],
-          "duration": 3,
+          "duration": 4,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1620,7 +1620,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968273345,
+          "startAt": 1771977987347,
           "status": "passed",
           "title": "should handle jobs without householdId with a warning"
         }
@@ -1635,101 +1635,16 @@
       "numTodoTests": 0,
       "openHandles": [],
       "perfStats": {
-        "end": 1771968273809,
-        "loadTestEnvironmentEnd": 1771968273362,
-        "loadTestEnvironmentStart": 1771968273359,
-        "runtime": 446,
-        "setupAfterEnvEnd": 1771968273788,
-        "setupAfterEnvStart": 1771968273538,
-        "setupFilesEnd": 1771968273363,
-        "setupFilesStart": 1771968273363,
+        "end": 1771977987772,
+        "loadTestEnvironmentEnd": 1771977987366,
+        "loadTestEnvironmentStart": 1771977987363,
+        "runtime": 405,
+        "setupAfterEnvEnd": 1771977987743,
+        "setupAfterEnvStart": 1771977987506,
+        "setupFilesEnd": 1771977987367,
+        "setupFilesStart": 1771977987367,
         "slow": false,
-        "start": 1771968273363
-      },
-      "skipped": false,
-      "snapshot": {
-        "added": 0,
-        "fileDeleted": false,
-        "matched": 0,
-        "unchecked": 0,
-        "uncheckedKeys": [],
-        "unmatched": 0,
-        "updated": 0
-      },
-      "testFilePath": "/home/matt/household-project/server/tests/services/storage.test.js",
-      "testResults": [
-        {
-          "ancestorTitles": [
-            "File Storage Service (Mocked)"
-          ],
-          "duration": 7,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "File Storage Service (Mocked) should upload a file",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "startAt": 1771968273793,
-          "status": "passed",
-          "title": "should upload a file"
-        },
-        {
-          "ancestorTitles": [
-            "File Storage Service (Mocked)"
-          ],
-          "duration": 1,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "File Storage Service (Mocked) should delete a file",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 1,
-          "retryReasons": [],
-          "startAt": 1771968273801,
-          "status": "passed",
-          "title": "should delete a file"
-        },
-        {
-          "ancestorTitles": [
-            "File Storage Service (Mocked)"
-          ],
-          "duration": 2,
-          "failing": false,
-          "failureDetails": [],
-          "failureMessages": [],
-          "fullName": "File Storage Service (Mocked) should get file location",
-          "invocations": 1,
-          "location": null,
-          "numPassingAsserts": 2,
-          "retryReasons": [],
-          "startAt": 1771968273802,
-          "status": "passed",
-          "title": "should get file location"
-        }
-      ],
-      "failureMessage": null
-    },
-    {
-      "leaks": false,
-      "numFailingTests": 0,
-      "numPassingTests": 3,
-      "numPendingTests": 0,
-      "numTodoTests": 0,
-      "openHandles": [],
-      "perfStats": {
-        "end": 1771968274275,
-        "loadTestEnvironmentEnd": 1771968273815,
-        "loadTestEnvironmentStart": 1771968273812,
-        "runtime": 460,
-        "setupAfterEnvEnd": 1771968274242,
-        "setupAfterEnvStart": 1771968273993,
-        "setupFilesEnd": 1771968273816,
-        "setupFilesStart": 1771968273815,
-        "slow": false,
-        "start": 1771968273815
+        "start": 1771977987367
       },
       "skipped": false,
       "snapshot": {
@@ -1747,7 +1662,7 @@
           "ancestorTitles": [
             "Frontend Build Smoke Test"
           ],
-          "duration": 4,
+          "duration": 3,
           "failing": false,
           "failureDetails": [],
           "failureMessages": [],
@@ -1756,7 +1671,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968274247,
+          "startAt": 1771977987748,
           "status": "passed",
           "title": "index.html should exist after build"
         },
@@ -1773,7 +1688,7 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968274253,
+          "startAt": 1771977987752,
           "status": "passed",
           "title": "index.html should contain root div"
         },
@@ -1790,9 +1705,94 @@
           "location": null,
           "numPassingAsserts": 1,
           "retryReasons": [],
-          "startAt": 1771968274256,
+          "startAt": 1771977987754,
           "status": "passed",
           "title": "JS bundle should be referenced"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1771977988197,
+        "loadTestEnvironmentEnd": 1771977987778,
+        "loadTestEnvironmentStart": 1771977987774,
+        "runtime": 419,
+        "setupAfterEnvEnd": 1771977988166,
+        "setupAfterEnvStart": 1771977987908,
+        "setupFilesEnd": 1771977987779,
+        "setupFilesStart": 1771977987778,
+        "slow": false,
+        "start": 1771977987778
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/home/matt/household-project/server/tests/services/storage.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "File Storage Service (Mocked)"
+          ],
+          "duration": 5,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "File Storage Service (Mocked) should upload a file",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1771977988183,
+          "status": "passed",
+          "title": "should upload a file"
+        },
+        {
+          "ancestorTitles": [
+            "File Storage Service (Mocked)"
+          ],
+          "duration": 2,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "File Storage Service (Mocked) should delete a file",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1771977988189,
+          "status": "passed",
+          "title": "should delete a file"
+        },
+        {
+          "ancestorTitles": [
+            "File Storage Service (Mocked)"
+          ],
+          "duration": 2,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "File Storage Service (Mocked) should get file location",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1771977988191,
+          "status": "passed",
+          "title": "should get file location"
         }
       ],
       "failureMessage": null

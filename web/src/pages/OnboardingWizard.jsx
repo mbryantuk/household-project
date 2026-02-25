@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -14,15 +14,7 @@ import {
   Avatar,
   IconButton,
   Grid,
-  Divider,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemContent,
-  ListItemDecorator,
-  Checkbox,
-  Chip,
   Select,
   Option,
   Modal,
@@ -42,16 +34,53 @@ import {
   ArrowBack,
   Add,
   Edit,
-  Delete,
-  AccountBalance,
   DoneAll,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useHousehold } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
+import { useAuth } from '../context/AuthContext';
+import { useUI } from '../context/UIContext';
 import EmojiPicker from '../components/EmojiPicker';
-import { getEmojiColor } from '../utils/colors';
 
-const steps = [
+// --- STATE MACHINE DEFINITION (Item 121) ---
+const STEPS = {
+  HOUSEHOLD: 0,
+  RESIDENTS: 1,
+  VEHICLES: 2,
+  ASSETS: 3,
+  FINISH: 4,
+};
+
+const initialState = {
+  activeStep: STEPS.HOUSEHOLD,
+  loading: true,
+  household: null,
+  members: [],
+  vehicles: [],
+  assets: [],
+  editItem: null,
+};
+
+function onboardingReducer(state, action) {
+  switch (action.type) {
+    case 'LOAD_SUCCESS':
+      return { ...state, ...action.payload, loading: false };
+    case 'SET_STEP':
+      return { ...state, activeStep: action.step };
+    case 'NEXT_STEP':
+      return { ...state, activeStep: Math.min(state.activeStep + 1, STEPS.FINISH) };
+    case 'PREV_STEP':
+      return { ...state, activeStep: Math.max(state.activeStep - 1, STEPS.HOUSEHOLD) };
+    case 'SET_EDIT_ITEM':
+      return { ...state, editItem: action.item };
+    case 'UPDATE_DATA':
+      return { ...state, [action.key]: action.data };
+    default:
+      return state;
+  }
+}
+
+const stepConfig = [
   { label: 'Household', icon: <Home /> },
   { label: 'Residents', icon: <People /> },
   { label: 'Vehicles', icon: <DirectionsCar /> },
@@ -62,26 +91,17 @@ const steps = [
 export default function OnboardingWizard() {
   const { id: householdId } = useParams();
   const navigate = useNavigate();
-  const { api, showNotification, isDark, onSelectHousehold } = useHousehold();
+  const { api } = useAuth();
+  const { onSelectHousehold } = useHousehold();
+  const { showNotification } = useUI();
 
-  const [activeStep, setActiveStep] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  // Data States
-  const [household, setHousehold] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [assets, setAssets] = useState([]);
-
-  // Form States
-  const [editItem, setEditItem] = useState(null);
+  const [state, dispatch] = useReducer(onboardingReducer, initialState);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!householdId || !api) return;
 
     const loadData = async () => {
-      setLoading(true);
       try {
         const [hRes, mRes, vRes, aRes] = await Promise.all([
           api.get(`/households/${householdId}`),
@@ -89,111 +109,55 @@ export default function OnboardingWizard() {
           api.get(`/households/${householdId}/vehicles`),
           api.get(`/households/${householdId}/assets`),
         ]);
-        setHousehold(hRes.data);
-        setMembers(mRes.data || []);
-        setVehicles(vRes.data || []);
-        setAssets(aRes.data || []);
-      } catch (err) {
-        console.error('Onboarding data load failed', err);
+        dispatch({
+          type: 'LOAD_SUCCESS',
+          payload: {
+            household: hRes.data,
+            members: mRes.data || [],
+            vehicles: vRes.data || [],
+            assets: aRes.data || [],
+          },
+        });
+      } catch {
         showNotification('Failed to load household data.', 'danger');
-      } finally {
-        setLoading(false);
       }
     };
     loadData();
   }, [householdId, api, showNotification]);
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
-
   const handleComplete = async () => {
-    // Mark as onboarding complete if we have a flag, for now just redirect
-    if (household) await onSelectHousehold(household);
+    if (state.household) await onSelectHousehold(state.household);
     navigate(`/household/${householdId}/dashboard`);
   };
 
-  // --- CRUD HELPERS ---
-  const saveMember = async (e) => {
+  // --- CRUD WRAPPERS ---
+  const refreshData = async (key, endpoint) => {
+    const res = await api.get(endpoint);
+    dispatch({ type: 'UPDATE_DATA', key, data: res.data || [] });
+  };
+
+  const saveItem = async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget));
+    const domain =
+      state.activeStep === 1 ? 'members' : state.activeStep === 2 ? 'vehicles' : 'assets';
+
     try {
-      if (editItem?.id) {
-        await api.put(`/households/${householdId}/members/${editItem.id}`, data);
+      if (state.editItem?.id) {
+        await api.put(`/households/${householdId}/${domain}/${state.editItem.id}`, data);
       } else {
-        await api.post(`/households/${householdId}/members`, data);
+        await api.post(`/households/${householdId}/${domain}`, data);
       }
-      const res = await api.get(`/households/${householdId}/members`);
-      setMembers(res.data || []);
-      setEditItem(null);
+      await refreshData(domain, `/households/${householdId}/${domain}`);
+      dispatch({ type: 'SET_EDIT_ITEM', item: null });
     } catch {
-      showNotification('Failed to save member', 'danger');
+      showNotification(`Failed to save ${domain}`, 'danger');
     }
   };
 
-  const deleteMember = async (id) => {
-    try {
-      await api.delete(`/households/${householdId}/members/${id}`);
-      setMembers((prev) => prev.filter((m) => m.id !== id));
-    } catch {
-      showNotification('Failed to delete', 'danger');
-    }
-  };
-
-  const saveVehicle = async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    try {
-      if (editItem?.id) {
-        await api.put(`/households/${householdId}/vehicles/${editItem.id}`, data);
-      } else {
-        await api.post(`/households/${householdId}/vehicles`, data);
-      }
-      const res = await api.get(`/households/${householdId}/vehicles`);
-      setVehicles(res.data || []);
-      setEditItem(null);
-    } catch {
-      showNotification('Failed to save vehicle', 'danger');
-    }
-  };
-
-  const deleteVehicle = async (id) => {
-    try {
-      await api.delete(`/households/${householdId}/vehicles/${id}`);
-      setVehicles((prev) => prev.filter((v) => v.id !== id));
-    } catch {
-      showNotification('Failed to delete', 'danger');
-    }
-  };
-
-  const saveAsset = async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    try {
-      if (editItem?.id) {
-        await api.put(`/households/${householdId}/assets/${editItem.id}`, data);
-      } else {
-        await api.post(`/households/${householdId}/assets`, data);
-      }
-      const res = await api.get(`/households/${householdId}/assets`);
-      setAssets(res.data || []);
-      setEditItem(null);
-    } catch {
-      showNotification('Failed to save asset', 'danger');
-    }
-  };
-
-  const deleteAsset = async (id) => {
-    try {
-      await api.delete(`/households/${householdId}/assets/${id}`);
-      setAssets((prev) => prev.filter((a) => a.id !== id));
-    } catch {
-      showNotification('Failed to delete', 'danger');
-    }
-  };
-
-  if (loading)
+  if (state.loading)
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 20 }}>
+      <Box sx={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}>
         <CircularProgress size="lg" />
       </Box>
     );
@@ -201,26 +165,26 @@ export default function OnboardingWizard() {
   return (
     <Box data-testid="onboarding-view" sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
       <Typography level="h1" textAlign="center" mb={1}>
-        Welcome to {household?.name}
+        Welcome to {state.household?.name}
       </Typography>
       <Typography level="body-md" textAlign="center" color="neutral" mb={4}>
         Let's get your household set up in a few simple steps.
       </Typography>
 
       <Stepper sx={{ mb: 6 }}>
-        {steps.map((step, index) => (
+        {stepConfig.map((step, index) => (
           <Step
             key={step.label}
             indicator={
               <StepIndicator
-                variant={activeStep >= index ? 'solid' : 'outlined'}
-                color={activeStep >= index ? 'primary' : 'neutral'}
+                variant={state.activeStep >= index ? 'solid' : 'outlined'}
+                color={state.activeStep >= index ? 'primary' : 'neutral'}
               >
-                {activeStep > index ? <CheckCircle /> : step.icon}
+                {state.activeStep > index ? <CheckCircle /> : step.icon}
               </StepIndicator>
             }
-            active={activeStep === index}
-            completed={activeStep > index}
+            active={state.activeStep === index}
+            completed={state.activeStep > index}
           >
             <Typography level="title-sm" sx={{ display: { xs: 'none', md: 'block' } }}>
               {step.label}
@@ -229,17 +193,8 @@ export default function OnboardingWizard() {
         ))}
       </Stepper>
 
-      <Sheet
-        variant="outlined"
-        sx={{
-          p: { xs: 2, md: 4 },
-          borderRadius: 'xl',
-          boxShadow: 'sm',
-          bgcolor: 'background.surface',
-        }}
-      >
-        {/* STEP 0: HOUSEHOLD DETAILS */}
-        {activeStep === 0 && (
+      <Sheet variant="outlined" sx={{ p: { xs: 2, md: 4 }, borderRadius: 'xl', boxShadow: 'sm' }}>
+        {state.activeStep === STEPS.HOUSEHOLD && (
           <Box>
             <Typography level="h3" mb={1}>
               Household Overview
@@ -250,80 +205,48 @@ export default function OnboardingWizard() {
             <Grid container spacing={2}>
               <Grid xs={12} sm={6}>
                 <FormControl>
-                  <FormLabel>Household Name</FormLabel>
-                  <Input value={household?.name} readOnly variant="soft" />
+                  <FormLabel>Name</FormLabel>
+                  <Input value={state.household?.name} readOnly variant="soft" />
                 </FormControl>
               </Grid>
               <Grid xs={12} sm={6}>
                 <FormControl>
                   <FormLabel>Currency</FormLabel>
-                  <Input value={household?.currency} readOnly variant="soft" />
+                  <Input value={state.household?.currency} readOnly variant="soft" />
                 </FormControl>
-              </Grid>
-              <Grid xs={12}>
-                <Typography level="title-sm" mt={2} mb={1}>
-                  Enabled Modules
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  {['pets', 'vehicles', 'meals'].map((m) => (
-                    <Chip
-                      key={m}
-                      variant="soft"
-                      color="primary"
-                      sx={{ textTransform: 'capitalize' }}
-                    >
-                      {m}
-                    </Chip>
-                  ))}
-                </Stack>
               </Grid>
             </Grid>
           </Box>
         )}
 
-        {/* STEP 1: RESIDENTS */}
-        {activeStep === 1 && (
+        {state.activeStep === STEPS.RESIDENTS && (
           <Box>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
-            >
-              <Box>
-                <Typography level="h3">Residents & Family</Typography>
-                <Typography level="body-sm" color="neutral">
-                  Add the people who live in your home.
-                </Typography>
-              </Box>
-              <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '👤' })}>
+            <Stack direction="row" justifyContent="space-between" mb={3}>
+              <Typography level="h3">Residents & Family</Typography>
+              <Button
+                startDecorator={<Add />}
+                onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: { emoji: '👤' } })}
+              >
                 Add Person
               </Button>
-            </Box>
-
+            </Stack>
             <Grid container spacing={2}>
-              {members.map((m) => (
+              {state.members.map((m) => (
                 <Grid key={m.id} xs={12} sm={6}>
                   <Card
                     variant="soft"
                     sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}
                   >
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(m.emoji, isDark) }}>
-                      {m.emoji}
-                    </Avatar>
+                    <Avatar size="lg">{m.emoji}</Avatar>
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography level="title-md">{m.name}</Typography>
-                      <Typography level="body-xs" sx={{ textTransform: 'capitalize' }}>
-                        {m.type}
-                      </Typography>
+                      <Typography level="body-xs">{m.type}</Typography>
                     </Box>
-                    <IconButton size="sm" variant="plain" onClick={() => setEditItem(m)}>
-                      <Edit />
-                    </IconButton>
                     <IconButton
                       size="sm"
-                      variant="plain"
-                      color="danger"
-                      onClick={() => deleteMember(m.id)}
+                      onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: m })}
                     >
-                      <Delete />
+                      <Edit />
                     </IconButton>
                   </Card>
                 </Grid>
@@ -332,49 +255,35 @@ export default function OnboardingWizard() {
           </Box>
         )}
 
-        {/* STEP 2: VEHICLES */}
-        {activeStep === 2 && (
+        {state.activeStep === STEPS.VEHICLES && (
           <Box>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
-            >
-              <Box>
-                <Typography level="h3">Garage & Fleet</Typography>
-                <Typography level="body-sm" color="neutral">
-                  Track cars, bikes, and other vehicles.
-                </Typography>
-              </Box>
-              <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '🚗' })}>
+            <Stack direction="row" justifyContent="space-between" mb={3}>
+              <Typography level="h3">Garage & Fleet</Typography>
+              <Button
+                startDecorator={<Add />}
+                onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: { emoji: '🚗' } })}
+              >
                 Add Vehicle
               </Button>
-            </Box>
-
+            </Stack>
             <Grid container spacing={2}>
-              {vehicles.map((v) => (
+              {state.vehicles.map((v) => (
                 <Grid key={v.id} xs={12} sm={6}>
                   <Card
                     variant="soft"
                     sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}
                   >
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(v.emoji, isDark) }}>
-                      {v.emoji}
-                    </Avatar>
+                    <Avatar size="lg">{v.emoji}</Avatar>
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography level="title-md">
                         {v.make} {v.model}
                       </Typography>
-                      <Typography level="body-xs">{v.registration}</Typography>
                     </Box>
-                    <IconButton size="sm" variant="plain" onClick={() => setEditItem(v)}>
-                      <Edit />
-                    </IconButton>
                     <IconButton
                       size="sm"
-                      variant="plain"
-                      color="danger"
-                      onClick={() => deleteVehicle(v.id)}
+                      onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: v })}
                     >
-                      <Delete />
+                      <Edit />
                     </IconButton>
                   </Card>
                 </Grid>
@@ -383,60 +292,9 @@ export default function OnboardingWizard() {
           </Box>
         )}
 
-        {/* STEP 3: ASSETS */}
-        {activeStep === 3 && (
-          <Box>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
-            >
-              <Box>
-                <Typography level="h3">High-Value Assets</Typography>
-                <Typography level="body-sm" color="neutral">
-                  Track insurance and warranties for big items.
-                </Typography>
-              </Box>
-              <Button startDecorator={<Add />} onClick={() => setEditItem({ emoji: '📦' })}>
-                Add Asset
-              </Button>
-            </Box>
-
-            <Grid container spacing={2}>
-              {assets.map((a) => (
-                <Grid key={a.id} xs={12} sm={6}>
-                  <Card
-                    variant="soft"
-                    sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, p: 1.5 }}
-                  >
-                    <Avatar size="lg" sx={{ bgcolor: getEmojiColor(a.emoji, isDark) }}>
-                      {a.emoji}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography level="title-md">{a.name}</Typography>
-                      <Typography level="body-xs">{a.category}</Typography>
-                    </Box>
-                    <IconButton size="sm" variant="plain" onClick={() => setEditItem(a)}>
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      size="sm"
-                      variant="plain"
-                      color="danger"
-                      onClick={() => deleteAsset(a.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-
-        {/* STEP 4: FINISH */}
-        {activeStep === 4 && (
+        {state.activeStep === STEPS.FINISH && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Avatar
-              size="lg"
               color="success"
               variant="soft"
               sx={{ width: 100, height: 100, mx: 'auto', mb: 3, fontSize: '4rem' }}
@@ -446,23 +304,13 @@ export default function OnboardingWizard() {
             <Typography level="h2" mb={1}>
               You're all set!
             </Typography>
-            <Typography level="body-md" color="neutral" mb={4}>
-              Your household setup is complete. You can add more details like finances and meal
-              plans from the dashboard.
-            </Typography>
-            <Button
-              size="lg"
-              variant="solid"
-              color="primary"
-              onClick={handleComplete}
-              endDecorator={<ArrowForward />}
-            >
+            <Button size="lg" onClick={handleComplete} endDecorator={<ArrowForward />}>
               Go to Dashboard
             </Button>
           </Box>
         )}
 
-        {activeStep < 4 && (
+        {state.activeStep < STEPS.FINISH && (
           <Box
             sx={{
               mt: 6,
@@ -477,16 +325,15 @@ export default function OnboardingWizard() {
               variant="plain"
               color="neutral"
               startDecorator={<ArrowBack />}
-              onClick={handleBack}
-              disabled={activeStep === 0}
+              onClick={() => dispatch({ type: 'PREV_STEP' })}
+              disabled={state.activeStep === 0}
             >
               Back
             </Button>
             <Button
               variant="solid"
-              color="primary"
+              onClick={() => dispatch({ type: 'NEXT_STEP' })}
               endDecorator={<ArrowForward />}
-              onClick={handleNext}
             >
               Next
             </Button>
@@ -494,14 +341,14 @@ export default function OnboardingWizard() {
         )}
       </Sheet>
 
-      {/* ITEM MODALS */}
-      <Modal open={Boolean(editItem)} onClose={() => setEditItem(null)}>
+      <Modal
+        open={Boolean(state.editItem)}
+        onClose={() => dispatch({ type: 'SET_EDIT_ITEM', item: null })}
+      >
         <ModalDialog>
-          <DialogTitle>{editItem?.id ? 'Edit' : 'Add New'}</DialogTitle>
+          <DialogTitle>{state.editItem?.id ? 'Edit' : 'Add New'}</DialogTitle>
           <DialogContent>
-            <form
-              onSubmit={activeStep === 1 ? saveMember : activeStep === 2 ? saveVehicle : saveAsset}
-            >
+            <form onSubmit={saveItem}>
               <Stack spacing={2} mt={1}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <IconButton
@@ -509,42 +356,42 @@ export default function OnboardingWizard() {
                     onClick={() => setEmojiPickerOpen(true)}
                     sx={{ width: 48, height: 48, fontSize: '1.5rem' }}
                   >
-                    {editItem?.emoji || '🏠'}
+                    {state.editItem?.emoji || '🏠'}
                   </IconButton>
-                  <Input name="emoji" type="hidden" value={editItem?.emoji || ''} />
+                  <Input name="emoji" type="hidden" value={state.editItem?.emoji || ''} />
                   <FormControl required sx={{ flexGrow: 1 }}>
                     <FormLabel>Name / Make</FormLabel>
                     <Input
-                      name={activeStep === 2 ? 'make' : 'name'}
-                      defaultValue={activeStep === 2 ? editItem?.make : editItem?.name}
+                      name={state.activeStep === 2 ? 'make' : 'name'}
+                      defaultValue={
+                        state.activeStep === 2 ? state.editItem?.make : state.editItem?.name
+                      }
                       autoFocus
                     />
                   </FormControl>
                 </Box>
-                {activeStep === 1 && (
+                {state.activeStep === 1 && (
                   <FormControl required>
                     <FormLabel>Type</FormLabel>
-                    <Select name="type" defaultValue={editItem?.type || 'adult'}>
+                    <Select name="type" defaultValue={state.editItem?.type || 'adult'}>
                       <Option value="adult">Adult</Option>
                       <Option value="child">Child</Option>
                       <Option value="pet">Pet</Option>
                     </Select>
                   </FormControl>
                 )}
-                {activeStep === 2 && (
+                {state.activeStep === 2 && (
                   <FormControl required>
                     <FormLabel>Model</FormLabel>
-                    <Input name="model" defaultValue={editItem?.model} />
-                  </FormControl>
-                )}
-                {activeStep === 3 && (
-                  <FormControl required>
-                    <FormLabel>Category</FormLabel>
-                    <Input name="category" defaultValue={editItem?.category} />
+                    <Input name="model" defaultValue={state.editItem?.model} />
                   </FormControl>
                 )}
                 <DialogActions>
-                  <Button variant="plain" color="neutral" onClick={() => setEditItem(null)}>
+                  <Button
+                    variant="plain"
+                    color="neutral"
+                    onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: null })}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit">Save</Button>
@@ -559,10 +406,9 @@ export default function OnboardingWizard() {
         open={emojiPickerOpen}
         onClose={() => setEmojiPickerOpen(false)}
         onEmojiSelect={(e) => {
-          setEditItem({ ...editItem, emoji: e });
+          dispatch({ type: 'SET_EDIT_ITEM', item: { ...state.editItem, emoji: e } });
           setEmojiPickerOpen(false);
         }}
-        isDark={isDark}
       />
     </Box>
   );

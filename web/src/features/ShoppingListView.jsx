@@ -9,29 +9,20 @@ import {
   IconButton,
   Checkbox,
   Stack,
-  Divider,
   LinearProgress,
   Chip,
   Select,
   Option,
-  FormControl,
-  FormLabel,
-  Avatar,
   Grid,
   Card,
 } from '@mui/joy';
 import {
   Add,
   Delete,
-  Clear,
-  ShoppingBag,
-  AttachMoney,
   Calculate,
   FileUpload,
   ArrowBack,
   ArrowForward,
-  CheckCircle,
-  TrendingUp,
   ContentCopy,
 } from '@mui/icons-material';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
@@ -40,7 +31,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
 import ShoppingTrends from './shopping/components/ShoppingTrends';
+import ModuleHeader from '../components/ui/ModuleHeader';
 import { useShoppingList } from '../hooks/useHouseholdData';
+import { useShoppingMutations } from './shopping/hooks';
 import haptics from '../utils/haptics';
 
 const formatCurrency = (val) => {
@@ -74,28 +67,32 @@ export default function ShoppingListView() {
   const weekStr = formatDate(currentWeekStart);
   const { data: items = [] } = useShoppingList(api, householdId, weekStr);
 
+  // Item 118: Optimistic UI Mutations
+  const mutations = useShoppingMutations(api, householdId, weekStr);
+
   const handleAddItem = async (e) => {
     e.preventDefault();
     if (!newItemName.trim()) return;
 
-    try {
-      await api.post(`/households/${householdId}/shopping-list`, {
+    mutations.addItem.mutate(
+      {
         name: newItemName,
         estimated_cost: parseFloat(newItemCost) || 0,
         quantity: newItemQty,
         category: newItemCat,
-        week_start: weekStr,
-      });
-      setNewItemName('');
-      setNewItemCost('');
-      setNewItemQty('1');
-      queryClient.invalidateQueries({
-        queryKey: ['households', householdId, 'shopping-list', weekStr],
-      });
-      showNotification('Item added', 'success');
-    } catch {
-      showNotification('Failed to add item', 'danger');
-    }
+      },
+      {
+        onSuccess: () => {
+          setNewItemName('');
+          setNewItemCost('');
+          setNewItemQty('1');
+          showNotification('Item added', 'success');
+        },
+        onError: () => {
+          showNotification('Failed to add item', 'danger');
+        },
+      }
+    );
   };
 
   const handleCopyPrev = async () => {
@@ -118,43 +115,20 @@ export default function ShoppingListView() {
     });
   };
 
-  const handleToggle = async (item) => {
+  const handleToggle = (item) => {
     haptics.selection();
-    try {
-      await api.put(`/households/${householdId}/shopping-list/${item.id}`, {
-        is_checked: !item.is_checked,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['households', householdId, 'shopping-list', weekStr],
-      });
-    } catch {
-      // If failed, the UI will just stay as is (or revert if we used optimistic updates)
-    }
+    mutations.toggleItem.mutate(item);
   };
 
-  const handleDelete = async (id) => {
-    confirmAction('Delete Item', 'Are you sure?', async () => {
-      try {
-        await api.delete(`/households/${householdId}/shopping-list/${id}`);
-        queryClient.invalidateQueries({
-          queryKey: ['households', householdId, 'shopping-list', weekStr],
-        });
-      } catch {
-        showNotification('Failed to delete', 'danger');
-      }
+  const handleDelete = (id) => {
+    confirmAction('Delete Item', 'Are you sure?', () => {
+      mutations.deleteItem.mutate(id);
     });
   };
 
-  const handleClearCompleted = async () => {
-    confirmAction('Clear Completed', 'Remove checked items?', async () => {
-      try {
-        await api.delete(`/households/${householdId}/shopping-list/clear?week_start=${weekStr}`);
-        queryClient.invalidateQueries({
-          queryKey: ['households', householdId, 'shopping-list', weekStr],
-        });
-      } catch {
-        showNotification('Failed to clear', 'danger');
-      }
+  const handleClearCompleted = () => {
+    confirmAction('Clear Completed', 'Remove checked items?', () => {
+      mutations.clearCompleted.mutate();
     });
   };
 
@@ -167,65 +141,52 @@ export default function ShoppingListView() {
 
   return (
     <Box data-testid="shopping-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
-      {/* Header & Weekly Nav */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 2,
-          flexWrap: 'wrap',
-        }}
-      >
-        <Box>
-          <Typography level="h2" data-testid="shopping-heading" startDecorator={<ShoppingBag />}>
-            Groceries
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Weekly shopping list and trends.
-          </Typography>
-        </Box>
-
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Button
-            variant="soft"
-            color="neutral"
-            startDecorator={<ContentCopy />}
-            onClick={handleCopyPrev}
-          >
-            Copy Last Week
-          </Button>
-
-          <Sheet
-            variant="outlined"
-            sx={{
-              px: 1,
-              py: 0.5,
-              borderRadius: 'md',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <IconButton
-              size="sm"
-              onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
+      <ModuleHeader
+        title="Groceries"
+        description="Manage your weekly shopping list and track spending trends."
+        emoji="🛒"
+        chips={[
+          { label: `w/c ${format(currentWeekStart, 'do MMM')}`, color: 'primary' },
+          { label: `${items.length} Items`, color: 'neutral' },
+        ]}
+        action={
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="soft"
+              color="neutral"
+              startDecorator={<ContentCopy />}
+              onClick={handleCopyPrev}
+              sx={{ display: { xs: 'none', md: 'inline-flex' } }}
             >
-              <ArrowBack />
-            </IconButton>
-            <Typography level="title-sm" sx={{ minWidth: 140, textAlign: 'center' }}>
-              w/c {format(currentWeekStart, 'do MMM')}
-            </Typography>
-            <IconButton
-              size="sm"
-              onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}
+              Copy Last Week
+            </Button>
+            <Sheet
+              variant="outlined"
+              sx={{
+                px: 1,
+                py: 0.5,
+                borderRadius: 'md',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
             >
-              <ArrowForward />
-            </IconButton>
-          </Sheet>
-        </Stack>
-      </Box>
+              <IconButton
+                size="sm"
+                onClick={() => setCurrentWeekStart(subWeeks(currentWeekStart, 1))}
+              >
+                <ArrowBack />
+              </IconButton>
+              <IconButton
+                size="sm"
+                onClick={() => setCurrentWeekStart(addWeeks(currentWeekStart, 1))}
+              >
+                <ArrowForward />
+              </IconButton>
+            </Sheet>
+          </Stack>
+        }
+      />
 
       <Grid container spacing={3}>
         {/* Main List */}
@@ -265,7 +226,7 @@ export default function ShoppingListView() {
                   value={newItemCost}
                   onChange={(e) => setNewItemCost(e.target.value)}
                 />
-                <Button type="submit">
+                <Button type="submit" loading={mutations.addItem.isPending}>
                   <Add />
                 </Button>
               </Stack>
@@ -291,6 +252,10 @@ export default function ShoppingListView() {
                     checked={!!item.is_checked}
                     onChange={() => handleToggle(item)}
                     color="success"
+                    disabled={
+                      mutations.toggleItem.isPending &&
+                      mutations.toggleItem.variables?.id === item.id
+                    }
                   />
                   <Box>
                     <Typography
@@ -298,6 +263,16 @@ export default function ShoppingListView() {
                       sx={{ textDecoration: item.is_checked ? 'line-through' : 'none' }}
                     >
                       {item.name}
+                      {item.id.toString().startsWith('temp-') && (
+                        <Chip
+                          size="sm"
+                          variant="soft"
+                          color="warning"
+                          sx={{ ml: 1, fontSize: '10px' }}
+                        >
+                          Saving...
+                        </Chip>
+                      )}
                     </Typography>
                     <Typography level="body-xs">
                       {item.quantity} • {item.category}
@@ -315,6 +290,9 @@ export default function ShoppingListView() {
                     color="danger"
                     variant="plain"
                     onClick={() => handleDelete(item.id)}
+                    loading={
+                      mutations.deleteItem.isPending && mutations.deleteItem.variables === item.id
+                    }
                   >
                     <Delete />
                   </IconButton>
@@ -330,7 +308,12 @@ export default function ShoppingListView() {
 
           {stats.checkedCount > 0 && (
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-              <Button variant="plain" color="danger" onClick={handleClearCompleted}>
+              <Button
+                variant="plain"
+                color="danger"
+                onClick={handleClearCompleted}
+                loading={mutations.clearCompleted.isPending}
+              >
                 Clear Completed ({stats.checkedCount})
               </Button>
             </Box>

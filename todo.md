@@ -113,12 +113,12 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 - [x] **Item 115: Smart/Dumb Component Split** - Adopt a strict separation of "Smart" (Container) and "Dumb" (Presentational) components to improve testability.
 - [x] **Item 116: React Query Key Factory** - Centralize all React Query keys into a strict factory pattern to prevent cache collision and simplify invalidation.
 - [x] **Item 117: Hook Form + Zod** - Use a robust form management library (`react-hook-form`) combined with Zod from the very beginning.
-- [ ] **Item 118: Optimistic UI** - Implement an offline-first data mutation strategy with optimistic UI updates for perceived zero-latency.
+- [x] **Item 118: Optimistic UI** - Implement an offline-first data mutation strategy with optimistic UI updates for perceived zero-latency. (Implemented for Shopping List)
 - [x] **Item 119: Standardized Skeletons** - Standardize on a consistent loading state skeleton pattern rather than using generic spinning loaders.
 - [x] **Item 120: Strongly-Typed Routes** - Create a centralized routing configuration object with strongly-typed path generation to prevent broken links.
 - [ ] **Item 121: State Machines for UI** - Manage complex UI state (like multi-step wizards) with state machines (e.g., XState) rather than boolean flags.
-- [ ] **Item 122: Context Boundaries** - Enforce strict boundaries on React Context usage to prevent unnecessary re-renders of the entire app tree.
-- [x] **Item 123: Global Toast Queue** - Implement a global "Toast" notification system that supports queuing, categorization, and action buttons.
+- [x] **Item 122: Context Boundaries** - Enforce strict boundaries on React Context usage to prevent unnecessary re-renders of the entire app tree. (Refactored App.jsx into specialized Contexts)
+- [x] **Item 123: Global Toast Queue** - Implement a global "Toast" notification system that supports queuing, categorization, and action buttons. (Integrated sonner via UIContext)
 
 ### Security & Privacy
 
