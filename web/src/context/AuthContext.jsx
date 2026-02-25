@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,12 +10,7 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({
-  children,
-  initialUser,
-  handleLoginSuccess,
-  onLogout,
-}) => {
+export const AuthProvider = ({ children, initialUser, handleLoginSuccess, onLogout }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(initialUser);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -48,7 +44,9 @@ export const AuthProvider = ({
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get(`${window.location.origin}/api/auth/profile`, { withCredentials: true });
+        const res = await axios.get(`${window.location.origin}/api/auth/profile`, {
+          withCredentials: true,
+        });
         const data = res.data.success ? res.data.data : res.data;
         if (data && data.id) {
           setUser(data);
@@ -64,15 +62,19 @@ export const AuthProvider = ({
 
   const login = useCallback(
     async (email, password, rememberMe) => {
-      const res = await axios.post(`${window.location.origin}/api/auth/login`, {
-        email,
-        password,
-        rememberMe,
-      }, { withCredentials: true });
-      
+      const res = await axios.post(
+        `${window.location.origin}/api/auth/login`,
+        {
+          email,
+          password,
+          rememberMe,
+        },
+        { withCredentials: true }
+      );
+
       const data = res.data.success ? res.data.data : res.data;
       if (data.mfa_required) return { mfa_required: true, preAuthToken: data.preAuthToken };
-      
+
       if (data.token) setToken(data.token);
       handleLoginSuccess(data, rememberMe);
     },

@@ -66,13 +66,8 @@ const PageLoader = () => (
 
 // Clerk Integration Component
 function ClerkSync({ api, setToken, setUser, setHousehold, token }) {
-  let clerkAuth, clerkUser;
-  try {
-    clerkAuth = useClerkAuth();
-    clerkUser = useClerkUser();
-  } catch {
-    return null; // Item 176: Defensive bypass if ClerkProvider is missing
-  }
+  const clerkAuth = useClerkAuth();
+  const clerkUser = useClerkUser();
 
   useEffect(() => {
     if (clerkAuth?.isSignedIn && clerkUser?.user && clerkAuth.getToken) {
@@ -98,7 +93,8 @@ function ClerkSync({ api, setToken, setUser, setHousehold, token }) {
 }
 
 export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
-  const { token, setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } = useAuth();
+  const { token, setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } =
+    useAuth();
   const { household, setHousehold, members, dates, vehicles, updateSettings, householdId } =
     useHousehold();
   const { showNotification, confirmAction, confirmDialog, closeConfirm } = useUI();
@@ -175,7 +171,10 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
       )}
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/login" element={!isAuthenticated ? <Login onLogin={login} /> : <Navigate to="/" />} />
+          <Route
+            path="/login"
+            element={!isAuthenticated ? <Login onLogin={login} /> : <Navigate to="/" />}
+          />
           <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
 
           <Route
@@ -216,7 +215,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
               path="household/:id"
               element={
                 <HouseholdLayout
-                  households={[]} 
+                  households={[]}
                   onSelectHousehold={handleSelectHousehold}
                   api={api}
                   onUpdateHousehold={updateSettings}

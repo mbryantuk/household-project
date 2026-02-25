@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useHouseholdMembers,
@@ -58,23 +59,41 @@ export const HouseholdProvider = ({ children, initialHousehold }) => {
     [api, household, householdId, queryClient, showNotification, setHousehold]
   );
 
-  const value = useMemo(() => ({
-    household,
-    setHousehold,
-    members,
-    users,
-    dates,
-    vehicles,
-    updateSettings,
-    householdId,
-    api,
-    user,
-    onLogout: logout,
-    showNotification,
-    confirmAction,
-    statusBarData,
-    setStatusBarData,
-  }), [household, members, users, dates, vehicles, updateSettings, householdId, api, user, logout, showNotification, confirmAction, statusBarData, setHousehold]);
+  const value = useMemo(
+    () => ({
+      household,
+      setHousehold,
+      members,
+      users,
+      dates,
+      vehicles,
+      updateSettings,
+      householdId,
+      api,
+      user,
+      onLogout: logout,
+      showNotification,
+      confirmAction,
+      statusBarData,
+      setStatusBarData,
+    }),
+    [
+      household,
+      members,
+      users,
+      dates,
+      vehicles,
+      updateSettings,
+      householdId,
+      api,
+      user,
+      logout,
+      showNotification,
+      confirmAction,
+      statusBarData,
+      setHousehold,
+    ]
+  );
 
   return <HouseholdContext.Provider value={value}>{children}</HouseholdContext.Provider>;
 };
