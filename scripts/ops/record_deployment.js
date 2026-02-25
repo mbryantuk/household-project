@@ -1,14 +1,15 @@
-const { globalDb, dbRun } = require('../../server/db');
 const pkg = require('../../package.json');
+const { db } = require('../../server/db/index');
+const { versionHistory } = require('../../server/db/schema');
 
 const comment = process.argv[2] || 'System update';
 
 async function main() {
   try {
-    await dbRun(globalDb, `INSERT INTO version_history (version, comment) VALUES (?, ?)`, [
-      pkg.version,
+    await db.insert(versionHistory).values({
+      version: pkg.version,
       comment,
-    ]);
+    });
     console.log(`✅ Recorded deployment v${pkg.version}: ${comment}`);
   } catch (err) {
     console.error('❌ Failed to record deployment:', err);

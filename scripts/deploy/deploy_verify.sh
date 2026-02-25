@@ -62,7 +62,7 @@ git push origin "$CURRENT_BRANCH"
 
 # 3.2. Record Deployment History
 echo "📝 Recording deployment history..."
-node scripts/ops/record_deployment.js "$CLEAN_MESSAGE"
+npx tsx scripts/ops/record_deployment.js "$CLEAN_MESSAGE"
 
 # 3.3. Update Slack Dashboards
 echo "📢 Updating Slack Dashboards..."
