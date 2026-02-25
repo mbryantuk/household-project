@@ -148,6 +148,59 @@
         ],
         "responses": { "201": { "description": "Created" } }
       }
+    },
+    "/households/{id}/shopping-list/schedules": {
+      "get": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/households/{id}/shopping-list/schedules/{scheduleId}/toggle-complete": {
+      "post": {
+        "tags": ["Shopping"],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } },
+          { "in": "path", "name": "scheduleId", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/households/{id}/notifications/stream": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Real-time activity stream (SSE)",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Event Stream" } }
+      }
+    },
+    "/webhooks/{provider}": {
+      "post": {
+        "tags": ["System"],
+        "summary": "Asynchronous external event receiver",
+        "parameters": [
+          { "in": "path", "name": "provider", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "202": { "description": "Accepted" } }
+      }
+    },
+    "/system/metrics": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Prometheus telemetry data",
+        "responses": { "200": { "description": "Text format metrics" } }
+      }
     }
   }
 }

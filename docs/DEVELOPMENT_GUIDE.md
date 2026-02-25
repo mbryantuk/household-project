@@ -70,11 +70,18 @@ Use `logger.info()` or `logger.error()`. In production, these output structured 
 
 ---
 
-## 5. Continuous Integration
+## 6. Database & Migrations
 
-Every Pull Request is gated by:
+### ORM Standard
+We use **Drizzle ORM** for PostgreSQL (Core/Identity) and standard `sqlite3` for tenant databases. All core schema changes must be defined in `server/db/schema.ts`.
 
-1. **Linting:** Zero errors allowed.
-2. **Backend Integrity:** 100% pass on security and integration tests (PostgreSQL containerized).
-3. **Frontend Routing:** Smoke tests ensure major modules render correctly.
-4. **Load Metrics:** Automated Artillery tests ensure no performance regression.
+### Item 100: Immutable Migrations
+- **NEVER** edit an existing migration file in `server/drizzle/`.
+- If a schema change is incorrect, create a new "fix-up" migration.
+- Migrations must be forward-only and tested against a fresh DB clone before merging.
+
+### Item 99: Materialized Views
+- Use PostgreSQL Materialized Views for heavy aggregate queries (e.g., system-wide audit statistics).
+- Views are refreshed asynchronously via background jobs (`BullMQ`) to avoid blocking API requests.
+- Refresh interval is typically 10-60 minutes depending on data sensitivity.
+

@@ -45,7 +45,7 @@ import VehicleFinanceWidget from './widgets/VehicleFinanceWidget';
 import BudgetStatusWidget from './widgets/BudgetStatusWidget';
 import WealthWidget from './widgets/WealthWidget';
 
-import { useHousehold } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
 import { APP_NAME } from '../constants';
 
 const WidgetWrapper = ({

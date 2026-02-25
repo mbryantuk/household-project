@@ -114,6 +114,21 @@ export const RecurringCostSchema = z.object({
 });
 export type RecurringCost = z.infer<typeof RecurringCostSchema>;
 
+// --- FEATURE FLAGS (Item 103: Validated JSONB) ---
+export const FeatureFlagCriteriaSchema = z.object({
+  household_ids: z.array(z.number()).optional(),
+  user_emails: z.array(z.string()).optional(),
+});
+
+export const FeatureFlagSchema = z.object({
+  id: z.string(),
+  description: z.string().optional(),
+  isEnabled: z.boolean().default(false),
+  rolloutPercentage: z.number().min(0).max(100).default(0),
+  criteria: FeatureFlagCriteriaSchema.nullable().optional(),
+});
+export type FeatureFlag = z.infer<typeof FeatureFlagSchema>;
+
 // --- API RESPONSE WRAPPERS ---
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -125,3 +140,4 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 
 export * from './api-types';
 export * from './errors';
+export * from './mocks';

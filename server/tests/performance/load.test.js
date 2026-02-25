@@ -11,34 +11,57 @@ describe('Performance & Speed Tests', () => {
   const uniqueId = Date.now();
 
   beforeAll(async () => {
+    // 0. Register Super Admin
+    await request(app)
+      .post('/api/auth/register')
+      .send({
+        householdName: 'Totem System',
+        email: 'super@totem.local',
+        password: 'superpassword',
+        is_test: 1,
+      });
+
     const loginRes = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: 'super@totem.local', password: 'superpassword' });
-    sysAdminToken = loginRes.body.token;
+    sysAdminToken = loginRes.body.data.token;
+
+    // Promote to system admin
+    const { db } = require('../../db/index');
+    const { users } = require('../../db/schema');
+    const { eq } = require('drizzle-orm');
+    await db.update(users).set({ systemRole: 'admin' }).where(eq(users.email, 'super@totem.local'));
 
     const hhRes = await request(app)
-      .post('/admin/households')
-      .set('Authorization', `Bearer ${sysAdminToken}`)
+      .post('/api/auth/register')
       .send({
-        name: `PerfTest_${uniqueId}`,
-        adminEmail: `perf_${uniqueId}@example.com`,
-        adminPassword: 'password123',
-        adminUsername: 'PerfAdmin',
+        householdName: `PerfTest_${uniqueId}`,
+        email: `perf_${uniqueId}@example.com`,
+        password: 'password123',
+        is_test: 1,
       });
-    householdId = hhRes.body.householdId;
 
     const adminLogin = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: `perf_${uniqueId}@example.com`, password: 'password123' });
-    adminToken = adminLogin.body.token;
+    
+    adminToken = adminLogin.body.data.token;
+    householdId = adminLogin.body.data.user.defaultHouseholdId || adminLogin.body.data.user.lastHouseholdId;
+
+    if (!householdId) {
+       const hhs = await request(app)
+         .get('/api/auth/my-households')
+         .set('Authorization', `Bearer ${adminToken}`);
+       householdId = hhs.body.data[0].id;
+    }
 
     // Seed data
     await request(app)
-      .post(`/households/${householdId}/assets`)
+      .post(`/api/households/${householdId}/assets`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'Speed Test Asset', purchase_value: 100 });
     await request(app)
-      .post(`/households/${householdId}/finance/savings`)
+      .post(`/api/households/${householdId}/finance/savings`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         institution: 'Bank',
@@ -51,7 +74,7 @@ describe('Performance & Speed Tests', () => {
   afterAll(async () => {
     if (householdId)
       await request(app)
-        .delete(`/admin/households/${householdId}`)
+        .delete(`/api/admin/households/${householdId}`)
         .set('Authorization', `Bearer ${sysAdminToken}`);
   });
 
@@ -71,7 +94,7 @@ describe('Performance & Speed Tests', () => {
       'Login',
       () =>
         request(app)
-          .post('/auth/login')
+          .post('/api/auth/login')
           .send({ email: `perf_${uniqueId}@example.com`, password: 'password123' }),
       10
     );
@@ -83,7 +106,7 @@ describe('Performance & Speed Tests', () => {
       'GET Assets',
       () =>
         request(app)
-          .get(`/households/${householdId}/assets`)
+          .get(`/api/households/${householdId}/assets`)
           .set('Authorization', `Bearer ${adminToken}`),
       30
     );
@@ -95,7 +118,7 @@ describe('Performance & Speed Tests', () => {
       'GET Savings',
       () =>
         request(app)
-          .get(`/households/${householdId}/finance/savings`)
+          .get(`/api/households/${householdId}/finance/savings`)
           .set('Authorization', `Bearer ${adminToken}`),
       30
     );
@@ -107,7 +130,7 @@ describe('Performance & Speed Tests', () => {
       'POST Asset',
       () =>
         request(app)
-          .post(`/households/${householdId}/assets`)
+          .post(`/api/households/${householdId}/assets`)
           .set('Authorization', `Bearer ${adminToken}`)
           .send({ name: 'Perf Asset', purchase_value: 10 }),
       10
@@ -126,7 +149,7 @@ describe('Performance & Speed Tests', () => {
       for (let j = 0; j < concurrency; j++) {
         promises.push(
           request(app)
-            .get(`/households/${householdId}/assets`)
+            .get(`/api/households/${householdId}/assets`)
             .set('Authorization', `Bearer ${adminToken}`)
         );
       }

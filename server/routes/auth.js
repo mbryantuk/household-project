@@ -4,36 +4,46 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { generateSecret, generateURI, verify } = require('otplib');
 const qrcode = require('qrcode');
-const { db } = require('../db/index');
-const { users, userSessions, userHouseholds, households } = require('../db/schema');
+const {
+  users,
+  userProfiles,
+  userSessions,
+  userHouseholds,
+  households,
+} = require('../db/schema');
 const { eq, and, or, ilike, sql } = require('drizzle-orm');
 const { SECRET_KEY } = require('../config');
 const { authenticateToken } = require('../middleware/auth');
 const { finalizeLogin } = require('../services/auth');
+const { StrictEmailSchema, AppError, NotFoundError, UnauthorizedError, ConflictError } = require('@hearth/shared');
+const response = require('../utils/response');
 
 /**
  * POST /register
  */
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
   const { householdName, email, password, firstName, lastName, is_test } = req.body;
 
   if (!householdName || !email || !password) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return next(new AppError('Missing required fields', 400));
+  }
+
+  try {
+    StrictEmailSchema.parse(email);
+  } catch (err) {
+    return next(new AppError('Email invalid or disposable domain not allowed', 400));
   }
 
   if (process.env.NODE_ENV !== 'test') {
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        error:
-          'Password must be at least 8 characters long and include at least one number and one special character.',
-      });
+      return next(new AppError('Password must be at least 8 characters long and include at least one number and one special character.', 400));
     }
   }
 
   try {
-    const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (existing.length > 0) return res.status(409).json({ error: 'Email already registered' });
+    const existing = await req.ctx.db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (existing.length > 0) throw new ConflictError('Email already registered');
 
     let finalIsTest = is_test || process.env.NODE_ENV === 'test' ? 1 : 0;
     if (email.startsWith('smoke_') || email.startsWith('routing_') || email.startsWith('test_')) {
@@ -42,8 +52,7 @@ router.post('/register', async (req, res) => {
 
     const passwordHash = bcrypt.hashSync(password, 8);
 
-    // Atomic transaction for registration
-    const result = await db.transaction(async (tx) => {
+    await req.ctx.db.transaction(async (tx) => {
       const [hh] = await tx
         .insert(households)
         .values({
@@ -57,79 +66,79 @@ router.post('/register', async (req, res) => {
         .values({
           email,
           passwordHash,
-          firstName: firstName || 'Admin',
-          lastName: lastName || '',
           defaultHouseholdId: hh.id,
           isTest: finalIsTest,
         })
         .returning();
+
+      await tx.insert(userProfiles).values({
+        userId: user.id,
+        firstName: firstName || 'Admin',
+        lastName: lastName || '',
+      });
 
       await tx.insert(userHouseholds).values({
         userId: user.id,
         householdId: hh.id,
         role: 'admin',
       });
-
-      return { user, hh };
     });
 
-    res.status(201).json({ message: 'Registration successful. Please login.' });
+    response.success(res, { message: 'Registration successful. Please login.' }, null, 201);
   } catch (err) {
-    console.error('Registration Error:', err);
-    res.status(500).json({ error: 'Registration failed: ' + err.message });
+    next(err);
   }
 });
 
 /**
  * POST /lookup
  */
-router.post('/lookup', async (req, res) => {
+router.post('/lookup', async (req, res, next) => {
   const { email, username } = req.body;
   const identifier = email || username;
-  if (!identifier) return res.status(400).json({ error: 'Identifier required' });
+  if (!identifier) return next(new AppError('Identifier required', 400));
 
   try {
-    const results = await db
+    const results = await req.ctx.db
       .select({
-        first_name: users.firstName,
-        avatar: users.avatar,
+        first_name: userProfiles.firstName,
+        avatar: userProfiles.avatar,
       })
       .from(users)
+      .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
       .where(or(ilike(users.email, identifier), eq(users.username, identifier)))
       .limit(1);
 
-    if (results.length === 0) return res.status(404).json({ error: 'Not found' });
-    res.json(results[0]);
+    if (results.length === 0) throw new NotFoundError('User not found');
+    response.success(res, results[0]);
   } catch (err) {
-    res.status(500).json({ error: 'Lookup failed' });
+    next(err);
   }
 });
 
 /**
  * POST /login
  */
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   const { email, password, username, rememberMe } = req.body;
   const identifier = email || username;
 
   try {
-    const results = await db
+    const results = await req.ctx.db
       .select()
       .from(users)
       .where(or(ilike(users.email, identifier), eq(users.username, identifier)))
       .limit(1);
 
-    if (results.length === 0) return res.status(404).json({ error: 'Invalid credentials' });
+    if (results.length === 0) throw new UnauthorizedError('Invalid credentials');
     const user = results[0];
 
     if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ error: 'Your account is deactivated. Please contact support.' });
+      throw new AppError('Your account is deactivated. Please contact support.', 403);
     }
 
     const isValid = bcrypt.compareSync(password, user.passwordHash);
-    if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!isValid) throw new UnauthorizedError('Invalid credentials');
 
     if (user.mfaEnabled) {
       const preAuthToken = jwt.sign(
@@ -137,254 +146,134 @@ router.post('/login', async (req, res) => {
         SECRET_KEY,
         { expiresIn: '5m' }
       );
-      return res.json({ mfa_required: true, preAuthToken });
+      return response.success(res, { mfa_required: true, preAuthToken });
     }
 
-    // Adapt user object for finalizeLogin
-    const compatUser = {
-      ...user,
-      first_name: user.firstName,
-      last_name: user.lastName,
-      last_household_id: user.lastHouseholdId,
-      default_household_id: user.defaultHouseholdId,
-      system_role: user.systemRole,
-      dashboard_layout: user.dashboardLayout,
-      sticky_note: user.stickyNote,
-      custom_theme: user.customTheme,
-      customTheme: user.customTheme,
-      mfa_enabled: user.mfaEnabled,
-    };
-
-    await finalizeLogin(compatUser, req, res, rememberMe);
+    await finalizeLogin(user, req, res, rememberMe, req.ctx.db);
   } catch (err) {
-    console.error('Login Error:', err);
-    res.status(500).json({ error: 'Login failed' });
+    next(err);
   }
 });
 
 /**
  * MFA SETUPS
  */
-router.post('/mfa/setup', authenticateToken, async (req, res) => {
+router.post('/mfa/setup', authenticateToken, async (req, res, next) => {
   try {
     const secret = generateSecret();
     const otpauth = generateURI({ secret, label: req.user.email, issuer: 'Hearth Household' });
     const qrCodeUrl = await qrcode.toDataURL(otpauth);
 
-    await db.update(users).set({ mfaSecret: secret }).where(eq(users.id, req.user.id));
-    res.json({ secret, qrCodeUrl });
+    await req.ctx.db.update(users).set({ mfaSecret: secret }).where(eq(users.id, req.user.id));
+    response.success(res, { secret, qrCodeUrl });
   } catch (err) {
-    res.status(500).json({ error: 'MFA setup failed' });
+    next(err);
   }
 });
 
-router.post('/mfa/verify', authenticateToken, async (req, res) => {
+router.post('/mfa/verify', authenticateToken, async (req, res, next) => {
   const { code } = req.body;
   try {
-    const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
-    if (!user || !user.mfaSecret) return res.status(400).json({ error: 'MFA not initiated' });
+    const [user] = await req.ctx.db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
+    if (!user || !user.mfaSecret) throw new AppError('MFA not initiated', 400);
 
     const isValid = verify({ token: code, secret: user.mfaSecret });
-    if (!isValid) return res.status(400).json({ error: 'Invalid code' });
+    if (!isValid) throw new AppError('Invalid code', 400);
 
-    await db.update(users).set({ mfaEnabled: true }).where(eq(users.id, req.user.id));
-    res.json({ message: 'MFA Enabled' });
+    await req.ctx.db.update(users).set({ mfaEnabled: true }).where(eq(users.id, req.user.id));
+    response.success(res, { message: 'MFA Enabled' });
   } catch (err) {
-    res.status(500).json({ error: 'MFA verification failed' });
-  }
-});
-
-router.post('/mfa/disable', authenticateToken, async (req, res) => {
-  const { password } = req.body;
-  try {
-    const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
-    const isValid = bcrypt.compareSync(password, user.passwordHash);
-    if (!isValid) return res.status(403).json({ error: 'Invalid password' });
-
-    await db
-      .update(users)
-      .set({ mfaEnabled: false, mfaSecret: null })
-      .where(eq(users.id, req.user.id));
-    res.json({ message: 'MFA Disabled' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to disable MFA' });
-  }
-});
-
-router.post('/mfa/login', async (req, res) => {
-  const { preAuthToken, code } = req.body;
-  try {
-    const decoded = jwt.verify(preAuthToken, SECRET_KEY);
-    const [user] = await db.select().from(users).where(eq(users.id, decoded.preAuthId)).limit(1);
-    if (!user || !user.isActive) return res.status(403).json({ error: 'User inactive' });
-
-    const isValid = verify({ token: code, secret: user.mfaSecret });
-    if (!isValid) return res.status(401).json({ error: 'Invalid 2FA code' });
-
-    const compatUser = {
-      ...user,
-      first_name: user.firstName,
-      last_name: user.lastName,
-      last_household_id: user.lastHouseholdId,
-      default_household_id: user.defaultHouseholdId,
-      system_role: user.systemRole,
-      dashboard_layout: user.dashboardLayout,
-      sticky_note: user.stickyNote,
-      custom_theme: user.customTheme,
-      customTheme: user.customTheme,
-      mfa_enabled: user.mfaEnabled,
-    };
-
-    await finalizeLogin(compatUser, req, res, decoded.rememberMe);
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired pre-auth token' });
-  }
-});
-
-/**
- * SESSION MANAGEMENT
- */
-router.get('/sessions', authenticateToken, async (req, res) => {
-  try {
-    const rows = await db
-      .select()
-      .from(userSessions)
-      .where(and(eq(userSessions.userId, req.user.id), sql`${userSessions.expiresAt} > now()`))
-      .orderBy(sql`${userSessions.lastActive} desc`);
-
-    res.json(
-      rows.map((s) => ({
-        ...s,
-        current: s.id === req.user.sid,
-        created_at: s.createdAt,
-        last_active: s.lastActive,
-        expires_at: s.expiresAt,
-      }))
-    );
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch sessions' });
-  }
-});
-
-router.delete('/sessions', authenticateToken, async (req, res) => {
-  try {
-    await db
-      .delete(userSessions)
-      .where(and(eq(userSessions.userId, req.user.id), sql`${userSessions.id} != ${req.user.sid}`));
-    res.json({ message: 'All other sessions logged out' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to logout other sessions' });
-  }
-});
-
-router.delete('/sessions/:id', authenticateToken, async (req, res) => {
-  try {
-    await db
-      .delete(userSessions)
-      .where(and(eq(userSessions.id, req.params.id), eq(userSessions.userId, req.user.id)));
-    res.json({ message: 'Session revoked' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to revoke session' });
+    next(err);
   }
 });
 
 /**
  * PROFILE
  */
-router.get('/profile', authenticateToken, async (req, res) => {
+router.get('/profile', authenticateToken, async (req, res, next) => {
   try {
-    const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({
+    const results = await req.ctx.db
+      .select()
+      .from(users)
+      .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
+      .where(eq(users.id, req.user.id))
+      .limit(1);
+
+    if (results.length === 0) throw new NotFoundError('User not found');
+    const { users: user, user_profiles: profile } = results[0];
+
+    response.success(res, {
       id: user.id,
       email: user.email,
       username: user.username,
-      first_name: user.firstName,
-      last_name: user.lastName,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
-      theme: user.theme,
-      mode: user.mode || 'system',
-      custom_theme: user.customTheme,
-      customTheme: user.customTheme,
-      dashboard_layout: user.dashboardLayout,
-      dashboardLayout: user.dashboardLayout,
-      sticky_note: user.stickyNote,
-      stickyNote: user.stickyNote,
-      mfa_enabled: !!user.mfaEnabled,
+      firstName: profile?.firstName,
+      lastName: profile?.lastName,
+      avatar: profile?.avatar,
+      theme: profile?.theme,
+      mode: profile?.mode || 'system',
+      customTheme: profile?.customTheme,
+      dashboardLayout: profile?.dashboardLayout,
+      stickyNote: profile?.stickyNote,
       mfaEnabled: !!user.mfaEnabled,
-      default_household_id: user.defaultHouseholdId,
       defaultHouseholdId: user.defaultHouseholdId,
-      system_role: user.systemRole,
       systemRole: user.systemRole,
-      last_household_id: user.lastHouseholdId,
       lastHouseholdId: user.lastHouseholdId,
-      budget_settings: user.budgetSettings,
-      budgetSettings: user.budgetSettings,
+      budgetSettings: profile?.budgetSettings,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-router.put('/profile', authenticateToken, async (req, res) => {
+router.put('/profile', authenticateToken, async (req, res, next) => {
   const b = req.body;
-  const updateObj = {};
+  const userUpdate = {};
+  const profileUpdate = {};
 
-  if (b.email !== undefined) updateObj.email = b.email;
-  if (b.password) updateObj.passwordHash = bcrypt.hashSync(b.password, 8);
-  if (b.firstName !== undefined) updateObj.firstName = b.firstName;
-  if (b.first_name !== undefined) updateObj.firstName = b.first_name;
-  if (b.lastName !== undefined) updateObj.lastName = b.lastName;
-  if (b.last_name !== undefined) updateObj.lastName = b.last_name;
-  if (b.avatar !== undefined) updateObj.avatar = b.avatar;
-  if (b.theme !== undefined) updateObj.theme = b.theme;
-  if (b.mode !== undefined) updateObj.mode = b.mode;
+  if (b.email !== undefined) userUpdate.email = b.email;
+  if (b.password) userUpdate.passwordHash = bcrypt.hashSync(b.password, 8);
+  if (b.defaultHouseholdId !== undefined) userUpdate.defaultHouseholdId = b.defaultHouseholdId;
 
-  const ct = b.customTheme !== undefined ? b.customTheme : b.custom_theme;
-  if (ct !== undefined) updateObj.customTheme = typeof ct === 'string' ? ct : JSON.stringify(ct);
+  if (b.firstName !== undefined) profileUpdate.firstName = b.firstName;
+  if (b.lastName !== undefined) profileUpdate.lastName = b.lastName;
+  if (b.avatar !== undefined) profileUpdate.avatar = b.avatar;
+  if (b.theme !== undefined) profileUpdate.theme = b.theme;
+  if (b.mode !== undefined) profileUpdate.mode = b.mode;
+  if (b.customTheme !== undefined) profileUpdate.customTheme = b.customTheme;
+  if (b.stickyNote !== undefined) profileUpdate.stickyNote = b.stickyNote;
+  if (b.dashboardLayout !== undefined) profileUpdate.dashboardLayout = b.dashboardLayout;
+  if (b.budgetSettings !== undefined) profileUpdate.budgetSettings = b.budgetSettings;
 
-  const sn = b.stickyNote !== undefined ? b.stickyNote : b.sticky_note;
-  if (sn !== undefined) updateObj.stickyNote = typeof sn === 'string' ? sn : JSON.stringify(sn);
-
-  if (b.defaultHouseholdId !== undefined) updateObj.defaultHouseholdId = b.defaultHouseholdId;
-  if (b.default_household_id !== undefined) updateObj.defaultHouseholdId = b.default_household_id;
-
-  const dl = b.dashboardLayout !== undefined ? b.dashboardLayout : b.dashboard_layout;
-  if (dl !== undefined)
-    updateObj.dashboardLayout = typeof dl === 'string' ? dl : JSON.stringify(dl);
-
-  const bs = b.budgetSettings !== undefined ? b.budgetSettings : b.budget_settings;
-  if (bs !== undefined) updateObj.budgetSettings = typeof bs === 'string' ? bs : JSON.stringify(bs);
-
-  if (Object.keys(updateObj).length === 0)
-    return res.status(400).json({ error: 'Nothing to update' });
+  if (Object.keys(userUpdate).length === 0 && Object.keys(profileUpdate).length === 0)
+    return next(new AppError('Nothing to update', 400));
 
   try {
-    await db.update(users).set(updateObj).where(eq(users.id, req.user.id));
-    res.json({ message: 'Profile updated' });
+    await req.ctx.db.transaction(async (tx) => {
+      if (Object.keys(userUpdate).length > 0) {
+        await tx.update(users).set(userUpdate).where(eq(users.id, req.user.id));
+      }
+      if (Object.keys(profileUpdate).length > 0) {
+        await tx
+          .insert(userProfiles)
+          .values({ userId: req.user.id, ...profileUpdate })
+          .onConflictDoUpdate({
+            target: userProfiles.userId,
+            set: profileUpdate,
+          });
+      }
+    });
+    response.success(res, { message: 'Profile updated' });
   } catch (err) {
-    console.error('[AUTH] Profile Update Error:', err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-// Item 128: GDPR Deletion Flows
-router.delete('/profile', authenticateToken, async (req, res) => {
+/**
+ * HOUSEHOLDS & TOKENS
+ */
+router.get('/my-households', authenticateToken, async (req, res, next) => {
   try {
-    // Hard delete triggers native ON DELETE CASCADE in PostgreSQL for user_sessions, passkeys, and user_households.
-    // Tenant databases (SQLite) might retain member records, but they will be orphaned from login and can be cleaned up via background job.
-    await db.delete(users).where(eq(users.id, req.user.id));
-    res.json({ message: 'Account and associated personal data permanently deleted (GDPR)' });
-  } catch (err) {
-    res.status(500).json({ error: 'Account deletion failed: ' + err.message });
-  }
-});
-
-router.get('/my-households', authenticateToken, async (req, res) => {
-  try {
-    const results = await db
+    const results = await req.ctx.db
       .select({
         id: households.id,
         name: households.name,
@@ -397,51 +286,42 @@ router.get('/my-households', authenticateToken, async (req, res) => {
       .innerJoin(userHouseholds, eq(households.id, userHouseholds.householdId))
       .where(eq(userHouseholds.userId, req.user.id));
 
-    res.json(results);
+    response.success(res, results);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-router.post('/token', authenticateToken, async (req, res) => {
+router.post('/token', authenticateToken, async (req, res, next) => {
   const { householdId } = req.body;
   try {
-    const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
-    if (!user || !user.isActive) return res.status(403).json({ error: 'User inactive' });
+    const [user] = await req.ctx.db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
+    if (!user || !user.isActive) throw new UnauthorizedError('User inactive');
 
     let userRole = 'member';
     if (householdId) {
-      const [link] = await db
+      const [link] = await req.ctx.db
         .select()
         .from(userHouseholds)
-        .where(
-          and(
-            eq(userHouseholds.userId, user.id),
-            eq(userHouseholds.householdId, householdId),
-            eq(userHouseholds.isActive, true)
-          )
-        )
+        .where(and(eq(userHouseholds.userId, user.id), eq(userHouseholds.householdId, householdId), eq(userHouseholds.isActive, true)))
         .limit(1);
-      if (!link) return res.status(403).json({ error: 'Access denied to this household' });
+      if (!link) throw new ForbiddenError('Access denied to this household');
       userRole = link.role;
     }
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        system_role: user.systemRole,
-        householdId,
-        role: userRole,
-      },
-      SECRET_KEY,
-      { expiresIn: '24h' }
-    );
-
-    res.json({ token, role: userRole });
+    const token = jwt.sign({ id: user.id, email: user.email, system_role: user.systemRole, householdId, role: userRole }, SECRET_KEY, { expiresIn: '24h' });
+    response.success(res, { token, role: userRole });
   } catch (err) {
-    res.status(500).json({ error: 'Token refresh failed' });
+    next(err);
   }
+});
+
+/**
+ * POST /logout
+ */
+router.post('/logout', (req, res) => {
+  res.clearCookie('hearth_auth');
+  response.success(res, { message: 'Logged out' });
 });
 
 module.exports = router;

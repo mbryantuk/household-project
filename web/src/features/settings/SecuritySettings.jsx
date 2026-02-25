@@ -32,7 +32,7 @@ import QrCode from '@mui/icons-material/QrCode';
 import Warning from '@mui/icons-material/Warning';
 import Lock from '@mui/icons-material/Lock';
 
-import { useHousehold } from '../../contexts/HouseholdContext';
+import { useHousehold } from '../../context/HouseholdContext';
 import PasskeyManager from '../../components/PasskeyManager';
 
 export default function SecuritySettings() {

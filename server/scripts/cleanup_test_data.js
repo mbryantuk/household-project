@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { globalDb, dbAll, dbRun, dbGet } = require('../db');
+const { db } = require('../db/index');
+const { households, users, userHouseholds } = require('../db/schema');
+const { eq, inArray, like, not, and, desc, or } = require('drizzle-orm');
 
 const DATA_DIR = path.join(__dirname, '../data');
 const BACKUP_DIR = path.join(__dirname, '../backups');
@@ -11,86 +13,83 @@ async function cleanupTestData() {
   console.log('🧹 Starting Aggressive Test Data Cleanup...');
 
   try {
-    // 1. Identify the latest Brady household to preserve it
-    const latestBrady = await dbGet(
-      globalDb,
-      `
-            SELECT id FROM households 
-            WHERE name LIKE 'The Brady Bunch %' 
-            ORDER BY id DESC LIMIT 1
-        `
-    );
+    const dbUrl = process.env.DATABASE_URL || require('../config').DATABASE_URL;
+    let keepIds = [PERMANENT_HOUSEHOLD_ID];
+    let latestBrady = null;
+    let skipDb = false;
 
-    const keepIds = [PERMANENT_HOUSEHOLD_ID];
-    if (latestBrady) {
-      keepIds.push(latestBrady.id);
-      console.log(`📍 Preserving Latest Brady Household: ID ${latestBrady.id}`);
+    if (!dbUrl) {
+      console.log('⚠️ DATABASE_URL not set, skipping Postgres cleanup (useful after ephemeral testcontainers).');
+      skipDb = true;
     }
 
-    // 2. TAGGING: Mark any household NOT in the keep list as 'is_test = 1'
-    // This ensures they are captured by the purge logic even if they were created as 'live'
-    const placeholders = keepIds.map(() => '?').join(',');
-    await dbRun(
-      globalDb,
-      `
-            UPDATE households 
-            SET is_test = 1 
-            WHERE id NOT IN (${placeholders})
-        `,
-      keepIds
-    );
+    if (!skipDb) {
+      try {
+        // 1. Identify the latest Brady household to preserve it
+        const bradyHouseholds = await db
+          .select({ id: households.id })
+          .from(households)
+          .where(like(households.name, 'The Brady Bunch %'))
+          .orderBy(desc(households.id))
+          .limit(1);
 
-    // 3. PURGE: Delete all is_test = 1 households NOT in the keep list
-    const householdsToDelete = await dbAll(
-      globalDb,
-      `
-            SELECT id FROM households 
-            WHERE is_test = 1 AND id NOT IN (${placeholders})
-        `,
-      keepIds
-    );
+        latestBrady = bradyHouseholds.length > 0 ? bradyHouseholds[0] : null;
 
-    if (householdsToDelete.length > 0) {
-      const deleteIds = householdsToDelete.map((h) => h.id);
-      const delPlaceholders = deleteIds.map(() => '?').join(',');
+        if (latestBrady) {
+          keepIds.push(latestBrady.id);
+          console.log(`📍 Preserving Latest Brady Household: ID ${latestBrady.id}`);
+        }
 
-      await dbRun(
-        globalDb,
-        `DELETE FROM user_households WHERE household_id IN (${delPlaceholders})`,
-        deleteIds
-      );
-      await dbRun(globalDb, `DELETE FROM households WHERE id IN (${delPlaceholders})`, deleteIds);
-      console.log(`✅ Purged ${householdsToDelete.length} old test households.`);
+        // 2. TAGGING: Mark any household NOT in the keep list as 'is_test = 1'
+        await db
+          .update(households)
+          .set({ isTest: 1 })
+          .where(not(inArray(households.id, keepIds)));
+
+        // 3. PURGE: Delete all is_test = 1 households NOT in the keep list
+        const householdsToDelete = await db
+          .select({ id: households.id })
+          .from(households)
+          .where(and(eq(households.isTest, 1), not(inArray(households.id, keepIds))));
+
+        if (householdsToDelete.length > 0) {
+          const deleteIds = householdsToDelete.map((h) => h.id);
+
+          await db.delete(userHouseholds).where(inArray(userHouseholds.householdId, deleteIds));
+          await db.delete(households).where(inArray(households.id, deleteIds));
+          console.log(`✅ Purged ${householdsToDelete.length} old test households.`);
+        }
+
+        // 4. ORPHAN USERS: Purge test users except the primary maintainer
+        const testUserPatterns = [
+          like(users.email, 'ephemeral%'),
+          like(users.email, 'mike%'),
+          like(users.email, 'carol%'),
+          like(users.email, 'greg%'),
+          like(users.email, 'marcia%'),
+          like(users.email, 'peter%'),
+          like(users.email, 'jan%'),
+          like(users.email, 'bobby%'),
+          like(users.email, 'cindy%'),
+          like(users.email, 'smoke%'),
+          like(users.email, 'routing%'),
+          like(users.email, 'brady%'),
+          like(users.email, 'test%'),
+          eq(users.isTest, 1),
+        ];
+
+        await db.delete(users).where(
+          and(
+            or(...testUserPatterns),
+            not(eq(users.email, MAINTAINED_USER_EMAIL))
+          )
+        );
+        console.log(`✅ Purged orphan test user accounts.`);
+      } catch (err) {
+        console.error('⚠️ DB Cleanup Failed (possibly due to ephemeral test db):', err.message);
+        skipDb = true;
+      }
     }
-
-    // 4. ORPHAN USERS: Purge test users except the primary maintainer
-    const testUserPatterns = [
-      'ephemeral%',
-      'mike%',
-      'carol%',
-      'greg%',
-      'marcia%',
-      'peter%',
-      'jan%',
-      'bobby%',
-      'cindy%',
-      'smoke%',
-      'routing%',
-      'brady%',
-      'test%',
-    ];
-    const userDelPlaceholders = testUserPatterns.map(() => 'email LIKE ?').join(' OR ');
-
-    await dbRun(
-      globalDb,
-      `
-            DELETE FROM users 
-            WHERE (is_test = 1 OR ${userDelPlaceholders}) 
-            AND email != ?
-        `,
-      [...testUserPatterns, MAINTAINED_USER_EMAIL]
-    );
-    console.log(`✅ Purged orphan test user accounts.`);
 
     // 5. FILE CLEANUP
     const cleanupDirs = [DATA_DIR, BACKUP_DIR];
@@ -113,7 +112,7 @@ async function cleanupTestData() {
           }
         }
 
-        // Pattern for .zip backup files (e.g., household-6256-backup-...)
+        // Pattern for .zip backup files
         const zipMatch = file.match(/^household-(\d+)-backup-.*\.zip/);
         if (zipMatch) {
           const id = parseInt(zipMatch[1]);
@@ -127,31 +126,26 @@ async function cleanupTestData() {
     });
 
     // 6. RESTORE PRIMARY ACCESS
-    const targetUser = await dbGet(globalDb, `SELECT id FROM users WHERE email = ?`, [
-      MAINTAINED_USER_EMAIL,
-    ]);
-    if (targetUser) {
-      for (const hhId of keepIds) {
-        await dbRun(
-          globalDb,
-          `
-                    INSERT OR REPLACE INTO user_households (user_id, household_id, role, is_active) 
-                    VALUES (?, ?, 'admin', 1)
-                `,
-          [targetUser.id, hhId]
-        );
-      }
+    if (!skipDb) {
+      const targetUsers = await db.select({ id: users.id }).from(users).where(eq(users.email, MAINTAINED_USER_EMAIL));
+      if (targetUsers.length > 0) {
+        const targetUser = targetUsers[0];
+        for (const hhId of keepIds) {
+          await db
+            .insert(userHouseholds)
+            .values({ userId: targetUser.id, householdId: hhId, role: 'admin', isActive: true })
+            .onConflictDoUpdate({
+              target: [userHouseholds.userId, userHouseholds.householdId],
+              set: { role: 'admin', isActive: true },
+            });
+        }
 
-      // Default to latest Brady
-      if (latestBrady) {
-        await dbRun(globalDb, `UPDATE users SET last_household_id = ? WHERE id = ?`, [
-          latestBrady.id,
-          targetUser.id,
-        ]);
+        // Default to latest Brady
+        if (latestBrady) {
+          await db.update(users).set({ lastHouseholdId: latestBrady.id }).where(eq(users.id, targetUser.id));
+        }
+        console.log(`🔗 Access verified for ${MAINTAINED_USER_EMAIL} to households: ${keepIds.join(', ')}`);
       }
-      console.log(
-        `🔗 Access verified for ${MAINTAINED_USER_EMAIL} to households: ${keepIds.join(', ')}`
-      );
     }
   } catch (err) {
     console.error('❌ Cleanup Failed:', err);

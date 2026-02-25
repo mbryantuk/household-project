@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
@@ -44,6 +45,7 @@ const formatCurrency = (val) => {
 const formatDate = (date) => format(date, 'yyyy-MM-dd');
 
 export default function ShoppingListView() {
+  const { t } = useTranslation();
   const { api, household, showNotification, confirmAction } = useOutletContext();
   const householdId = household?.id;
   const queryClient = useQueryClient();
@@ -142,12 +144,13 @@ export default function ShoppingListView() {
   return (
     <Box data-testid="shopping-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       <ModuleHeader
-        title="Groceries"
+        title={t('nav.groceries')}
+        titleTestId="shopping-heading"
         description="Manage your weekly shopping list and track spending trends."
         emoji="🛒"
         chips={[
           { label: `w/c ${format(currentWeekStart, 'do MMM')}`, color: 'primary' },
-          { label: `${items.length} Items`, color: 'neutral' },
+          { label: `${items.length} ${t('nav.groceries')}`, color: 'neutral' },
         ]}
         action={
           <Stack direction="row" spacing={1}>
@@ -240,24 +243,27 @@ export default function ShoppingListView() {
                 variant={item.is_checked ? 'soft' : 'outlined'}
                 sx={{
                   p: 1.5,
-                  borderRadius: 'sm',
+                  minHeight: 64, // Item 178: Better touch targets (min 44px)
+                  borderRadius: 'md',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   opacity: item.is_checked ? 0.6 : 1,
+                  transition: 'background 0.2s',
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
                   <Checkbox
                     checked={!!item.is_checked}
                     onChange={() => handleToggle(item)}
                     color="success"
+                    sx={{ '--Checkbox-size': '24px' }} // Enhanced touch target
                     disabled={
                       mutations.toggleItem.isPending &&
                       mutations.toggleItem.variables?.id === item.id
                     }
                   />
-                  <Box>
+                  <Box sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => handleToggle(item)}>
                     <Typography
                       level="title-sm"
                       sx={{ textDecoration: item.is_checked ? 'line-through' : 'none' }}
@@ -279,17 +285,20 @@ export default function ShoppingListView() {
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   {item.estimated_cost > 0 && (
                     <Typography level="body-sm" fontWeight="bold">
                       {formatCurrency(item.estimated_cost)}
                     </Typography>
                   )}
                   <IconButton
-                    size="sm"
+                    size="md" // Item 178: Larger icon button for mobile
                     color="danger"
                     variant="plain"
-                    onClick={() => handleDelete(item.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.id);
+                    }}
                     loading={
                       mutations.deleteItem.isPending && mutations.deleteItem.variables === item.id
                     }

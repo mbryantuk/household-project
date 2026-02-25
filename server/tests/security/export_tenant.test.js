@@ -32,8 +32,8 @@ describe('🛡️ Tenant Export Verification', () => {
       password: 'Password123!',
     });
 
-    adminToken = loginRes.body.token;
-    householdId = loginRes.body.household.id;
+    adminToken = loginRes.body.data.token;
+    householdId = loginRes.body.data.household.id;
 
     // Guaranteed "touch" of the tenant DB file
     const dbPath = path.join(DATA_DIR, `household_${householdId}.db`);
@@ -46,9 +46,9 @@ describe('🛡️ Tenant Export Verification', () => {
       .set('Authorization', `Bearer ${adminToken}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBe('Export ready');
-    expect(res.body.filename).toBeDefined();
-    expect(res.body.filename).toContain(`household-${householdId}`);
+    expect(res.body.data.message).toBe('Export ready');
+    expect(res.body.data.filename).toBeDefined();
+    expect(res.body.data.filename).toContain(`household-${householdId}`);
   });
 
   test('Non-system-admin should not be able to export (even if household admin)', async () => {
@@ -62,7 +62,7 @@ describe('🛡️ Tenant Export Verification', () => {
       email: userEmail,
       password: 'Password123!',
     });
-    const userToken = loginRes.body.token;
+    const userToken = loginRes.body.data.token;
 
     const res = await request(app)
       .get(`/api/admin/households/${householdId}/export`)
@@ -76,7 +76,7 @@ describe('🛡️ Tenant Export Verification', () => {
       .get(`/api/admin/households/${householdId}/export`)
       .set('Authorization', `Bearer ${adminToken}`);
 
-    const filename = res.body.filename;
+    const filename = res.body.data.filename;
     const admZip = require('adm-zip');
     const backupDir = path.join(__dirname, '../../backups');
     const filePath = path.join(backupDir, filename);

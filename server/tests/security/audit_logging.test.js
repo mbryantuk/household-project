@@ -24,8 +24,8 @@ describe('Immutable Audit Logging', () => {
       password: 'Password123!',
     });
 
-    token = loginRes.body.token;
-    householdId = loginRes.body.household.id;
+    token = loginRes.body.data.token;
+    householdId = loginRes.body.data.household.id;
   });
 
   it('should log a MEMBER_CREATE action', async () => {
@@ -39,7 +39,7 @@ describe('Immutable Audit Logging', () => {
       });
 
     expect(res.status).toBe(201);
-    testMemberId = res.body.id;
+    testMemberId = res.body.data.id;
 
     // If Postgres is available, we verify the DB entry
     if (DATABASE_URL) {

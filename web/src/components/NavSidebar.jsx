@@ -12,11 +12,6 @@ import {
   Avatar,
   Typography,
   Tooltip,
-  Menu,
-  MenuItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Modal,
   ModalDialog,
   DialogTitle,
@@ -31,7 +26,6 @@ import {
 import {
   Event,
   Pets,
-  Inventory2,
   RestaurantMenu,
   AccountBalance,
   Close,
@@ -43,9 +37,7 @@ import {
   Logout as LogoutIcon,
   Download as DownloadIcon,
   Home as HomeIcon,
-  ExpandMore,
   Add,
-  CheckCircle,
   Palette,
   Person,
   Security,
@@ -60,7 +52,9 @@ import {
 import { useLocation, useNavigate, NavLink, useSearchParams } from 'react-router-dom';
 import { isToday, parseISO } from 'date-fns';
 import { getEmojiColor } from '../utils/colors';
-import { useHousehold } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
+import { useAuth } from '../context/AuthContext';
+import { useUI } from '../context/UIContext';
 import EmojiPicker from './EmojiPicker';
 import { ToggleButtonGroup, Badge } from '@mui/joy';
 
@@ -258,17 +252,10 @@ export default function NavSidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const {
-    household,
-    members = [],
-    vehicles = [],
-    user,
-    api,
-    onLogout,
-    confirmAction,
-    households = [],
-    onSelectHousehold,
-  } = useHousehold();
+  
+  const { household, members = [], vehicles = [], api } = useHousehold();
+  const { user, logout: onLogout } = useAuth();
+  const { confirmAction } = useUI();
 
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isPinned, setIsPinned] = useState(localStorage.getItem('nav_pinned') === 'true');
@@ -312,7 +299,6 @@ export default function NavSidebar({
     if (path.includes('/dashboard')) return 'dashboard';
     if (path.includes('/settings')) return 'account';
     if (path.includes('/calendar')) return 'calendar';
-    // Check for house/people/pets last or use stricter matching
     if (
       path.match(/\/house($|\/)/) ||
       path.includes('/people') ||
@@ -329,19 +315,15 @@ export default function NavSidebar({
   );
 
   const handleNav = (to, category, hasSubItems) => {
-    // Logic for touch devices and click-to-open behavior
     if (hasSubItems) {
       if (hoveredCategory === category) {
-        // If already open, just navigate (if link exists) or toggle close
         if (to) navigate(to);
         else setHoveredCategory(null);
       } else {
-        // Open the panel first
         setHoveredCategory(category);
         if (to) navigate(to);
       }
     } else {
-      // No sub items, just go there and close panels
       if (to) navigate(to);
       setHoveredCategory(null);
       if (isMobile && onClose) onClose();
@@ -377,12 +359,11 @@ export default function NavSidebar({
   const [newProfileEmoji, setNewProfileEmoji] = useState('💰');
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  // Sidebar Data States
   const [pendingChores, setPendingChores] = useState([]);
   const [quickShopItem, setQuickShopItem] = useState('');
 
   useEffect(() => {
-    if (!household?.id) return;
+    if (!household?.id || !api) return;
 
     if (currentPanelCategory === 'finance') {
       api
@@ -412,8 +393,6 @@ export default function NavSidebar({
         await api.post(`/households/${household.id}/shopping`, { name: quickShopItem });
         setQuickShopItem('');
         if (location.pathname.includes('/shopping')) {
-          // Force refresh if on page? Better to use a global state or bus,
-          // but for now simple message
           navigate(location.pathname, { replace: true });
         }
       } catch (err) {
@@ -434,16 +413,15 @@ export default function NavSidebar({
       setProfiles((prev) => [...prev, res.data]);
       handleProfileSelect(res.data.id);
       setProfileCreateOpen(false);
-      newProfileName('');
+      setNewProfileName('');
       setNewProfileEmoji('💰');
     } catch (err) {
-      alert('Failed: ' + err.message);
+      console.error(err);
     }
   };
 
   const handleDeleteProfile = async (id) => {
     if (!household?.id) return;
-    if (!confirm('Delete this profile?')) return;
     try {
       await api.delete(`/households/${household.id}/finance/profiles/${id}`);
       setProfiles((prev) => prev.filter((p) => p.id !== id));
@@ -451,7 +429,7 @@ export default function NavSidebar({
         handleProfileSelect(profiles.find((p) => p.id !== id)?.id);
       }
     } catch (err) {
-      alert('Failed to delete: ' + err.message);
+      console.error(err);
     }
   };
 
@@ -735,7 +713,7 @@ export default function NavSidebar({
                   fontSize: '1rem',
                 }}
               >
-                {user?.avatar || user?.first_name?.[0]}
+                {user?.avatar || user?.firstName?.[0]}
               </Avatar>
             </IconButton>
           </Tooltip>
@@ -1095,11 +1073,11 @@ export default function NavSidebar({
                 <Box sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                     <Avatar size="lg" sx={{ bgcolor: getEmojiColor(user?.avatar || '👤', isDark) }}>
-                      {user?.avatar || user?.first_name?.[0]}
+                      {user?.avatar || user?.firstName?.[0]}
                     </Avatar>
                     <Box>
                       <Typography level="title-sm">
-                        {user?.first_name} {user?.last_name}
+                        {user?.firstName} {user?.lastName}
                       </Typography>
                       <Typography level="body-xs" color="neutral">
                         {user?.email}
@@ -1181,62 +1159,6 @@ export default function NavSidebar({
                     emoji={<HomeWork />}
                     onClick={handleSubItemClick}
                   />
-
-                  <Box sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}>
-                    <Typography
-                      level="body-xs"
-                      fontWeight="bold"
-                      sx={{
-                        mb: 1,
-                        color: 'text.tertiary',
-                        fontSize: '0.7rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Available Households
-                    </Typography>
-                    <List sx={{ gap: 0.5, p: 0 }}>
-                      {households.map((hh) => (
-                        <ListItem key={hh.id}>
-                          <ListItemButton
-                            selected={hh.id === household.id}
-                            onClick={async () => {
-                              await onSelectHousehold(hh);
-                              navigate(`/household/${hh.id}/dashboard`);
-                              if (isMobile && onClose) onClose();
-                              else setHoveredCategory(null);
-                            }}
-                            sx={{ borderRadius: 'sm', py: 0.5 }}
-                          >
-                            <ListItemDecorator>
-                              <Avatar
-                                size="sm"
-                                sx={{
-                                  width: 24,
-                                  height: 24,
-                                  fontSize: '0.9rem',
-                                  bgcolor: getEmojiColor(hh.avatar || '🏠', isDark),
-                                }}
-                              >
-                                {hh.avatar || '🏠'}
-                              </Avatar>
-                            </ListItemDecorator>
-                            <ListItemContent>
-                              <Typography
-                                level="body-sm"
-                                fontWeight={hh.id === household.id ? 'bold' : 'normal'}
-                              >
-                                {hh.name}
-                              </Typography>
-                            </ListItemContent>
-                            {hh.id === household.id && (
-                              <CheckCircle color="primary" sx={{ fontSize: '1rem' }} />
-                            )}
-                          </ListItemButton>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
 
                   <Box sx={{ mt: 'auto', pt: 2 }}>
                     <Divider sx={{ mb: 1 }} />

@@ -7,9 +7,11 @@ process.env.TZ = 'UTC';
 const { loadSecrets } = require('./config');
 const { bootstrap } = require('./bootstrap');
 const { startShoppingScheduler } = require('./services/shopping_scheduler');
+const { addJob } = require('./services/queue');
 const { initSocket } = require('./services/socket');
 const { shutdownAnalytics } = require('./services/analytics');
 const http = require('http');
+const cron = require('node-cron');
 
 async function startServer() {
   try {
@@ -33,6 +35,11 @@ async function startServer() {
       server.listen(config.PORT, '0.0.0.0', () => {
         console.log(`🚀 Server LIVE on port ${config.PORT}`);
         startShoppingScheduler();
+
+        // Item 99: Schedule Materialized View Refresh (Every 30 mins)
+        cron.schedule('*/30 * * * *', () => {
+          addJob('REFRESH_MATERIALIZED_VIEWS', { householdId: 0 }); // System scoped
+        });
       });
     }
 

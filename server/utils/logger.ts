@@ -16,3 +16,9 @@ const logger = pino({
 });
 
 export default logger;
+
+// CJS compatibility
+if (typeof module !== 'undefined') {
+  module.exports = logger;
+  module.exports.default = logger;
+}

@@ -3,64 +3,68 @@ const router = express.Router({ mergeParams: true });
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { auditLog } = require('../services/audit');
+const { dbAll, dbGet, dbRun } = require('../db');
+const { NotFoundError, AppError, ConflictError } = require('@hearth/shared');
+const response = require('../utils/response');
 
 /**
  * GET /api/households/:id/chores
  */
-router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-  req.tenantDb.all('SELECT * FROM chores WHERE household_id = ?', [req.hhId], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows || []);
-  });
+router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res, next) => {
+  try {
+    req.ctx.logger.info({ msg: 'Fetching chores', hhId: req.hhId });
+    const rows = await dbAll(req.tenantDb, 'SELECT * FROM chores WHERE household_id = ? AND deleted_at IS NULL', [req.hhId]);
+    response.success(res, rows || []);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * GET /api/households/:id/chores/stats
- * MOVED ABOVE /:itemId to avoid route collision
+ * Item 108: Enhanced stats for gamification UI.
  */
-router.get('/stats', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-  res.json({ total: 0, completed: 0 });
-});
-
-/**
- * GET /api/households/:id/chores/:itemId
- */
-router.get(
-  '/:itemId',
-  authenticateToken,
-  requireHouseholdRole('viewer'),
-  useTenantDb,
-  (req, res) => {
-    req.tenantDb.get(
-      'SELECT * FROM chores WHERE id = ? AND household_id = ?',
-      [req.params.itemId, req.hhId],
-      (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(404).json({ error: 'Chore not found' });
-        res.json(row);
-      }
+router.get('/stats', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res, next) => {
+  try {
+    const stats = await dbAll(
+      req.tenantDb,
+      `SELECT m.id, m.name, m.emoji, 
+              COUNT(cc.id) as tasks_completed, 
+              SUM(COALESCE(cc.value_earned, 0)) as total_earned
+       FROM members m
+       LEFT JOIN chore_completions cc ON m.id = cc.member_id AND cc.household_id = ?
+       WHERE m.household_id = ? AND m.deleted_at IS NULL
+       GROUP BY m.id`,
+      [req.hhId, req.hhId]
     );
+    response.success(res, stats || []);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 /**
  * POST /api/households/:id/chores
  */
-router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-  const { name, description, assigned_member_id, frequency, value, next_due_date, emoji } =
-    req.body;
-  req.tenantDb.run(
-    `INSERT INTO chores (household_id, name, description, assigned_member_id, frequency, value, next_due_date, emoji) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [req.hhId, name, description, assigned_member_id, frequency, value, next_due_date, emoji],
-    async function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-
-      const newId = this.lastID;
-      await auditLog(req.hhId, req.user.id, 'CHORE_CREATE', 'chore', newId, { name }, req);
-      res.status(201).json({ id: newId, ...req.body });
+router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res, next) => {
+  try {
+    if (req.isDryRun) {
+      return response.success(res, { message: 'Dry run successful', data: req.body });
     }
-  );
+
+    const { name, description, assigned_member_id, frequency, value, next_due_date, emoji } = req.body;
+    const { id: newId } = await dbRun(
+      req.tenantDb,
+      `INSERT INTO chores (household_id, name, description, assigned_member_id, frequency, value, next_due_date, emoji, version) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [req.hhId, name, description, assigned_member_id, frequency, value, next_due_date, emoji]
+    );
+
+    await auditLog(req.hhId, req.user.id, 'CHORE_CREATE', 'chore', newId, { name }, req);
+    response.success(res, { id: newId, version: 1, ...req.body }, null, 201);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
@@ -71,64 +75,44 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    const { name, description, assigned_member_id, frequency, value, next_due_date, emoji } =
-      req.body;
-    const updates = [];
-    const params = [];
-
-    if (name !== undefined) {
-      updates.push('name = ?');
-      params.push(name);
-    }
-    if (description !== undefined) {
-      updates.push('description = ?');
-      params.push(description);
-    }
-    if (assigned_member_id !== undefined) {
-      updates.push('assigned_member_id = ?');
-      params.push(assigned_member_id);
-    }
-    if (frequency !== undefined) {
-      updates.push('frequency = ?');
-      params.push(frequency);
-    }
-    if (value !== undefined) {
-      updates.push('value = ?');
-      params.push(value);
-    }
-    if (next_due_date !== undefined) {
-      updates.push('next_due_date = ?');
-      params.push(next_due_date);
-    }
-    if (emoji !== undefined) {
-      updates.push('emoji = ?');
-      params.push(emoji);
-    }
-
-    if (updates.length === 0) return res.status(400).json({ error: 'Nothing to update' });
-
-    params.push(req.params.itemId, req.hhId);
-
-    req.tenantDb.run(
-      `UPDATE chores SET ${updates.join(', ')} WHERE id = ? AND household_id = ?`,
-      params,
-      async function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Chore not found' });
-
-        await auditLog(
-          req.hhId,
-          req.user.id,
-          'CHORE_UPDATE',
-          'chore',
-          parseInt(req.params.itemId),
-          { name },
-          req
-        );
-        res.json({ message: 'Chore updated' });
+  async (req, res, next) => {
+    try {
+      if (req.isDryRun) {
+        return response.success(res, { message: 'Dry run successful', updates: req.body });
       }
-    );
+
+      const updates = { ...req.body };
+      const clientVersion = req.headers['x-version'] ? parseInt(req.headers['x-version']) : null;
+      
+      delete updates.id;
+      delete updates.household_id;
+      delete updates.version;
+
+      const keys = Object.keys(updates);
+      if (keys.length === 0) throw new AppError('Nothing to update', 400);
+
+      const fields = keys.map(k => `${k} = ?`);
+      let sql = `UPDATE chores SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP, version = version + 1 WHERE id = ? AND household_id = ? AND deleted_at IS NULL`;
+      const queryParams = [...Object.values(updates), req.params.itemId, req.hhId];
+
+      if (clientVersion !== null) {
+        sql += ` AND version = ?`;
+        queryParams.push(clientVersion);
+      }
+
+      const result = await dbRun(req.tenantDb, sql, queryParams);
+
+      if (result.changes === 0) {
+        const check = await dbGet(req.tenantDb, 'SELECT id FROM chores WHERE id = ? AND household_id = ?', [req.params.itemId, req.hhId]);
+        if (!check) throw new NotFoundError('Chore not found');
+        throw new ConflictError('The record has been modified by another user.');
+      }
+
+      await auditLog(req.hhId, req.user.id, 'CHORE_UPDATE', 'chore', parseInt(req.params.itemId), { updates: keys }, req);
+      response.success(res, { message: 'Chore updated' });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
@@ -140,26 +124,21 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    req.tenantDb.run(
-      'DELETE FROM chores WHERE id = ? AND household_id = ?',
-      [req.params.itemId, req.hhId],
-      async function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Chore not found' });
+  async (req, res, next) => {
+    try {
+      const result = await dbRun(
+        req.tenantDb,
+        'UPDATE chores SET deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND household_id = ?',
+        [req.params.itemId, req.hhId]
+      );
 
-        await auditLog(
-          req.hhId,
-          req.user.id,
-          'CHORE_DELETE',
-          'chore',
-          parseInt(req.params.itemId),
-          null,
-          req
-        );
-        res.json({ message: 'Chore deleted' });
-      }
-    );
+      if (result.changes === 0) throw new NotFoundError('Chore not found');
+
+      await auditLog(req.hhId, req.user.id, 'CHORE_DELETE', 'chore', parseInt(req.params.itemId), null, req);
+      response.success(res, { message: 'Chore deleted (soft)' });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
@@ -171,9 +150,22 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    // Basic implementation for coverage
-    res.json({ message: 'Chore completed' });
+  async (req, res, next) => {
+    try {
+      const chore = await dbGet(req.tenantDb, 'SELECT * FROM chores WHERE id = ? AND household_id = ?', [req.params.itemId, req.hhId]);
+      if (!chore) throw new NotFoundError('Chore not found');
+
+      const { id: completionId } = await dbRun(
+        req.tenantDb,
+        'INSERT INTO chore_completions (household_id, chore_id, member_id, completed_at, value_earned) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)',
+        [req.hhId, req.params.itemId, req.user.id, chore.value || 0]
+      );
+      
+      await auditLog(req.hhId, req.user.id, 'CHORE_COMPLETE', 'chore', parseInt(req.params.itemId), { completionId }, req);
+      response.success(res, { message: 'Chore completed', completionId });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 

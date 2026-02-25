@@ -18,6 +18,8 @@ describe('💣 Tenant Destruction & Cleanup', () => {
   let sysAdminToken;
   let householdId;
 
+  const unwrap = (res) => (res.body.success ? res.body.data : res.body);
+
   beforeAll(async () => {
     // 1. Setup: Create User & Household
     await request(app).post('/api/auth/register').send({
@@ -29,12 +31,12 @@ describe('💣 Tenant Destruction & Cleanup', () => {
     const login = await request(app)
       .post('/api/auth/login')
       .send({ email: ADMIN_EMAIL, password: PASSWORD });
-    token = login.body.token;
+    token = unwrap(login).token;
 
     const hList = await request(app)
       .get('/api/auth/my-households')
       .set('Authorization', `Bearer ${token}`);
-    householdId = hList.body[0]?.id;
+    householdId = unwrap(hList)[0]?.id;
 
     // 2. Setup: Create System Admin
     await request(app)
@@ -46,7 +48,7 @@ describe('💣 Tenant Destruction & Cleanup', () => {
     const sysLoginReal = await request(app)
       .post('/api/auth/login')
       .send({ email: SYS_ADMIN_EMAIL, password: PASSWORD });
-    sysAdminToken = sysLoginReal.body.token;
+    sysAdminToken = unwrap(sysLoginReal).token;
   });
 
   test('🧨 Destroy Tenant: Regular Admin should remove all traces', async () => {
@@ -57,12 +59,12 @@ describe('💣 Tenant Destruction & Cleanup', () => {
     const login2 = await request(app)
       .post('/api/auth/login')
       .send({ email: email, password: PASSWORD });
-    const actualToken = login2.body.token;
+    const actualToken = unwrap(login2).token;
 
     const hList = await request(app)
       .get('/api/auth/my-households')
       .set('Authorization', `Bearer ${actualToken}`);
-    const hhId = hList.body[0]?.id;
+    const hhId = unwrap(hList)[0]?.id;
 
     // Guaranteed "touch" of the tenant DB file
     const dbPath = path.join(DATA_DIR, `household_${hhId}.db`);
@@ -102,7 +104,7 @@ describe('💣 Tenant Destruction & Cleanup', () => {
       .set('Authorization', `Bearer ${sysAdminToken}`);
 
     expect(delRes.status).toBe(200);
-    expect(delRes.body.message).toContain('deleted');
+    expect(unwrap(delRes).message).toContain('deleted');
 
     const [hhRow] = await db.select().from(households).where(eq(households.id, targetHhId));
     expect(hhRow).toBeUndefined();

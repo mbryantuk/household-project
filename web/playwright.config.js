@@ -6,14 +6,15 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1, // Serial execution to prevent database locking during navigation
+  workers: 1, 
   reporter: [['list'], ['json', { outputFile: 'test-results/smoke.json' }]],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4001',
-    testIdAttribute: 'data-testid', // Enforce decoupled test IDs over brittle CSS classes
+    testIdAttribute: 'data-testid',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    userAgent: 'Hearth-Smoke-Test', // Item 176: Custom UA for test detection
     extraHTTPHeaders: {
       'x-bypass-maintenance': 'true',
     },

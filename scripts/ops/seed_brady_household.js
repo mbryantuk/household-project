@@ -72,7 +72,7 @@ function apiRequest(method, urlPath, data = null, token = null) {
           parsed = body;
         }
         if (res.statusCode >= 400) reject({ status: res.statusCode, data: parsed, path: urlPath });
-        else resolve({ status: res.statusCode, data: parsed });
+        else resolve({ status: res.statusCode, data: (parsed && parsed.success) ? parsed.data : parsed });
       });
     });
     req.on('error', reject);
@@ -97,7 +97,7 @@ async function seed() {
     });
     const token = login.data.token;
     const hhId =
-      login.data.user.default_household_id ||
+      login.data.user.defaultHouseholdId ||
       (await apiRequest('GET', '/api/auth/my-households', null, token)).data[0].id;
     await apiRequest('POST', `/api/households/${hhId}/select`, {}, token);
     await apiRequest(
@@ -136,7 +136,7 @@ async function seed() {
     // 2. HOUSE DETAILS (Valuation & Tech)
     await apiRequest(
       'PUT',
-      `/api/households/${hhId}/house-details`,
+      `/api/households/${hhId}/details`,
       {
         purchase_price: 61000,
         current_valuation: 2450000,

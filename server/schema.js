@@ -161,6 +161,8 @@ const TENANT_SCHEMA = [
         location TEXT,
         serial_number TEXT, -- Encrypted
         warranty_expiry DATE,
+        insurance_status TEXT,
+        monthly_maintenance_cost REAL DEFAULT 0,
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -446,6 +448,19 @@ const TENANT_SCHEMA = [
         PRIMARY KEY (household_id, schedule_id, cycle_date),
         FOREIGN KEY(schedule_id) REFERENCES shopping_schedules(id) ON DELETE CASCADE
     )`,
+  `CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        userId INTEGER,
+        title TEXT,
+        message TEXT,
+        type TEXT DEFAULT 'info', -- 'urgent', 'upcoming', 'info'
+        is_read INTEGER DEFAULT 0,
+        metadata TEXT, -- JSON
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        deleted_at DATETIME
+    )`,
 ];
 
 function initializeGlobalSchema(db) {
@@ -536,6 +551,8 @@ function initializeHouseholdSchema(db) {
         ['finance_pensions', 'financial_profile_id', 'INTEGER'],
         ['finance_investments', 'financial_profile_id', 'INTEGER'],
         ['recurring_costs', 'financial_profile_id', 'INTEGER'],
+        ['assets', 'insurance_status', 'TEXT'],
+        ['assets', 'monthly_maintenance_cost', 'REAL DEFAULT 0'],
       ];
 
       migrations.forEach(([table, col, type]) => {
@@ -544,6 +561,23 @@ function initializeHouseholdSchema(db) {
             // Ignore
           }
         });
+      });
+
+      // System-wide Soft Delete & Timestamps migration (Item 94)
+      const allTenantTables = [
+        'members', 'vehicles', 'vehicle_services', 'assets', 'recurring_costs', 
+        'dates', 'meals', 'meal_plans', 'finance_profiles', 'finance_income', 
+        'finance_savings', 'finance_savings_pots', 'finance_current_accounts', 
+        'finance_credit_cards', 'finance_pensions', 'finance_pensions_history', 
+        'finance_investments', 'finance_budget_categories', 'finance_budget_progress',
+        'finance_budget_cycles', 'finance_assignments', 'chores', 
+        'chore_completions', 'shopping_schedules', 'notifications'
+      ];
+
+      allTenantTables.forEach(table => {
+        db.run(`ALTER TABLE ${table} ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => {});
+        db.run(`ALTER TABLE ${table} ADD COLUMN deleted_at DATETIME`, () => {});
+        db.run(`ALTER TABLE ${table} ADD COLUMN version INTEGER DEFAULT 1`, () => {}); // Item 181
       });
 
       // 3. Ensure Default Profile and Backfill

@@ -15,27 +15,14 @@ import Calculate from '@mui/icons-material/Calculate';
 import Payments from '@mui/icons-material/Payments';
 import CleaningServices from '@mui/icons-material/CleaningServices';
 import ShoppingBag from '@mui/icons-material/ShoppingBag';
+import { useTranslation } from 'react-i18next';
 
 import NotificationsDrawer from '../components/NotificationsDrawer';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
 import { getEmojiColor } from '../utils/colors';
-import { HouseholdProvider } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
 import { APP_NAME } from '../constants';
-
-const ROUTE_META = {
-  dashboard: { title: 'Dashboard' },
-  people: { title: 'People' },
-  pets: { title: 'Pets' },
-  house: { title: 'House' },
-  vehicles: { title: 'Vehicles' },
-  finance: { title: 'Finance' },
-  shopping: { title: 'Groceries' },
-  meals: { title: 'Meal Planner' },
-  settings: { title: 'Settings' },
-  profile: { title: 'Profile' },
-  calendar: { title: 'Calendar' },
-};
 
 const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
   const navigate = useNavigate();
@@ -125,9 +112,28 @@ export default function HouseholdLayout({
   onInstall,
   household,
 }) {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const ROUTE_META = useMemo(
+    () => ({
+      dashboard: { title: t('nav.dashboard') },
+      people: { title: t('nav.people') },
+      pets: { title: 'Pets' },
+      house: { title: 'House' },
+      vehicles: { title: 'Vehicles' },
+      finance: { title: t('nav.finance') },
+      shopping: { title: t('nav.groceries') },
+      meals: { title: 'Meal Planner' },
+      settings: { title: t('nav.settings') },
+      profile: { title: 'Profile' },
+      calendar: { title: 'Calendar' },
+    }),
+    [t]
+  );
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('main');
@@ -178,7 +184,7 @@ export default function HouseholdLayout({
     const parts = path.split('/');
     const section = parts[3];
     return ROUTE_META[section]?.title || household?.name || APP_NAME.toUpperCase();
-  }, [location.pathname, household]);
+  }, [location.pathname, household, ROUTE_META]);
 
   const contextValue = {
     household: household,
@@ -208,15 +214,14 @@ export default function HouseholdLayout({
   };
 
   return (
-    <HouseholdProvider value={contextValue}>
-      <Box
-        sx={{
-          display: 'flex',
-          height: '100dvh',
-          flexDirection: { xs: 'column', md: 'row' },
-          bgcolor: 'background.body',
-        }}
-      >
+    <Box
+      sx={{
+        display: 'flex',
+        height: '100dvh',
+        flexDirection: { xs: 'column', md: 'row' },
+        bgcolor: 'background.body',
+      }}
+    >
         <NavSidebar
           installPrompt={installPrompt}
           onInstall={onInstall}
@@ -276,6 +281,7 @@ export default function HouseholdLayout({
 
           <Box
             component="main"
+            id="main-content"
             sx={{
               flexGrow: 1,
               minHeight: 0,
@@ -309,6 +315,8 @@ export default function HouseholdLayout({
           </Box>
 
           <Sheet
+            component="nav"
+            aria-label="Mobile Navigation"
             sx={{
               display: { xs: 'flex', md: 'none' },
               position: 'fixed',
@@ -567,8 +575,8 @@ export default function HouseholdLayout({
             )}
           </Sheet>
         </Drawer>
-        <NotificationsDrawer open={notificationOpen} onClose={() => setNotificationOpen(false)} />
-      </Box>
-    </HouseholdProvider>
-  );
-}
+              <NotificationsDrawer open={notificationOpen} onClose={() => setNotificationOpen(false)} />
+            </Box>
+          );
+        }
+        

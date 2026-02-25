@@ -7,7 +7,7 @@ export function useFinanceProfiles(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-profiles'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/profiles`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -22,7 +22,7 @@ export function useCurrentAccounts(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-current-accounts'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/current-accounts`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -37,7 +37,7 @@ export function useIncome(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-income'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/income`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -52,32 +52,37 @@ export function useFinanceSummary(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-summary'],
     queryFn: async () => {
-      if (!householdId) return null;
+      if (!householdId || !api) return null;
 
-      const [profilesRes, cyclesRes] = await Promise.all([
-        api.get(`/households/${householdId}/finance/profiles`),
-        api.get(`/households/${householdId}/finance/budget-cycles`),
-      ]);
+      try {
+        const [profilesRes, cyclesRes] = await Promise.all([
+          api.get(`/households/${householdId}/finance/profiles`),
+          api.get(`/households/${householdId}/finance/budget-cycles`),
+        ]);
 
-      const profiles = profilesRes.data || [];
-      const cycles = cyclesRes.data || [];
+        const profiles = Array.isArray(profilesRes.data) ? profilesRes.data : [];
+        const cycles = Array.isArray(cyclesRes.data) ? cyclesRes.data : [];
 
-      // Calculate Total Balance (Net Worth Proxy)
-      const totalBalance = cycles.reduce((sum, c) => sum + (c.current_balance || 0), 0);
+        // Calculate Total Balance (Net Worth Proxy)
+        const totalBalance = cycles.reduce((sum, c) => sum + (parseFloat(c.current_balance) || 0), 0);
 
-      // Calculate Budget Health (Income vs Spend Proxy)
-      const totalIncome = cycles.reduce((sum, c) => sum + (c.actual_pay || 0), 0);
-      const spending = totalIncome - totalBalance; // Rough proxy
+        // Calculate Budget Health (Income vs Spend Proxy)
+        const totalIncome = cycles.reduce((sum, c) => sum + (parseFloat(c.actual_pay) || 0), 0);
+        const spending = totalIncome - totalBalance;
 
-      return {
-        netWorth: totalBalance,
-        monthlyIncome: totalIncome,
-        spending,
-        profiles: profiles.slice(0, 3),
-      };
+        return {
+          netWorth: totalBalance,
+          monthlyIncome: totalIncome,
+          spending,
+          profiles: profiles.slice(0, 3),
+        };
+      } catch (err) {
+        console.error('Finance Summary Calculation Error:', err);
+        return { netWorth: 0, monthlyIncome: 0, spending: 0, profiles: [] };
+      }
     },
     enabled: !!api && !!householdId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -88,7 +93,7 @@ export function useMortgages(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-mortgages'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/mortgages`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -103,7 +108,7 @@ export function useLoans(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-loans'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/loans`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -118,7 +123,7 @@ export function useCreditCards(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-credit-cards'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/credit-cards`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -133,7 +138,7 @@ export function useVehicleFinance(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-vehicle-finance'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/vehicle-finance`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -148,7 +153,7 @@ export function useRecurringCharges(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-charges'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/charges`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -163,7 +168,7 @@ export function useHouseholdDetails(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'details'],
     queryFn: async () => {
-      if (!householdId) return null;
+      if (!householdId || !api) return null;
       const res = await api.get(`/households/${householdId}/details`);
       return res.data;
     },
@@ -178,7 +183,7 @@ export function useSavings(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-savings'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/savings`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -193,7 +198,7 @@ export function useInvestments(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-investments'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/investments`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -208,7 +213,7 @@ export function usePensions(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-pensions'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/pensions`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -223,7 +228,7 @@ export function useBudgetProgress(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-budget-progress'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/budget-progress`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -238,7 +243,7 @@ export function useBudgetCycles(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-budget-cycles'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/budget-cycles`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -253,7 +258,7 @@ export function useRecurringCosts(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'finance-recurring-costs'],
     queryFn: async () => {
-      if (!householdId) return [];
+      if (!householdId || !api) return [];
       const res = await api.get(`/households/${householdId}/finance/recurring-costs`);
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -268,6 +273,7 @@ export function useBankHolidays(api) {
   return useQuery({
     queryKey: ['system', 'holidays'],
     queryFn: async () => {
+      if (!api) return [];
       const res = await api.get('/system/holidays');
       return Array.isArray(res.data) ? res.data : [];
     },
@@ -283,46 +289,51 @@ export function useWealthData(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'wealth-data'],
     queryFn: async () => {
-      if (!householdId) return null;
-      const [
-        pensionRes,
-        saveRes,
-        invRes,
-        mortRes,
-        vehRes,
-        vFinRes,
-        detailRes,
-        potRes,
-        loanRes,
-        ccRes,
-        accRes,
-      ] = await Promise.all([
-        api.get(`/households/${householdId}/finance/pensions`),
-        api.get(`/households/${householdId}/finance/savings`),
-        api.get(`/households/${householdId}/finance/investments`),
-        api.get(`/households/${householdId}/finance/mortgages`),
-        api.get(`/households/${householdId}/vehicles`),
-        api.get(`/households/${householdId}/finance/vehicle-finance`),
-        api.get(`/households/${householdId}/details`),
-        api.get(`/households/${householdId}/finance/savings/pots`),
-        api.get(`/households/${householdId}/finance/loans`),
-        api.get(`/households/${householdId}/finance/credit-cards`),
-        api.get(`/households/${householdId}/finance/current-accounts`),
-      ]);
+      if (!householdId || !api) return null;
+      try {
+        const [
+          pensionRes,
+          saveRes,
+          invRes,
+          mortRes,
+          vehRes,
+          vFinRes,
+          detailRes,
+          potRes,
+          loanRes,
+          ccRes,
+          accRes,
+        ] = await Promise.all([
+          api.get(`/households/${householdId}/finance/pensions`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/savings`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/investments`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/mortgages`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/vehicles`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/vehicle-finance`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/details`).catch(() => ({ data: {} })),
+          api.get(`/households/${householdId}/finance/savings/pots`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/loans`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/credit-cards`).catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/current-accounts`).catch(() => ({ data: [] })),
+        ]);
 
-      return {
-        pensions: pensionRes.data || [],
-        savings: saveRes.data || [],
-        investments: invRes.data || [],
-        mortgages: mortRes.data || [],
-        vehicles: vehRes.data || [],
-        vehicle_finance: vFinRes.data || [],
-        house_details: detailRes.data || {},
-        savings_pots: potRes.data || [],
-        loans: loanRes.data || [],
-        credit_cards: ccRes.data || [],
-        current_accounts: accRes.data || [],
-      };
+        return {
+          pensions: pensionRes.data || [],
+          savings: saveRes.data || [],
+          investments: invRes.data || [],
+          mortgages: mortRes.data || [],
+          vehicles: vehRes.data || [],
+          vehicle_finance: vFinRes.data || [],
+          house_details: detailRes.data || {},
+          savings_pots: potRes.data || [],
+          loans: loanRes.data || [],
+          credit_cards: ccRes.data || [],
+          current_accounts: accRes.data || [],
+        };
+      } catch (err) {
+        console.error('Wealth Data Fetch Error:', err);
+        return null;
+      }
     },
     enabled: !!api && !!householdId,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -336,7 +347,7 @@ export function useBudgetStatusData(api, householdId) {
   return useQuery({
     queryKey: ['households', householdId, 'budget-status-data'],
     queryFn: async () => {
-      if (!householdId) return null;
+      if (!householdId || !api) return null;
       const [incRes, progRes, cycleRes, recurringRes, ccRes, accountRes, holidayRes] =
         await Promise.all([
           api.get(`/households/${householdId}/finance/income`).catch(() => ({ data: [] })),
@@ -344,9 +355,7 @@ export function useBudgetStatusData(api, householdId) {
           api.get(`/households/${householdId}/finance/budget-cycles`).catch(() => ({ data: [] })),
           api.get(`/households/${householdId}/finance/recurring-costs`).catch(() => ({ data: [] })),
           api.get(`/households/${householdId}/finance/credit-cards`).catch(() => ({ data: [] })),
-          api
-            .get(`/households/${householdId}/finance/current-accounts`)
-            .catch(() => ({ data: [] })),
+          api.get(`/households/${householdId}/finance/current-accounts`).catch(() => ({ data: [] })),
           api.get(`/system/holidays`).catch(() => ({ data: [] })),
         ]);
 

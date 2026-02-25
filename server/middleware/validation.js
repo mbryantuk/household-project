@@ -1,7 +1,7 @@
-const { ApiResponseSchema } = require('@hearth/shared');
+const { ValidationError } = require('@hearth/shared');
 
 /**
- * Zod Validation Middleware
+ * Zod Validation Middleware (Item 85)
  * @param {import('zod').ZodSchema} schema
  * @param {string} source - 'body', 'query', 'params'
  */
@@ -14,14 +14,15 @@ const validate =
       next();
     } catch (err) {
       if (err.name === 'ZodError') {
-        return res.status(400).json({
-          success: false,
-          error: 'Validation failed',
-          details: err.errors.map((e) => ({
-            path: e.path.join('.'),
-            message: e.message,
-          })),
-        });
+        return next(
+          new ValidationError(
+            'Validation failed',
+            err.errors.map((e) => ({
+              path: e.path.join('.'),
+              message: e.message,
+            }))
+          )
+        );
       }
       next(err);
     }

@@ -22,14 +22,14 @@ describe('🛡️ Advanced System Integrity & Security', () => {
     const login = await request(app)
       .post('/api/auth/login')
       .send({ email: ADMIN_EMAIL, password: PASSWORD });
-    token = login.body.token;
-    householdId = login.body.user.default_household_id;
+    token = login.body.data.token;
+    householdId = login.body.data.user.defaultHouseholdId;
 
     if (!householdId) {
       const hList = await request(app)
         .get('/api/auth/my-households')
         .set('Authorization', `Bearer ${token}`);
-      householdId = hList.body[0]?.id;
+      householdId = hList.body.data[0]?.id;
     }
 
     await request(app)
@@ -83,6 +83,6 @@ describe('🛡️ Advanced System Integrity & Security', () => {
       .post(`/api/households/${householdId}/backups`)
       .set('Authorization', `Bearer ${token}`);
     expect(bRes.status).toBe(200);
-    expect(bRes.body.filename).toBeDefined();
+    expect(bRes.body.data.filename).toBeDefined();
   });
 });

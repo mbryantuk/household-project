@@ -4,7 +4,7 @@ import ViewModule from '@mui/icons-material/ViewModule';
 import CloudDownload from '@mui/icons-material/CloudDownload';
 import DataObject from '@mui/icons-material/DataObject';
 
-import { useHousehold } from '../../contexts/HouseholdContext';
+import { useHousehold } from '../../context/HouseholdContext';
 
 export default function HouseholdSettings() {
   const { household, onUpdateHousehold, showNotification, user, api } = useHousehold();

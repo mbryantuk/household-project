@@ -41,7 +41,7 @@ describe('Security Audit Proof of Concept', () => {
   it('Vulnerability 3: Admin Escalation - Adding user to another household (FIXED)', async () => {
     // We need a user who is NOT a system admin for this test
     const testUserRes = await request(app)
-      .post('/auth/register')
+      .post('/api/auth/register')
       .send({
         householdName: 'Tenancy Test HH',
         email: `tenancy_${Date.now()}@example.com`,
@@ -52,7 +52,7 @@ describe('Security Audit Proof of Concept', () => {
 
     // Login to get a real token for a non-system-admin
     const loginRes = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: `tenancy_${Date.now()}@example.com`, password: 'Password123!' });
 
     // Since we just registered, we'll use the ID from the DB or a new login
@@ -63,7 +63,7 @@ describe('Security Audit Proof of Concept', () => {
     );
 
     const res = await request(app)
-      .post('/admin/create-user')
+      .post('/api/admin/create-user')
       .set('Authorization', `Bearer ${token}`)
       .send({
         username: 'evil_user_test',
@@ -83,7 +83,7 @@ describe('Security Audit Proof of Concept', () => {
     );
 
     const res = await request(app)
-      .get('/households/3294/finance/mortgages')
+      .get('/api/households/3294/finance/mortgages')
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(403);

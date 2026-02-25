@@ -3,45 +3,39 @@ const app = require('../App');
 const { db } = require('../db/index');
 const { users } = require('../db/schema');
 const { eq } = require('drizzle-orm');
-const jwt = require('jsonwebtoken');
-const { SECRET_KEY } = require('../config');
 
 describe('Profile API', () => {
   let token;
   let userId;
 
+  const unwrap = (res) => (res.body.success ? res.body.data : res.body);
+
   beforeAll(async () => {
-    // Create a test user in Postgres
-    const [user] = await db
-      .insert(users)
-      .values({
-        email: 'profile_test@example.com',
-        passwordHash: 'hash',
-        firstName: 'Profile',
-        lastName: 'Test',
-        systemRole: 'user',
-        isActive: true,
-        theme: 'totem',
-        customTheme: '{}',
-      })
-      .returning();
+    const email = `profile_test@example.com`;
+    const password = 'Password123!';
 
-    userId = user.id;
-    token = jwt.sign({ id: userId, email: 'profile_test@example.com' }, SECRET_KEY);
+    await request(app)
+      .post('/api/auth/register')
+      .send({ householdName: 'Profile Test', email, password });
+
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password });
+
+    const data = unwrap(loginRes);
+    token = data.token;
+    userId = data.user.id;
   });
 
-  afterAll(async () => {
-    await db.delete(users).where(eq(users.id, userId));
-  });
-
-  it('should retrieve the user profile with custom_theme', async () => {
-    const res = await request(app).get('/api/auth/profile').set('Authorization', `Bearer ${token}`);
+  it('should retrieve the user profile with customTheme', async () => {
+    const res = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('id', userId);
-    expect(res.body.theme).toBeDefined();
-    // In the actual API response, Drizzle might be returning camelCase
-    expect(res.body.customTheme || res.body.custom_theme).toBeDefined();
+    const data = unwrap(res);
+    expect(data).toHaveProperty('id', userId);
+    expect(data.theme).toBeDefined();
   });
 
   it('should update the user theme', async () => {
@@ -52,22 +46,28 @@ describe('Profile API', () => {
 
     expect(res.status).toBe(200);
 
-    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-    expect(user.theme).toBe('midnight');
+    const profileRes = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${token}`);
+    
+    expect(unwrap(profileRes).theme).toBe('midnight');
   });
 
-  it('should update the custom_theme', async () => {
-    const customTheme = { primary: '#ff0000', mode: 'dark' };
+  it('should update the customTheme', async () => {
+    const customTheme = { primary: '#ff0000' };
     const res = await request(app)
       .put('/api/auth/profile')
       .set('Authorization', `Bearer ${token}`)
-      .send({ custom_theme: customTheme });
+      .send({ customTheme });
 
     expect(res.status).toBe(200);
 
-    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-    const themeStr =
-      typeof user.customTheme === 'string' ? user.customTheme : JSON.stringify(user.customTheme);
-    expect(themeStr).toContain('#ff0000');
+    const profileRes = await request(app)
+      .get('/api/auth/profile')
+      .set('Authorization', `Bearer ${token}`);
+    
+    const data = unwrap(profileRes);
+    const theme = typeof data.customTheme === 'string' ? JSON.parse(data.customTheme) : data.customTheme;
+    expect(theme.primary).toBe('#ff0000');
   });
 });

@@ -3,19 +3,24 @@ const router = express.Router({ mergeParams: true });
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { auditLog } = require('../services/audit');
+const { dbAll, dbGet, dbRun } = require('../db');
+const { NotFoundError, AppError } = require('@hearth/shared');
+const response = require('../utils/response');
 
 /**
  * GET /api/households/:id/finance/recurring-costs
  */
-router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, (req, res) => {
-  req.tenantDb.all(
-    'SELECT * FROM recurring_costs WHERE household_id = ?',
-    [req.hhId],
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(rows || []);
-    }
-  );
+router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res, next) => {
+  try {
+    const rows = await dbAll(
+      req.tenantDb,
+      'SELECT * FROM recurring_costs WHERE household_id = ? AND deleted_at IS NULL',
+      [req.hhId]
+    );
+    response.success(res, rows || []);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
@@ -26,41 +31,31 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
-  (req, res) => {
-    req.tenantDb.get(
-      'SELECT * FROM recurring_costs WHERE id = ? AND household_id = ?',
-      [req.params.itemId, req.hhId],
-      (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(404).json({ error: 'Recurring cost not found' });
-        res.json(row);
-      }
-    );
+  async (req, res, next) => {
+    try {
+      const row = await dbGet(
+        req.tenantDb,
+        'SELECT * FROM recurring_costs WHERE id = ? AND household_id = ? AND deleted_at IS NULL',
+        [req.params.itemId, req.hhId]
+      );
+      if (!row) throw new NotFoundError('Recurring cost not found');
+      response.success(res, row);
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
 /**
  * POST /api/households/:id/finance/recurring-costs
  */
-router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, (req, res) => {
-  const {
-    name,
-    amount,
-    category_id,
-    frequency,
-    day_of_month,
-    object_type,
-    object_id,
-    bank_account_id,
-    financial_profile_id,
-    metadata,
-  } = req.body;
+router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb, async (req, res, next) => {
+  try {
+    if (req.isDryRun) {
+      return response.success(res, { message: 'Dry run successful', data: req.body });
+    }
 
-  req.tenantDb.run(
-    `INSERT INTO recurring_costs (household_id, name, amount, category_id, frequency, day_of_month, object_type, object_id, bank_account_id, financial_profile_id, metadata) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      req.hhId,
+    const {
       name,
       amount,
       category_id,
@@ -70,24 +65,33 @@ router.post('/', authenticateToken, requireHouseholdRole('member'), useTenantDb,
       object_id,
       bank_account_id,
       financial_profile_id,
-      JSON.stringify(metadata || {}),
-    ],
-    async function (err) {
-      if (err) return res.status(500).json({ error: err.message });
+      metadata,
+    } = req.body;
 
-      const newId = this.lastID;
-      await auditLog(
+    const { id: newId } = await dbRun(
+      req.tenantDb,
+      `INSERT INTO recurring_costs (household_id, name, amount, category_id, frequency, day_of_month, object_type, object_id, bank_account_id, financial_profile_id, metadata) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
         req.hhId,
-        req.user.id,
-        'RECURRING_COST_CREATE',
-        'recurring_cost',
-        newId,
-        { name },
-        req
-      );
-      res.status(201).json({ id: newId, ...req.body });
-    }
-  );
+        name,
+        amount,
+        category_id,
+        frequency,
+        day_of_month,
+        object_type,
+        object_id,
+        bank_account_id,
+        financial_profile_id,
+        JSON.stringify(metadata || {}),
+      ]
+    );
+
+    await auditLog(req.hhId, req.user.id, 'RECURRING_COST_CREATE', 'recurring_cost', newId, { name }, req);
+    response.success(res, { id: newId, ...req.body }, null, 201);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
@@ -98,51 +102,40 @@ router.put(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    const { name, amount, category_id, frequency } = req.body;
-    const updates = [];
-    const params = [];
-
-    if (name !== undefined) {
-      updates.push('name = ?');
-      params.push(name);
-    }
-    if (amount !== undefined) {
-      updates.push('amount = ?');
-      params.push(amount);
-    }
-    if (category_id !== undefined) {
-      updates.push('category_id = ?');
-      params.push(category_id);
-    }
-    if (frequency !== undefined) {
-      updates.push('frequency = ?');
-      params.push(frequency);
-    }
-
-    if (updates.length === 0) return res.status(400).json({ error: 'Nothing to update' });
-
-    params.push(req.params.itemId, req.hhId);
-
-    req.tenantDb.run(
-      `UPDATE recurring_costs SET ${updates.join(', ')} WHERE id = ? AND household_id = ?`,
-      params,
-      async function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
-
-        await auditLog(
-          req.hhId,
-          req.user.id,
-          'RECURRING_COST_UPDATE',
-          'recurring_cost',
-          parseInt(req.params.itemId),
-          { name },
-          req
-        );
-        res.json({ message: 'Updated' });
+  async (req, res, next) => {
+    try {
+      if (req.isDryRun) {
+        return response.success(res, { message: 'Dry run successful', updates: req.body });
       }
-    );
+
+      const updates = { ...req.body };
+      delete updates.id;
+      delete updates.household_id;
+
+      const fields = Object.keys(updates).map(k => `${k} = ?`);
+      if (fields.length === 0) throw new AppError('Nothing to update', 400);
+
+      const result = await dbRun(
+        req.tenantDb,
+        `UPDATE recurring_costs SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND household_id = ? AND deleted_at IS NULL`,
+        [...Object.values(updates), req.params.itemId, req.hhId]
+      );
+
+      if (result.changes === 0) throw new NotFoundError('Recurring cost not found');
+
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        'RECURRING_COST_UPDATE',
+        'recurring_cost',
+        parseInt(req.params.itemId),
+        { updates: Object.keys(updates) },
+        req
+      );
+      response.success(res, { message: 'Updated' });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
@@ -154,27 +147,31 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  (req, res) => {
-    req.tenantDb.run(
-      'DELETE FROM recurring_costs WHERE id = ? AND household_id = ?',
-      [req.params.itemId, req.hhId],
-      async function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+  async (req, res, next) => {
+    try {
+      const result = await dbRun(
+        req.tenantDb,
+        'UPDATE recurring_costs SET deleted_at = CURRENT_TIMESTAMP WHERE id = ? AND household_id = ?',
+        [req.params.itemId, req.hhId]
+      );
 
-        await auditLog(
-          req.hhId,
-          req.user.id,
-          'RECURRING_COST_DELETE',
-          'recurring_cost',
-          parseInt(req.params.itemId),
-          null,
-          req
-        );
-        res.json({ message: 'Deleted' });
-      }
-    );
+      if (result.changes === 0) throw new NotFoundError('Recurring cost not found');
+
+      await auditLog(
+        req.hhId,
+        req.user.id,
+        'RECURRING_COST_DELETE',
+        'recurring_cost',
+        parseInt(req.params.itemId),
+        null,
+        req
+      );
+      response.success(res, { message: 'Deleted (soft)' });
+    } catch (err) {
+      next(err);
+    }
   }
 );
 
 module.exports = router;
+

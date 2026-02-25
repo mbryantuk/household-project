@@ -1,5 +1,5 @@
 const { DATABASE_URL } = require('../config');
-const logger = require('../utils/logger').default;
+const logger = require('../utils/logger');
 const { notifyHousehold } = require('./socket');
 
 let db;

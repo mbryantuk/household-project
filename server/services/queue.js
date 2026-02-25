@@ -1,7 +1,7 @@
 const { Queue, Worker } = require('bullmq');
 const IORedis = require('ioredis');
 const config = require('../config');
-const logger = require('../utils/logger').default;
+const logger = require('../utils/logger');
 
 let connection;
 let mainQueue;
@@ -60,6 +60,21 @@ function initWorker() {
           case 'CLEANUP_BACKUPS': {
             const { cleanOldBackups } = require('./backup');
             await cleanOldBackups(job.data.householdId);
+            break;
+          }
+
+          case 'WEBHOOK_PROCESS': {
+            const { provider, payload, householdId } = job.data;
+            logger.info(`[WORKER] Processing webhook from ${provider} for HH:${householdId}`);
+            // Logic for specific providers (e.g. Stripe, GoCardless, etc.)
+            break;
+          }
+
+          case 'REFRESH_MATERIALIZED_VIEWS': {
+            const { db } = require('../db/index');
+            const { sql } = require('drizzle-orm');
+            logger.info('[WORKER] Refreshing Materialized Views...');
+            await db.execute(sql`REFRESH MATERIALIZED VIEW CONCURRENTLY audit_log_stats`);
             break;
           }
 

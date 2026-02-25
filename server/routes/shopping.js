@@ -4,11 +4,11 @@ const { authenticateToken, requireHouseholdRole } = require('../middleware/auth'
 const { useTenantDb } = require('../middleware/tenant');
 const SqliteShoppingRepository = require('../domain/shopping/adapters/SqliteShoppingRepository');
 const ShoppingService = require('../domain/shopping/application/ShoppingService');
+const response = require('../utils/response');
+const { AppError, NotFoundError } = require('@hearth/shared');
 
 /**
  * HELPER: Initialize service with tenant DB
- * @param {Object} req
- * @returns {ShoppingService}
  */
 function getShoppingService(req) {
   const repository = new SqliteShoppingRepository(req.tenantDb, req.hhId);
@@ -17,7 +17,6 @@ function getShoppingService(req) {
 
 /**
  * Mapper: Entity to API Model
- * @param {Object} item
  */
 function toApiModel(item) {
   return {
@@ -42,21 +41,18 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const service = getShoppingService(req);
       const items = await service.listItems(req.hhId);
       const apiItems = items.map(toApiModel);
       const totalEstimated = apiItems.reduce((acc, item) => acc + (item.estimated_cost || 0), 0);
-      res.json({
+      response.success(res, {
         items: apiItems,
-        summary: {
-          total_items: apiItems.length,
-          total_estimated_cost: totalEstimated,
-        },
+        summary: { total_items: apiItems.length, total_estimated_cost: totalEstimated },
       });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      next(err);
     }
   }
 );
@@ -69,57 +65,14 @@ router.post(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
+      if (req.isDryRun) return response.success(res, { message: 'Dry run', data: req.body });
       const service = getShoppingService(req);
       const item = await service.addItem(req.hhId, req.body);
-      res.status(201).json(toApiModel(item));
+      response.success(res, toApiModel(item), null, 201);
     } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
-
-/**
- * POST /api/households/:id/shopping-list/bulk
- * Item 108: Bulk Action Pattern
- */
-router.post(
-  '/bulk',
-  authenticateToken,
-  requireHouseholdRole('member'),
-  useTenantDb,
-  async (req, res) => {
-    try {
-      const { actions } = req.body;
-      if (!Array.isArray(actions) || actions.length === 0) {
-        return res.status(400).json({ error: 'Actions array is required and must not be empty' });
-      }
-      const service = getShoppingService(req);
-      await service.bulkAction(req.hhId, actions);
-      res.json({ message: 'Bulk action completed successfully', count: actions.length });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
-
-/**
- * PUT /api/households/:id/shopping-list/:itemId
- */
-router.put(
-  '/:itemId',
-  authenticateToken,
-  requireHouseholdRole('member'),
-  useTenantDb,
-  async (req, res) => {
-    try {
-      const service = getShoppingService(req);
-      const item = await service.updateItem(req.params.itemId, req.hhId, req.body);
-      if (!item) return res.status(404).json({ error: 'Item not found' });
-      res.json(toApiModel(item));
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+      next(err);
     }
   }
 );
@@ -132,13 +85,54 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const service = getShoppingService(req);
-      const changes = await service.clearChecked(req.hhId);
-      res.json({ message: 'Checked items cleared', changes });
+      const count = await service.clearChecked(req.hhId);
+      response.success(res, { message: 'Checked items cleared', count });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      next(err);
+    }
+  }
+);
+
+/**
+ * POST /api/households/:id/shopping-list/bulk
+ */
+router.post(
+  '/bulk',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const { actions } = req.body;
+      if (!Array.isArray(actions) || actions.length === 0) throw new AppError('Actions required', 400);
+      const service = getShoppingService(req);
+      await service.bulkAction(req.hhId, actions);
+      response.success(res, { message: 'Bulk action completed', count: actions.length });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * PUT /api/households/:id/shopping-list/:itemId
+ */
+router.put(
+  '/:itemId',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const service = getShoppingService(req);
+      const item = await service.updateItem(req.params.itemId, req.hhId, req.body);
+      if (!item) throw new NotFoundError('Shopping item not found');
+      response.success(res, toApiModel(item));
+    } catch (err) {
+      next(err);
     }
   }
 );
@@ -151,14 +145,14 @@ router.delete(
   authenticateToken,
   requireHouseholdRole('member'),
   useTenantDb,
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const service = getShoppingService(req);
       const deleted = await service.deleteItem(req.params.itemId, req.hhId);
-      if (!deleted) return res.status(404).json({ error: 'Item not found' });
-      res.json({ message: 'Item deleted' });
+      if (!deleted) throw new NotFoundError('Shopping item not found');
+      response.success(res, { message: 'Item deleted' });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      next(err);
     }
   }
 );

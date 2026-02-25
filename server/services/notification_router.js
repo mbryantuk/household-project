@@ -1,4 +1,4 @@
-const logger = require('../utils/logger').default;
+const logger = require('../utils/logger');
 const { initWorker, addJob } = require('./queue');
 
 /**
@@ -44,6 +44,11 @@ class NotificationRouter {
     logger.info(
       `[NOTIFY] Routing notification: "${title}" to HH:${householdId} via [${channels.join(', ')}]`
     );
+
+    // Item 163: Emit for SSE
+    if (global.activityEmitter) {
+      global.activityEmitter.emit('activity', { householdId, title, message, type, metadata });
+    }
 
     for (const channel of channels) {
       try {

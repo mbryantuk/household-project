@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useHouseholdMembers,
@@ -6,6 +6,8 @@ import {
   useHouseholdDates,
   useHouseholdVehicles,
 } from '../hooks/useHouseholdData';
+import { useAuth } from './AuthContext';
+import { useUI } from './UIContext';
 
 const HouseholdContext = createContext(null);
 
@@ -15,9 +17,22 @@ export const useHousehold = () => {
   return context;
 };
 
-export const HouseholdProvider = ({ children, initialHousehold, api, showNotification }) => {
-  const [household, setHousehold] = useState(initialHousehold);
+export const HouseholdProvider = ({ children, initialHousehold }) => {
+  const [household, setHouseholdState] = useState(initialHousehold);
+  const { api, user, logout } = useAuth();
+  const { showNotification, confirmAction } = useUI();
   const queryClient = useQueryClient();
+
+  const [statusBarData, setStatusBarData] = useState(null);
+
+  const setHousehold = useCallback((hh) => {
+    setHouseholdState(hh);
+    if (hh) {
+      localStorage.setItem('household', JSON.stringify(hh));
+    } else {
+      localStorage.removeItem('household');
+    }
+  }, []);
 
   const householdId = household?.id;
 
@@ -29,22 +44,21 @@ export const HouseholdProvider = ({ children, initialHousehold, api, showNotific
 
   const updateSettings = useCallback(
     async (updates) => {
-      if (!householdId) return;
+      if (!householdId || !api) return;
       try {
-        await api.put(`/households/${householdId}/house-details`, updates);
+        await api.put(`/households/${householdId}/details`, updates);
         const updated = { ...household, ...updates };
         setHousehold(updated);
-        localStorage.setItem('household', JSON.stringify(updated));
         queryClient.invalidateQueries({ queryKey: ['my-households'] });
         showNotification('Household updated.', 'success');
       } catch {
         showNotification('Failed to update.', 'danger');
       }
     },
-    [api, household, householdId, queryClient, showNotification]
+    [api, household, householdId, queryClient, showNotification, setHousehold]
   );
 
-  const value = {
+  const value = useMemo(() => ({
     household,
     setHousehold,
     members,
@@ -53,7 +67,14 @@ export const HouseholdProvider = ({ children, initialHousehold, api, showNotific
     vehicles,
     updateSettings,
     householdId,
-  };
+    api,
+    user,
+    onLogout: logout,
+    showNotification,
+    confirmAction,
+    statusBarData,
+    setStatusBarData,
+  }), [household, members, users, dates, vehicles, updateSettings, householdId, api, user, logout, showNotification, confirmAction, statusBarData, setHousehold]);
 
   return <HouseholdContext.Provider value={value}>{children}</HouseholdContext.Provider>;
 };

@@ -1,6 +1,9 @@
 const request = require('supertest');
 const app = require('../App');
-const { globalDb, dbGet } = require('../db');
+
+/**
+ * Shared Test Utilities
+ */
 
 const seedHousehold = async (name = 'Test Household') => {
   const email = `test_${Date.now()}@example.com`;
@@ -21,8 +24,10 @@ const seedHousehold = async (name = 'Test Household') => {
     throw new Error(`Login failed after seeding: ${JSON.stringify(loginRes.body)}`);
   }
 
-  const token = loginRes.body.token;
-  const household = loginRes.body.household;
+  // Item 107: Envelope awareness
+  const data = loginRes.body.data;
+  const token = data.token;
+  const household = data.household;
 
   if (!household || !household.id) {
     throw new Error(`Household ID missing in login response: ${JSON.stringify(loginRes.body)}`);

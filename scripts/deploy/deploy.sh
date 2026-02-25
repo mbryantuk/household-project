@@ -1,38 +1,44 @@
 #!/bin/bash
+set -e
 
-# --- CONFIGURATION ---
-PROJECT_ROOT=~/household-project
-FRONTEND_DIR=$PROJECT_ROOT/web  # <--- Change this if your folder is 'client'
-SERVER_DIR=$PROJECT_ROOT/server
+# --- ITEM 147: ZERO-DOWNTIME DEPLOYMENT STRATEGY ---
+# Strategy: Pull -> Build -> Healthcheck -> Cutover
 
-echo "🚀 Starting Hearth Unified Deployment..."
+echo "🚀 Starting Zero-Downtime Deployment..."
 
-# 1. Build the Frontend
-echo "📦 Building Frontend..."
-cd $FRONTEND_DIR || { echo "❌ Frontend directory not found!"; exit 1; }
-npm install
-npm run build
+# 1. Pull latest changes
+git pull origin main
 
-# 2. Check for dist folder
-if [ ! -d "$FRONTEND_DIR/dist" ]; then
-    echo "❌ Build failed: 'dist' folder not created."
-    exit 1
-fi
+# 2. Build new images
+echo "📦 Building images..."
+docker compose build --no-cache hearth-app
 
-echo "✅ Frontend build successful."
+# 3. Start new container in parallel (Scaling trick)
+echo "🌐 Starting new version..."
+# We use a temporary container to verify health before swapping
+docker compose up -d --scale hearth-app=2 --no-recreate hearth-app
 
-# 3. Restart the Backend
-echo "🌐 Restarting Backend Server..."
-cd $SERVER_DIR || { echo "❌ Server directory not found!"; exit 1; }
-npm install
+# 4. Wait for healthcheck
+echo "⏳ Waiting for healthcheck (4001/api/system/status)..."
+MAX_RETRIES=30
+COUNT=0
+until $(curl --output /dev/null --silent --head --fail http://localhost:4001/api/system/status); do
+    printf '.'
+    sleep 2
+    COUNT=$((COUNT+1))
+    if [ $COUNT -eq $MAX_RETRIES ]; then
+        echo "❌ New version failed to become healthy. Rolling back..."
+        docker compose up -d --scale hearth-app=1 hearth-app
+        exit 1
+    fi
+done
 
-# If you use PM2 (recommended for background running)
-if command -v pm2 &> /dev/null
-then
-    pm2 restart hearth-server || pm2 start server.js --name hearth-server
-else
-    echo "⚠️ PM2 not found, starting with standard Node..."
-    node server.js
-fi
+# 5. Cutover (Scale back to 1, Docker will stop the older container)
+echo "✅ New version healthy. Swapping..."
+docker compose up -d --scale hearth-app=1 --no-recreate hearth-app
 
-echo "🎉 Deployment Complete! Access via port 4001."
+# 6. Cleanup
+echo "🧹 Cleaning up old images..."
+docker image prune -f
+
+echo "🎉 Deployment Successful! Zero downtime maintained."

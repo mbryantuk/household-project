@@ -26,7 +26,7 @@ describe('GET /api/export/:household_id', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.header['content-type']).toMatch(/json/);
 
-    const data = res.body;
+    const data = res.body.data;
     expect(data.users).toBeDefined();
     expect(data.household).toBeDefined();
     expect(data.data).toBeDefined();
@@ -34,7 +34,10 @@ describe('GET /api/export/:household_id', () => {
 
   afterAll(async () => {
     // Clean up
-    await dbRun(globalDb, 'DELETE FROM user_households WHERE household_id = ?', [household.id]);
-    await dbRun(globalDb, 'DELETE FROM households WHERE id = ?', [household.id]);
+    const { db } = require('../db/index');
+    const { households, userHouseholds } = require('../db/schema');
+    const { eq } = require('drizzle-orm');
+    await db.delete(userHouseholds).where(eq(userHouseholds.householdId, household.id));
+    await db.delete(households).where(eq(households.id, household.id));
   });
 });

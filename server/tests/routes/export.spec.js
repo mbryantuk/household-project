@@ -20,17 +20,21 @@ describe('Export Route', () => {
       .expect(200)
       .expect('Content-Type', /json/);
 
-    expect(res.body).toBeDefined();
-    expect(res.body.metadata).toBeDefined();
-    expect(res.body.household).toBeDefined();
-    expect(res.body.users).toBeDefined();
     expect(res.body.data).toBeDefined();
+    expect(res.body.data.metadata).toBeDefined();
+    expect(res.body.data.household).toBeDefined();
+    expect(res.body.data.users).toBeDefined();
+    expect(res.body.data.data).toBeDefined();
   });
 
   afterAll(async () => {
     // Clean up the test household
-    await dbRun(globalDb, 'DELETE FROM households WHERE id = ?', [household.id]);
-    await dbRun(globalDb, 'DELETE FROM users WHERE email = ?', [household.adminEmail]);
+    const { db } = require('../../db/index');
+    const { households, users, userHouseholds } = require('../../db/schema');
+    const { eq } = require('drizzle-orm');
+    await db.delete(userHouseholds).where(eq(userHouseholds.householdId, household.id));
+    await db.delete(households).where(eq(households.id, household.id));
+    await db.delete(users).where(eq(users.email, household.adminEmail));
     try {
       const hhDb = getHouseholdDb(household.id);
       hhDb.close();

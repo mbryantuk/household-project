@@ -15,7 +15,7 @@ import { sql } from 'drizzle-orm';
 
 /**
  * HEARTHSTONE PRO CORE SCHEMA (Postgres)
- * This is the source of truth for Identity, Tenancy, and Audit.
+ * Item 102: Decoupled Identity (users) from Profile (user_profiles).
  */
 
 export const systemRoleEnum = pgEnum('system_role', ['admin', 'user']);
@@ -27,25 +27,19 @@ export const users = pgTable(
     id: serial('id').primaryKey(),
     email: text('email').notNull().unique(),
     username: text('username').unique(),
-    passwordHash: text('password_hash'), // Nullable for Passkey-only users
-    firstName: text('first_name'),
-    lastName: text('last_name'),
-    avatar: text('avatar'),
+    passwordHash: text('password_hash'),
     systemRole: systemRoleEnum('system_role').default('user'),
-    dashboardLayout: text('dashboard_layout'),
-    stickyNote: text('sticky_note'),
-    budgetSettings: text('budget_settings'),
-    theme: text('theme').default('hearth'),
-    customTheme: text('custom_theme'), // PERSISTENCE FIX: Added missing custom_theme column
-    mode: themeModeEnum('mode').default('system'),
     defaultHouseholdId: integer('default_household_id'),
     lastHouseholdId: integer('last_household_id'),
     isTest: integer('is_test').default(0),
     isActive: boolean('is_active').default(true),
+    isBeta: boolean('is_beta').default(false),
     mfaEnabled: boolean('mfa_enabled').default(false),
     mfaSecret: text('mfa_secret'),
     currentChallenge: text('current_challenge'),
+    version: integer('version').default(1).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
     deletedAt: timestamp('deleted_at'),
   },
   (table) => ({
@@ -54,6 +48,22 @@ export const users = pgTable(
       .where(sql`${table.isActive} = true`),
   })
 );
+
+export const userProfiles = pgTable('user_profiles', {
+  userId: integer('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  avatar: text('avatar'),
+  dashboardLayout: text('dashboard_layout'),
+  stickyNote: text('sticky_note'),
+  budgetSettings: text('budget_settings'),
+  theme: text('theme').default('hearth'),
+  customTheme: text('custom_theme'),
+  mode: themeModeEnum('mode').default('system'),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
 
 export const userSessions = pgTable(
   'user_sessions',
@@ -67,6 +77,7 @@ export const userSessions = pgTable(
     expiresAt: timestamp('expires_at'),
     isRevoked: boolean('is_revoked').default(false),
     createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (table) => ({
     activeSessionIdx: index('active_session_idx')
@@ -86,6 +97,7 @@ export const passkeys = pgTable('passkeys', {
   transports: text('transports'), // JSON string
   createdAt: timestamp('created_at').defaultNow(),
   lastUsedAt: timestamp('last_used_at'),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 export const households = pgTable(
@@ -107,7 +119,9 @@ export const households = pgTable(
     isTest: integer('is_test').default(0),
     debugMode: integer('debug_mode').default(0),
     nightlyVersionFilter: text('nightly_version_filter'),
+    version: integer('version').default(1).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
     deletedAt: timestamp('deleted_at'),
   },
   (table) => ({
@@ -131,6 +145,7 @@ export const userHouseholds = pgTable(
     role: userRoleEnum('role').default('member'),
     isActive: boolean('is_active').default(true),
     joinedAt: timestamp('joined_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
     deletedAt: timestamp('deleted_at'),
   },
   (table) => ({
@@ -143,8 +158,10 @@ export const userHouseholds = pgTable(
 
 export const auditLogs = pgTable('audit_logs', {
   id: serial('id').primaryKey(),
-  householdId: integer('household_id').notNull(),
-  userId: integer('user_id'),
+  householdId: integer('household_id')
+    .notNull()
+    .references(() => households.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
   action: text('action').notNull(),
   entityType: text('entity_type'),
   entityId: integer('entity_id'),
@@ -152,6 +169,23 @@ export const auditLogs = pgTable('audit_logs', {
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
   createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const recurringCosts = pgTable('recurring_costs', {
+  id: serial('id').primaryKey(),
+  householdId: integer('household_id')
+    .notNull()
+    .references(() => households.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  amount: real('amount').notNull(),
+  frequency: text('frequency').default('monthly'),
+  categoryId: text('category_id'),
+  memberId: integer('member_id').references(() => users.id, { onDelete: 'set null' }),
+  startDate: timestamp('start_date').defaultNow(),
+  isActive: boolean('is_active').default(true),
+  version: integer('version').default(1).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 export const testResults = pgTable('test_results', {
@@ -175,11 +209,22 @@ export const versionHistory = pgTable('version_history', {
 });
 
 export const featureFlags = pgTable('feature_flags', {
-  id: text('id').primaryKey(), // Flag key, e.g., 'new-dashboard'
+  id: text('id').primaryKey(),
   description: text('description'),
   isEnabled: boolean('is_enabled').default(false),
-  rolloutPercentage: integer('rollout_percentage').default(0), // 0-100
-  criteria: jsonb('criteria'), // e.g. { "household_ids": [60, 61] }
+  rolloutPercentage: integer('rollout_percentage').default(0),
+  criteria: jsonb('criteria'),
   updatedAt: timestamp('updated_at').defaultNow(),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+export const auditLogStats = sql`
+  CREATE MATERIALIZED VIEW IF NOT EXISTS audit_log_stats AS
+  SELECT 
+    household_id, 
+    action, 
+    COUNT(*) as action_count,
+    MAX(created_at) as last_action_at
+  FROM audit_logs
+  GROUP BY household_id, action;
+`;

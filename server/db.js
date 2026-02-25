@@ -19,12 +19,25 @@ const globalDb = new sqlite3.Database(GLOBAL_DB_PATH, (err) => {
     console.log('Connected to Legacy Global SQLite database.');
 });
 
+const tenantDbs = {};
+const tenantInitPromises = {};
+
 /**
  * GET HOUSEHOLD DB (SQLite Tenant)
  */
 function getHouseholdDb(id) {
+  if (tenantDbs[id]) return tenantDbs[id];
   const dbPath = path.join(DATA_DIR, `household_${id}.db`);
-  return new sqlite3.Database(dbPath);
+  const db = new sqlite3.Database(dbPath);
+  
+  db.serialize(() => {
+    db.run("PRAGMA journal_mode = WAL;");
+    db.run("PRAGMA synchronous = NORMAL;");
+    db.run("PRAGMA busy_timeout = 5000;");
+  });
+
+  tenantDbs[id] = db;
+  return db;
 }
 
 /**
@@ -32,7 +45,22 @@ function getHouseholdDb(id) {
  * Uses the standard schema.js initialization
  */
 async function ensureHouseholdSchema(db, id) {
-  return await initializeHouseholdSchema(db);
+  if (tenantInitPromises[id]) {
+    return await tenantInitPromises[id];
+  }
+  
+  tenantInitPromises[id] = new Promise((resolve, reject) => {
+    initializeHouseholdSchema(db).then(() => {
+      // Because db.serialize queues operations, this dummy query will
+      // only execute after the schema initialization queue finishes.
+      db.get('SELECT 1', (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    }).catch(reject);
+  });
+  
+  return await tenantInitPromises[id];
 }
 
 /**

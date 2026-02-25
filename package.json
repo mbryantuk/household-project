@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.408",
+  "version": "3.2.420",
   "private": true,
   "workspaces": [
     "server",
@@ -31,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "nodemailer": "^7.0.12",
     "sqlite3": "^5.0.2"
   },

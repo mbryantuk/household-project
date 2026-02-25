@@ -23,8 +23,8 @@ describe('🚀 JSON Tenant Export Verification', () => {
       password: 'Password123!',
     });
 
-    token = loginRes.body.token;
-    householdId = loginRes.body.household.id;
+    token = loginRes.body.data.token;
+    householdId = loginRes.body.data.household.id;
 
     // 3. Add some data to the tenant DB
     await request(app)
@@ -42,7 +42,7 @@ describe('🚀 JSON Tenant Export Verification', () => {
     expect(res.header['content-type']).toContain('application/json');
     expect(res.header['content-disposition']).toContain('attachment');
 
-    const data = res.body;
+    const data = res.body.data;
     expect(data.metadata.household_id.toString()).toBe(householdId.toString());
     expect(data.household.name).toBe('Export JSON House');
     expect(data.users.length).toBeGreaterThan(0);
@@ -66,7 +66,7 @@ describe('🚀 JSON Tenant Export Verification', () => {
       email: otherEmail,
       password: 'Password123!',
     });
-    const otherToken = loginRes.body.token;
+    const otherToken = loginRes.body.data.token;
 
     const res = await request(app)
       .get(`/api/export/${householdId}`)

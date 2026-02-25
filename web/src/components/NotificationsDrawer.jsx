@@ -22,7 +22,7 @@ import {
   Info,
   CalendarMonth,
 } from '@mui/icons-material';
-import { useHousehold } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function NotificationsDrawer({ open, onClose }) {

@@ -21,7 +21,7 @@ import LightMode from '@mui/icons-material/LightMode';
 import DarkMode from '@mui/icons-material/DarkMode';
 import SettingsBrightness from '@mui/icons-material/SettingsBrightness';
 
-import { useHousehold } from '../../contexts/HouseholdContext';
+import { useHousehold } from '../../context/HouseholdContext';
 import { THEMES } from '../../theme';
 
 const ThemeGrid = ({ themes, themeId, onThemeChange }) => (

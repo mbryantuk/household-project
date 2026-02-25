@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8266,
+                      "duration": 8797,
                       "errors": [],
                       "stdout": [
                         {
@@ -101,13 +101,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -118,7 +118,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:06:34.316Z",
+                      "startTime": "2026-02-25T21:11:15.034Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -128,7 +128,7 @@
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
               "file": "smoke.spec.js",
-              "line": 97,
+              "line": 88,
               "column": 3
             },
             {
@@ -147,7 +147,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5380,
+                      "duration": 6087,
                       "errors": [],
                       "stdout": [
                         {
@@ -160,13 +160,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -177,7 +177,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:06:43.255Z",
+                      "startTime": "2026-02-25T21:11:24.509Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -187,7 +187,7 @@
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
               "file": "smoke.spec.js",
-              "line": 102,
+              "line": 93,
               "column": 3
             },
             {
@@ -206,7 +206,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5210,
+                      "duration": 5556,
                       "errors": [],
                       "stdout": [
                         {
@@ -219,13 +219,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -236,7 +236,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:06:48.658Z",
+                      "startTime": "2026-02-25T21:11:30.624Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -246,7 +246,7 @@
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
               "file": "smoke.spec.js",
-              "line": 108,
+              "line": 98,
               "column": 3
             },
             {
@@ -265,7 +265,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4856,
+                      "duration": 5584,
                       "errors": [],
                       "stdout": [
                         {
@@ -278,13 +278,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -295,7 +295,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:06:53.887Z",
+                      "startTime": "2026-02-25T21:11:36.207Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -305,7 +305,7 @@
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
               "file": "smoke.spec.js",
-              "line": 113,
+              "line": 103,
               "column": 3
             },
             {
@@ -324,7 +324,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5232,
+                      "duration": 6291,
                       "errors": [],
                       "stdout": [
                         {
@@ -337,13 +337,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -354,7 +354,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:06:58.767Z",
+                      "startTime": "2026-02-25T21:11:41.810Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -364,7 +364,7 @@
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
               "file": "smoke.spec.js",
-              "line": 118,
+              "line": 108,
               "column": 3
             },
             {
@@ -383,7 +383,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5956,
+                      "duration": 6605,
                       "errors": [],
                       "stdout": [
                         {
@@ -396,13 +396,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -413,7 +413,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:04.023Z",
+                      "startTime": "2026-02-25T21:11:48.122Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -423,11 +423,11 @@
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
               "file": "smoke.spec.js",
-              "line": 123,
+              "line": 113,
               "column": 3
             },
             {
-              "title": "Groceries Page & Import Button",
+              "title": "Groceries Page",
               "ok": true,
               "tags": [],
               "tests": [
@@ -442,7 +442,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5205,
+                      "duration": 5879,
                       "errors": [],
                       "stdout": [
                         {
@@ -455,13 +455,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -472,7 +472,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:10.000Z",
+                      "startTime": "2026-02-25T21:11:54.755Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -480,9 +480,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-cc2ee4597680c1b7cb6d",
+              "id": "2c14808d47b386fba9eb-3f3914dfd176e10b7412",
               "file": "smoke.spec.js",
-              "line": 128,
+              "line": 118,
               "column": 3
             },
             {
@@ -501,7 +501,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4998,
+                      "duration": 5368,
                       "errors": [],
                       "stdout": [
                         {
@@ -514,13 +514,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -531,7 +531,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:15.224Z",
+                      "startTime": "2026-02-25T21:12:00.656Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -541,11 +541,11 @@
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
               "file": "smoke.spec.js",
-              "line": 136,
+              "line": 123,
               "column": 3
             },
             {
-              "title": "Finance Page & Banking Import",
+              "title": "Finance Page",
               "ok": true,
               "tags": [],
               "tests": [
@@ -560,7 +560,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7946,
+                      "duration": 6076,
                       "errors": [],
                       "stdout": [
                         {
@@ -573,13 +573,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -590,7 +590,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:20.245Z",
+                      "startTime": "2026-02-25T21:12:06.049Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -598,13 +598,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-8b07f9a7ad5a03a1f09a",
+              "id": "2c14808d47b386fba9eb-19cb616ac6758b2216a5",
               "file": "smoke.spec.js",
-              "line": 141,
+              "line": 128,
               "column": 3
             },
             {
-              "title": "Onboarding Page",
+              "title": "House Overview",
               "ok": true,
               "tags": [],
               "tests": [
@@ -619,7 +619,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5174,
+                      "duration": 5976,
                       "errors": [],
                       "stdout": [
                         {
@@ -632,13 +632,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -649,7 +649,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:28.217Z",
+                      "startTime": "2026-02-25T21:12:12.151Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -657,13 +657,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-44e19c2ea2651f1a3536",
+              "id": "2c14808d47b386fba9eb-946a08a1def7a2a4b758",
               "file": "smoke.spec.js",
-              "line": 165,
+              "line": 133,
               "column": 3
             },
             {
-              "title": "House Overview Page",
+              "title": "User Profile",
               "ok": true,
               "tags": [],
               "tests": [
@@ -678,7 +678,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5145,
+                      "duration": 5529,
                       "errors": [],
                       "stdout": [
                         {
@@ -691,13 +691,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -708,7 +708,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:33.413Z",
+                      "startTime": "2026-02-25T21:12:18.147Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -716,13 +716,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-fe31e0fc5c4bd3b315e3",
+              "id": "2c14808d47b386fba9eb-57e59b230cf841f17917",
               "file": "smoke.spec.js",
-              "line": 172,
+              "line": 138,
               "column": 3
             },
             {
-              "title": "Property Details Page",
+              "title": "Settings Page",
               "ok": true,
               "tags": [],
               "tests": [
@@ -737,7 +737,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5522,
+                      "duration": 4900,
                       "errors": [],
                       "stdout": [
                         {
@@ -750,72 +750,13 @@
                           "text": "Clicking Login button...\n"
                         },
                         {
-                          "text": "Waiting for navigation...\n"
+                          "text": "Waiting for navigation and cookie...\n"
                         },
                         {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
+                          "text": "✅ Auth Cookie Verified\n"
                         },
                         {
-                          "text": "Waiting for dashboard or onboarding view...\n"
-                        },
-                        {
-                          "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Smoke Test Household ID Locked: 1160\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-25T00:07:38.586Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-b08a53b9d7bc197b2c33",
-              "file": "smoke.spec.js",
-              "line": 177,
-              "column": 3
-            },
-            {
-              "title": "Asset Register Page",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5193,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
-                        },
-                        {
-                          "text": "Clicking Login button...\n"
-                        },
-                        {
-                          "text": "Waiting for navigation...\n"
-                        },
-                        {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Waiting for dashboard or onboarding view...\n"
+                          "text": "Waiting for dashboard view...\n"
                         },
                         {
                           "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
@@ -826,7 +767,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-25T00:07:44.127Z",
+                      "startTime": "2026-02-25T21:12:23.699Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -834,127 +775,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "2c14808d47b386fba9eb-899023ab40d288f36a8a",
+              "id": "2c14808d47b386fba9eb-b6ba530ced5ca3494530",
               "file": "smoke.spec.js",
-              "line": 182,
-              "column": 3
-            },
-            {
-              "title": "User Profile Page",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4991,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
-                        },
-                        {
-                          "text": "Clicking Login button...\n"
-                        },
-                        {
-                          "text": "Waiting for navigation...\n"
-                        },
-                        {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Waiting for dashboard or onboarding view...\n"
-                        },
-                        {
-                          "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Smoke Test Household ID Locked: 1160\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-25T00:07:49.341Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-8ded83d61d120dd46f10",
-              "file": "smoke.spec.js",
-              "line": 187,
-              "column": 3
-            },
-            {
-              "title": "Settings Pages (All Tabs)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 11259,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
-                        },
-                        {
-                          "text": "Clicking Login button...\n"
-                        },
-                        {
-                          "text": "Waiting for navigation...\n"
-                        },
-                        {
-                          "text": "Current URL after login: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Waiting for dashboard or onboarding view...\n"
-                        },
-                        {
-                          "text": "Final URL reached: http://localhost:4001/household/1160/dashboard\n"
-                        },
-                        {
-                          "text": "Smoke Test Household ID Locked: 1160\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-02-25T00:07:54.354Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-b7b11855d8085866d29d",
-              "file": "smoke.spec.js",
-              "line": 192,
+              "line": 143,
               "column": 3
             }
           ]
@@ -964,9 +787,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-25T00:06:32.275Z",
-    "duration": 93444.01000000001,
-    "expected": 15,
+    "startTime": "2026-02-25T21:11:12.828Z",
+    "duration": 75888.321,
+    "expected": 12,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

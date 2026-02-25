@@ -27,6 +27,9 @@ class FeatureFlagService {
 
     // Criteria check (e.g. specific households)
     if (flag.criteria) {
+      // Item 182: Soft Launch (Beta Rings)
+      if (flag.criteria.beta_only && !context.isBetaUser) return false;
+
       if (flag.criteria.household_ids && context.householdId) {
         if (!flag.criteria.household_ids.includes(context.householdId)) return false;
       }

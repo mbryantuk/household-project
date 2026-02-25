@@ -28,6 +28,31 @@ pool.on('error', (err) => {
 
 export const db = drizzle(pool, { schema });
 
+// Item 155: Query Execution Monitoring
+const SLOW_QUERY_THRESHOLD_MS = 100;
+
+/**
+ * Log queries that exceed the threshold
+ */
+const originalQuery = pool.query.bind(pool);
+pool.query = async (...args: any[]) => {
+  const start = Date.now();
+  try {
+    const result = await originalQuery(...args);
+    const duration = Date.now() - start;
+    if (duration > SLOW_QUERY_THRESHOLD_MS) {
+      logger.warn({
+        msg: '[DB] Slow Query Detected',
+        duration: `${duration}ms`,
+        query: typeof args[0] === 'string' ? args[0].substring(0, 200) : 'Complex Query',
+      });
+    }
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export const checkDbConnection = async () => {
   try {
     const client = await pool.connect();

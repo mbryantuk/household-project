@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-02-25T00:05:54.055Z",
+  "timestamp": "2026-02-25T21:03:24.436Z",
   "accounts": {
-    "admin": "admin_1771977947725@test.com",
-    "viewer": "viewer_1771977947725@test.com"
+    "admin": "admin_1772053401773@test.com",
+    "viewer": "viewer_1772053401773@test.com"
   },
   "steps": [
-    "00:05:47: Loading Swagger schema for strict sync enforcement.",
-    "00:05:47: Initializing test environment.",
-    "00:05:54: Cleaning up: Deleting test household."
+    "21:03:21: Loading Swagger schema for strict sync enforcement.",
+    "21:03:21: Initializing test environment.",
+    "21:03:24: Cleaning up: Deleting test household."
   ],
   "summary": {
     "total_endpoints": 60,
     "passed": 2,
     "failed": 58,
-    "swagger_coverage_pct": "13.3"
+    "swagger_coverage_pct": "9.5"
   },
   "results": {
     "POST /households/{id}/finance/recurring-costs": "PASS",
@@ -52,10 +52,10 @@
     "GET /households/{id}/chores": "FAIL (MISSING FROM SWAGGER)",
     "PUT /households/{id}/chores/{itemId}": "FAIL (MISSING FROM SWAGGER)",
     "DELETE /households/{id}/chores/{itemId}": "FAIL (MISSING FROM SWAGGER)",
-    "POST /households/{id}/dates": "FAIL (MISSING FROM SWAGGER)",
-    "GET /households/{id}/dates": "FAIL (MISSING FROM SWAGGER)",
-    "PUT /households/{id}/dates/{itemId}": "FAIL (MISSING FROM SWAGGER)",
-    "DELETE /households/{id}/dates/{itemId}": "FAIL (MISSING FROM SWAGGER)",
+    "POST /households/{id}/calendar": "FAIL (MISSING FROM SWAGGER)",
+    "GET /households/{id}/calendar": "FAIL (MISSING FROM SWAGGER)",
+    "PUT /households/{id}/calendar/{itemId}": "FAIL (MISSING FROM SWAGGER)",
+    "DELETE /households/{id}/calendar/{itemId}": "FAIL (MISSING FROM SWAGGER)",
     "POST /households/{id}/shopping-list": "FAIL (MISSING FROM SWAGGER)",
     "GET /households/{id}/shopping-list": "FAIL (MISSING FROM SWAGGER)",
     "PUT /households/{id}/shopping-list/{itemId}": "FAIL (MISSING FROM SWAGGER)",
@@ -113,10 +113,10 @@
       "GET /households/{id}/chores",
       "PUT /households/{id}/chores/{itemId}",
       "DELETE /households/{id}/chores/{itemId}",
-      "POST /households/{id}/dates",
-      "GET /households/{id}/dates",
-      "PUT /households/{id}/dates/{itemId}",
-      "DELETE /households/{id}/dates/{itemId}",
+      "POST /households/{id}/calendar",
+      "GET /households/{id}/calendar",
+      "PUT /households/{id}/calendar/{itemId}",
+      "DELETE /households/{id}/calendar/{itemId}",
       "POST /households/{id}/shopping-list",
       "GET /households/{id}/shopping-list",
       "PUT /households/{id}/shopping-list/{itemId}",
@@ -151,7 +151,13 @@
       "GET /system/holidays",
       "GET /households",
       "POST /households",
-      "GET /households/{id}/details"
+      "GET /households/{id}/details",
+      "GET /households/{id}/shopping-list/schedules",
+      "POST /households/{id}/shopping-list/schedules",
+      "POST /households/{id}/shopping-list/schedules/{scheduleId}/toggle-complete",
+      "GET /households/{id}/notifications/stream",
+      "POST /webhooks/{provider}",
+      "GET /system/metrics"
     ]
   }
 }

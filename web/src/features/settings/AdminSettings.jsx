@@ -36,7 +36,7 @@ import CloudDownload from '@mui/icons-material/CloudDownload';
 import DataObject from '@mui/icons-material/DataObject';
 import Add from '@mui/icons-material/Add';
 
-import { useHousehold } from '../../contexts/HouseholdContext';
+import { useHousehold } from '../../context/HouseholdContext';
 import { APP_NAME, APP_VERSION } from '../../constants';
 import AppSelect from '../../components/ui/AppSelect';
 import pkg from '../../../package.json';

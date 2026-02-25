@@ -38,6 +38,9 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     }
   };
 
+  // Item 107: Response Unwrap Helper
+  const unwrap = (res) => (res.body.success ? res.body.data : res.body);
+
   beforeAll(async () => {
     addStep('Loading Swagger schema for strict sync enforcement.');
     if (fs.existsSync(SWAGGER_PATH)) {
@@ -68,8 +71,10 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     const lAdmin = await request(app)
       .post('/api/auth/login')
       .send({ email: testData.admin.email, password: testData.admin.password });
-    tokens.admin = lAdmin.body.token;
-    householdId = lAdmin.body.user.defaultHouseholdId || lAdmin.body.user.default_household_id;
+    
+    const adminData = unwrap(lAdmin);
+    tokens.admin = adminData.token;
+    householdId = adminData.user.defaultHouseholdId || adminData.user.default_household_id;
 
     await request(app)
       .post(`/api/households/${householdId}/users`)
@@ -83,12 +88,12 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
     const lViewer = await request(app)
       .post('/api/auth/login')
       .send({ email: testData.viewer.email, password: testData.viewer.password });
-    tokens.viewer = lViewer.body.token;
+    tokens.viewer = unwrap(lViewer).token;
 
     const lMember = await request(app)
       .post('/api/auth/login')
       .send({ email: testData.member.email, password: testData.member.password });
-    tokens.member = lMember.body.token;
+    tokens.member = unwrap(lMember).token;
 
     await request(app)
       .post(`/api/households/${householdId}/select`)
@@ -160,10 +165,12 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .post(resolvedBase)
       .set('Authorization', `Bearer ${tokens.member}`)
       .send(payload);
+    
+    const cData = unwrap(cRes);
     testedEndpoints.add(endpoints.create);
     logResult(endpoints.create, cRes.status < 300 ? 'PASS' : 'FAIL', cRes);
     expect(cRes.status).toBeLessThan(300);
-    const itemId = cRes.body.id;
+    const itemId = cData.id;
 
     testedEndpoints.add(endpoints.list);
     const lRes = await request(app)
@@ -234,7 +241,7 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
       .set('Authorization', `Bearer ${tokens.admin}`)
       .send({ name: 'Secondary House' });
     expect(cRes.status).toBe(201);
-    const newHouseId = cRes.body.id;
+    const newHouseId = unwrap(cRes).id;
 
     await request(app)
       .delete(`/api/households/${newHouseId}`)
@@ -318,7 +325,7 @@ describe('🛡️ Comprehensive Backend API & RBAC Verification', () => {
 
     await runCrudTest(
       'Calendar Dates',
-      '/dates',
+      '/calendar',
       { title: 'Birthday', date: '2026-05-20', type: 'birthday' },
       { title: 'Big Birthday' }
     );

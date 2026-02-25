@@ -2,22 +2,27 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { db } = require('../db/index');
 const { households, userHouseholds, users } = require('../db/schema');
-const { eq, ilike, and } = require('drizzle-orm');
+const { eq, ilike, and, sql } = require('drizzle-orm');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { auditLog } = require('../services/audit');
+const { NotFoundError, AppError, ConflictError } = require('@hearth/shared');
+const response = require('../utils/response');
 
 /**
  * POST /api/households
  * Create a new household. Creator becomes admin.
  */
-router.post('/', authenticateToken, async (req, res) => {
-  const { name, currency, is_test } = req.body;
-  if (!name) return res.status(400).json({ error: 'Name required' });
-
+router.post('/', authenticateToken, async (req, res, next) => {
   try {
-    const result = await db.transaction(async (tx) => {
+    const { name, currency, is_test } = req.body;
+    if (!name) throw new AppError('Name required', 400);
+
+    if (req.isDryRun) {
+      return response.success(res, { message: 'Dry run successful', data: { name, currency, is_test } });
+    }
+
+    const result = await req.ctx.db.transaction(async (tx) => {
       const [hh] = await tx
         .insert(households)
         .values({
@@ -36,67 +41,84 @@ router.post('/', authenticateToken, async (req, res) => {
       return hh;
     });
 
-    res.status(201).json(result);
+    response.success(res, result, null, 201);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * GET /api/households/:id
  */
-router.get('/:id', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
+router.get('/:id', authenticateToken, requireHouseholdRole('viewer'), async (req, res, next) => {
   try {
-    const [hh] = await db
+    const [hh] = await req.ctx.db
       .select()
       .from(households)
       .where(eq(households.id, parseInt(req.params.id)))
       .limit(1);
-    if (!hh) return res.status(404).json({ error: 'Household not found' });
-    res.json(hh);
+    if (!hh) throw new NotFoundError('Household not found');
+    response.success(res, hh);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * PUT /api/households/:id
  */
-router.put('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-  const { name, currency } = req.body;
-  const updates = {};
-  if (name !== undefined) updates.name = name;
-  if (currency !== undefined) updates.currency = currency;
-
-  if (Object.keys(updates).length === 0)
-    return res.status(400).json({ error: 'Nothing to update' });
-
+router.put('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
   try {
+    const { name, currency } = req.body;
+    const clientVersion = req.headers['x-version'] ? parseInt(req.headers['x-version']) : null;
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (currency !== undefined) updates.currency = currency;
+
+    if (Object.keys(updates).length === 0) throw new AppError('Nothing to update', 400);
+
     const hhId = parseInt(req.params.id);
-    await db.update(households).set(updates).where(eq(households.id, hhId));
-    res.json({ message: 'Household updated' });
+
+    // Item 181: Optimistic Locking
+    if (clientVersion !== null) {
+      const result = await req.ctx.db
+        .update(households)
+        .set({ ...updates, version: sql`version + 1`, updatedAt: new Date() })
+        .where(and(eq(households.id, hhId), eq(households.version, clientVersion)));
+
+      if (result.rowCount === 0) {
+        throw new ConflictError('The record has been modified by another user. Please refresh.');
+      }
+    } else {
+      await req.ctx.db
+        .update(households)
+        .set({ ...updates, version: sql`version + 1`, updatedAt: new Date() })
+        .where(eq(households.id, hhId));
+    }
+
+    response.success(res, { message: 'Household updated' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * GET /api/households/:id/backups (List)
  */
-router.get('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+router.get('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
   try {
     const { listBackups } = require('../services/backup');
     const backups = await listBackups(req.params.id);
-    res.json(backups);
+    response.success(res, backups);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * POST /api/households/:id/backups (Create)
  */
-router.post('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
+router.post('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
   try {
     const { createBackup } = require('../services/backup');
     const filename = await createBackup(req.params.id, {
@@ -104,154 +126,90 @@ router.post('/:id/backups', authenticateToken, requireHouseholdRole('admin'), as
       created_by: req.user.id,
       exported_at: new Date().toISOString(),
     });
-    res.json({ message: 'Backup created', filename });
+    response.success(res, { message: 'Backup created', filename });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * DELETE /api/households/:id
  */
-router.delete('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-  const householdId = parseInt(req.params.id);
+router.delete('/:id', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
   try {
-    await db.transaction(async (tx) => {
+    const householdId = parseInt(req.params.id);
+    await req.ctx.db.transaction(async (tx) => {
       await tx.delete(userHouseholds).where(eq(userHouseholds.householdId, householdId));
       await tx.delete(households).where(eq(households.id, householdId));
     });
 
     // Cleanup SQLite file
     const dbPath = path.join(__dirname, '../data', `household_${householdId}.db`);
-    if (fs.existsSync(dbPath)) {
-      fs.unlinkSync(dbPath);
-    }
+    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
 
-    res.json({ message: 'Household deleted' });
+    response.success(res, { message: 'Household deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
- * GET /api/households/:id/select
+ * POST /api/households/:id/select
  */
-router.post('/:id/select', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
+router.post('/:id/select', authenticateToken, requireHouseholdRole('viewer'), async (req, res, next) => {
   try {
     const hhId = parseInt(req.params.id);
-    await db.update(users).set({ lastHouseholdId: hhId }).where(eq(users.id, req.user.id));
-    res.json({ message: 'Household selected' });
+    await req.ctx.db.update(users).set({ lastHouseholdId: hhId }).where(eq(users.id, req.user.id));
+    response.success(res, { message: 'Household selected' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * GET /api/households/:id/details (Global Metadata)
- */
-router.get('/:id/details', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
-  try {
-    const [hh] = await db
-      .select()
-      .from(households)
-      .where(eq(households.id, parseInt(req.params.id)))
-      .limit(1);
-    res.json(hh);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * PUT /api/households/:id/details (Global Metadata)
- */
-router.put('/:id/details', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-  const updates = { ...req.body };
-
-  const allowed = [
-    'name',
-    'addressStreet',
-    'addressCity',
-    'addressZip',
-    'avatar',
-    'dateFormat',
-    'currency',
-    'decimals',
-    'enabledModules',
-    'autoBackup',
-    'backupRetention',
-    'debugMode',
-    'nightlyVersionFilter',
-  ];
-
-  const filtered = {};
-  allowed.forEach((k) => {
-    if (updates[k] !== undefined) filtered[k] = updates[k];
-  });
-
-  try {
-    const hhId = parseInt(req.params.id);
-    if (Object.keys(filtered).length > 0) {
-      await db.update(households).set(filtered).where(eq(households.id, hhId));
-    }
-
-    await auditLog(
-      hhId,
-      req.user.id,
-      'HOUSE_DETAILS_UPDATE',
-      'households',
-      null,
-      {
-        updates: Object.keys(filtered),
-      },
-      req
-    );
-
-    res.json({ message: 'Household details updated' });
-  } catch (err) {
-    console.error('[HOUSEHOLDS] Update Error:', err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * GET /api/households/:id/users
+ * Item 161: Using DataLoader for batching.
  */
-router.get('/:id/users', authenticateToken, requireHouseholdRole('viewer'), async (req, res) => {
+router.get('/:id/users', authenticateToken, requireHouseholdRole('viewer'), async (req, res, next) => {
   try {
-    const results = await db
+    const hhId = parseInt(req.params.id);
+
+    const links = await req.ctx.db
       .select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        avatar: users.avatar,
+        userId: userHouseholds.userId,
         role: userHouseholds.role,
         isActive: userHouseholds.isActive,
         joinedAt: userHouseholds.joinedAt,
       })
-      .from(users)
-      .innerJoin(userHouseholds, eq(users.id, userHouseholds.userId))
-      .where(eq(userHouseholds.householdId, parseInt(req.params.id)));
+      .from(userHouseholds)
+      .where(eq(userHouseholds.householdId, hhId));
 
-    res.json(results);
+    const userIds = links.map((l) => l.userId);
+    const userDatas = await req.ctx.loaders.getUsersLoader().loadMany(userIds);
+
+    const results = links.map((link, idx) => ({
+      ...link,
+      user: userDatas[idx],
+    }));
+
+    response.success(res, results);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 /**
  * POST /api/households/:id/users
  */
-router.post('/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res) => {
-  const { email, role } = req.body;
-  const householdId = parseInt(req.params.id);
-
+router.post('/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
   try {
-    const [user] = await db.select().from(users).where(ilike(users.email, email)).limit(1);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { email, role } = req.body;
+    const householdId = parseInt(req.params.id);
 
-    await db
+    const [user] = await req.ctx.db.select().from(users).where(ilike(users.email, email)).limit(1);
+    if (!user) throw new NotFoundError('User not found');
+
+    await req.ctx.db
       .insert(userHouseholds)
       .values({
         userId: user.id,
@@ -263,10 +221,11 @@ router.post('/:id/users', authenticateToken, requireHouseholdRole('admin'), asyn
         set: { role: role || 'member', isActive: true },
       });
 
-    res.json({ message: 'User added/updated in household' });
+    response.success(res, { message: 'User added/updated in household' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 module.exports = router;
+

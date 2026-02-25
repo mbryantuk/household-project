@@ -13,9 +13,11 @@ import { APP_NAME } from './constants';
 import { AuthProvider } from './context/AuthContext';
 import { HouseholdProvider } from './context/HouseholdContext';
 import { UIProvider } from './context/UIContext';
+import { TimezoneProvider } from './context/TimezoneContext';
 
 // Components
 import AppInner from './AppInner';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -26,7 +28,6 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-  const [initialToken] = useState(localStorage.getItem('token'));
   const [initialUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('user')) || null;
@@ -62,9 +63,8 @@ export default function App() {
   );
 
   const handleLoginSuccess = useCallback((data, rememberMe) => {
-    const { token, role, context, household: hhData, user: userData, system_role } = data;
+    const { role, context, household: hhData, user: userData, system_role } = data;
     const fullUser = { ...userData, role, system_role };
-    localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(fullUser));
     if (rememberMe) localStorage.setItem('persistentSession', 'true');
     else localStorage.removeItem('persistentSession');
@@ -79,7 +79,6 @@ export default function App() {
   }, []);
 
   const onLogout = useCallback(() => {
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('household');
     localStorage.removeItem('persistentSession');
@@ -87,36 +86,42 @@ export default function App() {
   }, []);
 
   const appContent = (
-    <AuthProvider
-      initialToken={initialToken}
-      initialUser={initialUser}
-      handleLoginSuccess={handleLoginSuccess}
-      onLogout={onLogout}
-    >
-      <UIProvider>
-        <HouseholdProvider initialHousehold={initialHousehold}>
-          <CssVarsProvider
-            theme={theme}
-            defaultMode="system"
-            modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
-            disableNestedContext
-          >
-            <CssBaseline />
-            <BrowserRouter>
-              <Suspense fallback={null}>
-                <AppInner
-                  themeId={themeId}
-                  setThemeId={setThemeId}
-                  onPreviewTheme={setPreviewThemeId}
-                />
-              </Suspense>
-            </BrowserRouter>
-            <Toaster position="bottom-center" />
-          </CssVarsProvider>
-        </HouseholdProvider>
-      </UIProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider
+        initialUser={initialUser}
+        handleLoginSuccess={handleLoginSuccess}
+        onLogout={onLogout}
+      >
+        <UIProvider>
+          <TimezoneProvider>
+            <HouseholdProvider initialHousehold={initialHousehold}>
+              <CssVarsProvider
+                theme={theme}
+                defaultMode="system"
+                modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
+                disableNestedContext
+              >
+                <CssBaseline />
+                <BrowserRouter>
+                  <Suspense fallback={null}>
+                    <AppInner
+                      themeId={themeId}
+                      setThemeId={setThemeId}
+                      onPreviewTheme={setPreviewThemeId}
+                    />
+                  </Suspense>
+                </BrowserRouter>
+                <Toaster position="bottom-center" />
+              </CssVarsProvider>
+            </HouseholdProvider>
+          </TimezoneProvider>
+        </UIProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
+
+  // Item 176: Robust Clerk Bypass for Tests
+  const isSmokeTest = window.navigator.userAgent.includes('Hearth-Smoke-Test');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -132,7 +137,7 @@ export default function App() {
           '#root': { height: '100dvh', width: '100vw', overflow: 'hidden' },
         }}
       />
-      {CLERK_PUBLISHABLE_KEY ? (
+      {CLERK_PUBLISHABLE_KEY && !isSmokeTest ? (
         <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{appContent}</ClerkProvider>
       ) : (
         appContent

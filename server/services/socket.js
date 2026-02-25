@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const logger = require('../utils/logger').default;
+const logger = require('../utils/logger');
 const notificationRouter = require('./notification_router');
 
 let io;

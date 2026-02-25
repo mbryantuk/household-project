@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.stryker-mutator.io/stryker-config.schema.json",
+  "mutate": [
+    "routes/*.js",
+    "services/*.js",
+    "middleware/*.js",
+    "!routes/admin.js"
+  ],
+  "testRunner": "jest",
+  "reporters": ["progress", "clear-text", "html"],
+  "coverageAnalysis": "perTest",
+  "jest": {
+    "projectType": "custom",
+    "configFile": "jest.config.js",
+    "enableFindRelatedTests": true
+  }
+}

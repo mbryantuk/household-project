@@ -20,7 +20,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import Code from '@mui/icons-material/Code';
 import OpenInNew from '@mui/icons-material/OpenInNew';
 
-import { useHousehold } from '../contexts/HouseholdContext';
+import { useHousehold } from '../context/HouseholdContext';
 import ProfileSettings from './settings/ProfileSettings';
 import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';

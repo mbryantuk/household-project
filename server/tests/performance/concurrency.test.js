@@ -19,15 +19,15 @@ describe('⚡ SQLite Concurrency Stress', () => {
       .post('/api/auth/login')
       .set('x-bypass-maintenance', 'true')
       .send({ email: ADMIN_EMAIL, password: PASSWORD });
-    token = login.body.token;
-    householdId = login.body.user.default_household_id;
+    token = login.body.data.token;
+    householdId = login.body.data.user.defaultHouseholdId;
 
     if (!householdId) {
       const hList = await request(app)
         .get('/api/auth/my-households')
         .set('Authorization', `Bearer ${token}`)
         .set('x-bypass-maintenance', 'true');
-      householdId = hList.body[0]?.id;
+      householdId = hList.body.data[0]?.id;
     }
 
     await request(app)

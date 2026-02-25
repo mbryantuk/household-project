@@ -8,6 +8,34 @@
       "when": 1771789334098,
       "tag": "0000_curly_spencer_smythe",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772013247008,
+      "tag": "0001_gigantic_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772013620541,
+      "tag": "0002_modern_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772014422001,
+      "tag": "0003_curvy_chameleon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772015315881,
+      "tag": "0004_amusing_boomerang",
+      "breakpoints": true
     }
   ]
 }

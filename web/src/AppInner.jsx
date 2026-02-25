@@ -26,6 +26,7 @@ import HouseholdLayout from './layouts/HouseholdLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import HouseholdSelector from './pages/HouseholdSelector';
+import OfflineOverlay from './components/ui/OfflineOverlay';
 
 // Lazy Loaded Features
 const HomeView = lazy(() => import('./features/HomeView'));
@@ -63,20 +64,18 @@ const PageLoader = () => (
   </Box>
 );
 
-export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
-  const { token, setToken, user, setUser, api, logout, login } = useAuth();
-  const { household, setHousehold, members, dates, vehicles, updateSettings, householdId } =
-    useHousehold();
-  const { showNotification, confirmAction, confirmDialog, closeConfirm } = useUI();
-
-  const { setMode } = useColorScheme();
-
-  // Clerk Integration (Hooks called unconditionally)
-  const clerkAuth = useClerkAuth();
-  const clerkUser = useClerkUser();
+// Clerk Integration Component
+function ClerkSync({ api, setToken, setUser, setHousehold, token }) {
+  let clerkAuth, clerkUser;
+  try {
+    clerkAuth = useClerkAuth();
+    clerkUser = useClerkUser();
+  } catch {
+    return null; // Item 176: Defensive bypass if ClerkProvider is missing
+  }
 
   useEffect(() => {
-    if (CLERK_PUBLISHABLE_KEY && clerkAuth?.isSignedIn && clerkUser?.user && clerkAuth.getToken) {
+    if (clerkAuth?.isSignedIn && clerkUser?.user && clerkAuth.getToken) {
       clerkAuth.getToken().then((clerkToken) => {
         if (clerkToken && clerkToken !== token) {
           api
@@ -86,9 +85,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
               setUser(res.data);
               if (res.data.lastHouseholdId) {
                 api
-                  .get(`/households/${res.data.lastHouseholdId}/details`, {
-                    headers: { Authorization: `Bearer ${clerkToken}` },
-                  })
+                  .get(`/households/${res.data.lastHouseholdId}/details`)
                   .then((hRes) => setHousehold(hRes.data));
               }
             });
@@ -96,6 +93,17 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
       });
     }
   }, [clerkAuth, clerkUser, token, api, setToken, setUser, setHousehold]);
+
+  return null;
+}
+
+export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
+  const { token, setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } = useAuth();
+  const { household, setHousehold, members, dates, vehicles, updateSettings, householdId } =
+    useHousehold();
+  const { showNotification, confirmAction, confirmDialog, closeConfirm } = useUI();
+
+  const { setMode } = useColorScheme();
 
   // Idle Management
   const lastActivity = useRef(null);
@@ -110,7 +118,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
     events.forEach((e) => window.addEventListener(e, handler));
 
     const interval = setInterval(() => {
-      if (localStorage.getItem('persistentSession') === 'true' || !token) return;
+      if (localStorage.getItem('persistentSession') === 'true' || !isAuthenticated) return;
       const diff = Date.now() - lastActivity.current;
       if (diff > IDLE_WARNING_MS && !isIdleWarning) setIsIdleWarning(true);
       if (diff > IDLE_LOGOUT_MS) logout();
@@ -120,7 +128,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
       events.forEach((e) => window.removeEventListener(e, handler));
       clearInterval(interval);
     };
-  }, [token, isIdleWarning, logout]);
+  }, [isAuthenticated, isIdleWarning, logout]);
 
   const handleUpdateProfile = useCallback(
     async (updates) => {
@@ -151,16 +159,28 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
     [api, setToken, setHousehold, showNotification]
   );
 
+  if (isInitializing) return <PageLoader />;
+
   return (
     <CommandBar householdId={householdId}>
+      <OfflineOverlay />
+      {CLERK_PUBLISHABLE_KEY && (
+        <ClerkSync
+          api={api}
+          setToken={setToken}
+          setUser={setUser}
+          setHousehold={setHousehold}
+          token={token}
+        />
+      )}
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
-          <Route path="/register" element={!token ? <Register /> : <Navigate to="/" />} />
+          <Route path="/login" element={!isAuthenticated ? <Login onLogin={login} /> : <Navigate to="/" />} />
+          <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
 
           <Route
             element={
-              token ? (
+              isAuthenticated ? (
                 <RootLayout context={{ api, user, showNotification, confirmAction }} />
               ) : (
                 <Navigate to="/login" />
@@ -196,7 +216,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
               path="household/:id"
               element={
                 <HouseholdLayout
-                  households={[]} // Fetched inside Layout
+                  households={[]} 
                   onSelectHousehold={handleSelectHousehold}
                   api={api}
                   onUpdateHousehold={updateSettings}

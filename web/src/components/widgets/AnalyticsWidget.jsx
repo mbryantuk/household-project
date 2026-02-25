@@ -32,19 +32,31 @@ export default function AnalyticsWidget({ household, api }) {
   const chartData = useMemo(() => {
     if (!wealthData || !budgetData) return null;
 
+    // Item 176: Defensive reduction logic
+    const safeReduce = (arr, fn, init) => (Array.isArray(arr) ? arr.reduce(fn, init) : init);
+
     // 1. Asset Distribution for Pie Chart
-    const houseValuation = wealthData.house_details?.current_valuation || 0;
-    const vehicleValue =
-      wealthData.vehicles?.reduce(
-        (sum, v) => sum + (v.current_value || v.purchase_value || 0),
-        0
-      ) || 0;
-    const totalPensions =
-      wealthData.pensions?.reduce((sum, p) => sum + (p.current_value || 0), 0) || 0;
-    const totalInvestments =
-      wealthData.investments?.reduce((sum, i) => sum + (i.current_value || 0), 0) || 0;
-    const totalSavings =
-      wealthData.savings?.reduce((sum, s) => sum + Math.max(0, s.current_balance || 0), 0) || 0;
+    const houseValuation = parseFloat(wealthData.house_details?.current_valuation) || 0;
+    const vehicleValue = safeReduce(
+      wealthData.vehicles,
+      (sum, v) => sum + (parseFloat(v.current_value) || parseFloat(v.purchase_value) || 0),
+      0
+    );
+    const totalPensions = safeReduce(
+      wealthData.pensions,
+      (sum, p) => sum + (parseFloat(p.current_value) || 0),
+      0
+    );
+    const totalInvestments = safeReduce(
+      wealthData.investments,
+      (sum, i) => sum + (parseFloat(i.current_value) || 0),
+      0
+    );
+    const totalSavings = safeReduce(
+      wealthData.savings,
+      (sum, s) => sum + Math.max(0, parseFloat(s.current_balance) || 0),
+      0
+    );
 
     const assetsPie = [
       { name: 'Property', value: houseValuation },
@@ -55,18 +67,23 @@ export default function AnalyticsWidget({ household, api }) {
     ].filter((item) => item.value > 0);
 
     // 2. Income vs Expenses Bar Chart
-    const totalIncome =
-      budgetData.incomes?.reduce((sum, inc) => sum + (parseFloat(inc.amount) || 0), 0) || 0;
+    const totalIncome = safeReduce(
+      budgetData.incomes,
+      (sum, inc) => sum + (parseFloat(inc.amount) || 0),
+      0
+    );
 
-    // Estimate monthly expenses from recurring costs
-    const monthlyExpenses =
-      budgetData.recurring_costs?.reduce((sum, cost) => {
+    const monthlyExpenses = safeReduce(
+      budgetData.recurring_costs,
+      (sum, cost) => {
         let amt = parseFloat(cost.amount) || 0;
         if (cost.frequency === 'weekly') amt *= 4.33;
         if (cost.frequency === 'yearly') amt /= 12;
         if (cost.frequency === 'quarterly') amt /= 3;
         return sum + amt;
-      }, 0) || 0;
+      },
+      0
+    );
 
     const cashflowBar = [
       { name: 'Monthly Average', Income: totalIncome, Expenses: monthlyExpenses },

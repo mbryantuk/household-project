@@ -7,7 +7,14 @@ import { getEmojiColor } from '../../utils/colors';
  * Stylized header for feature modules, matching the Hero style.
  * Uses dynamic emoji coloring (Item 19).
  */
-export default function ModuleHeader({ title, description, emoji = '📄', action, chips = [] }) {
+export default function ModuleHeader({
+  title,
+  description,
+  emoji = '📄',
+  action,
+  chips = [],
+  titleTestId,
+}) {
   const { mode, systemMode } = useColorScheme();
   const isDark = (mode === 'system' ? systemMode : mode) === 'dark';
 
@@ -47,7 +54,7 @@ export default function ModuleHeader({ title, description, emoji = '📄', actio
       </Box>
 
       <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
-        <Typography level="h2" component="h1">
+        <Typography level="h2" component="h1" data-testid={titleTestId}>
           {title}
         </Typography>
         {description && (

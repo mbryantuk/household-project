@@ -24,8 +24,8 @@ describe('Admin Audit Log API (Pagination)', () => {
       password: 'Password123!',
     });
 
-    adminToken = loginRes.body.token;
-    householdId = loginRes.body.household.id;
+    adminToken = loginRes.body.data.token;
+    householdId = loginRes.body.data.household.id;
 
     // 3. Make the user a system admin (if not already)
     const { users } = require('../../db/schema');
@@ -37,7 +37,7 @@ describe('Admin Audit Log API (Pagination)', () => {
     for (let i = 1; i <= 15; i++) {
       logsToInsert.push({
         householdId,
-        userId: loginRes.body.user.id,
+        userId: loginRes.body.data.user.id,
         action: `TEST_ACTION_${i}`,
         entityType: 'test',
         entityId: i,

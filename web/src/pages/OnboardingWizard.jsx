@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -37,55 +37,19 @@ import {
   DoneAll,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMachine } from '@xstate/react';
+import { onboardingMachine } from './onboarding/onboardingMachine';
 import { useHousehold } from '../context/HouseholdContext';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import EmojiPicker from '../components/EmojiPicker';
 
-// --- STATE MACHINE DEFINITION (Item 121) ---
-const STEPS = {
-  HOUSEHOLD: 0,
-  RESIDENTS: 1,
-  VEHICLES: 2,
-  ASSETS: 3,
-  FINISH: 4,
-};
-
-const initialState = {
-  activeStep: STEPS.HOUSEHOLD,
-  loading: true,
-  household: null,
-  members: [],
-  vehicles: [],
-  assets: [],
-  editItem: null,
-};
-
-function onboardingReducer(state, action) {
-  switch (action.type) {
-    case 'LOAD_SUCCESS':
-      return { ...state, ...action.payload, loading: false };
-    case 'SET_STEP':
-      return { ...state, activeStep: action.step };
-    case 'NEXT_STEP':
-      return { ...state, activeStep: Math.min(state.activeStep + 1, STEPS.FINISH) };
-    case 'PREV_STEP':
-      return { ...state, activeStep: Math.max(state.activeStep - 1, STEPS.HOUSEHOLD) };
-    case 'SET_EDIT_ITEM':
-      return { ...state, editItem: action.item };
-    case 'UPDATE_DATA':
-      return { ...state, [action.key]: action.data };
-    default:
-      return state;
-  }
-}
-
 const stepConfig = [
-  { label: 'Household', icon: <Home /> },
-  { label: 'Residents', icon: <People /> },
-  { label: 'Vehicles', icon: <DirectionsCar /> },
-  { label: 'Assets', icon: <Inventory2 /> },
-  { label: 'Finish', icon: <DoneAll /> },
+  { label: 'Household', icon: <Home />, state: 'welcome' },
+  { label: 'Residents', icon: <People />, state: 'householdSetup' },
+  { label: 'Vehicles', icon: <DirectionsCar />, state: 'memberSync' },
+  { label: 'Assets', icon: <Inventory2 />, state: 'financeImport' },
+  { label: 'Finish', icon: <DoneAll />, state: 'complete' },
 ];
 
 export default function OnboardingWizard() {
@@ -95,7 +59,15 @@ export default function OnboardingWizard() {
   const { onSelectHousehold } = useHousehold();
   const { showNotification } = useUI();
 
-  const [state, dispatch] = useReducer(onboardingReducer, initialState);
+  const [state, send] = useMachine(onboardingMachine);
+  const [data, setData] = useState({
+    loading: true,
+    household: null,
+    members: [],
+    vehicles: [],
+    assets: [],
+    editItem: null,
+  });
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   useEffect(() => {
@@ -109,15 +81,14 @@ export default function OnboardingWizard() {
           api.get(`/households/${householdId}/vehicles`),
           api.get(`/households/${householdId}/assets`),
         ]);
-        dispatch({
-          type: 'LOAD_SUCCESS',
-          payload: {
-            household: hRes.data,
-            members: mRes.data || [],
-            vehicles: vRes.data || [],
-            assets: aRes.data || [],
-          },
-        });
+        setData((prev) => ({
+          ...prev,
+          household: hRes.data,
+          members: mRes.data || [],
+          vehicles: vRes.data || [],
+          assets: aRes.data || [],
+          loading: false,
+        }));
       } catch {
         showNotification('Failed to load household data.', 'danger');
       }
@@ -125,37 +96,38 @@ export default function OnboardingWizard() {
     loadData();
   }, [householdId, api, showNotification]);
 
+  const activeStep = stepConfig.findIndex((s) => state.matches(s.state));
+
   const handleComplete = async () => {
-    if (state.household) await onSelectHousehold(state.household);
+    if (data.household) await onSelectHousehold(data.household);
     navigate(`/household/${householdId}/dashboard`);
   };
 
-  // --- CRUD WRAPPERS ---
   const refreshData = async (key, endpoint) => {
     const res = await api.get(endpoint);
-    dispatch({ type: 'UPDATE_DATA', key, data: res.data || [] });
+    setData((prev) => ({ ...prev, [key]: res.data || [] }));
   };
 
   const saveItem = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
     const domain =
-      state.activeStep === 1 ? 'members' : state.activeStep === 2 ? 'vehicles' : 'assets';
+      activeStep === 1 ? 'members' : activeStep === 2 ? 'vehicles' : 'assets';
 
     try {
-      if (state.editItem?.id) {
-        await api.put(`/households/${householdId}/${domain}/${state.editItem.id}`, data);
+      if (data.editItem?.id) {
+        await api.put(`/households/${householdId}/${domain}/${data.editItem.id}`, formData);
       } else {
-        await api.post(`/households/${householdId}/${domain}`, data);
+        await api.post(`/households/${householdId}/${domain}`, formData);
       }
       await refreshData(domain, `/households/${householdId}/${domain}`);
-      dispatch({ type: 'SET_EDIT_ITEM', item: null });
+      setData((prev) => ({ ...prev, editItem: null }));
     } catch {
       showNotification(`Failed to save ${domain}`, 'danger');
     }
   };
 
-  if (state.loading)
+  if (data.loading)
     return (
       <Box sx={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}>
         <CircularProgress size="lg" />
@@ -165,7 +137,7 @@ export default function OnboardingWizard() {
   return (
     <Box data-testid="onboarding-view" sx={{ maxWidth: 800, mx: 'auto', py: 4, px: 2 }}>
       <Typography level="h1" textAlign="center" mb={1}>
-        Welcome to {state.household?.name}
+        Welcome to {data.household?.name}
       </Typography>
       <Typography level="body-md" textAlign="center" color="neutral" mb={4}>
         Let's get your household set up in a few simple steps.
@@ -177,14 +149,14 @@ export default function OnboardingWizard() {
             key={step.label}
             indicator={
               <StepIndicator
-                variant={state.activeStep >= index ? 'solid' : 'outlined'}
-                color={state.activeStep >= index ? 'primary' : 'neutral'}
+                variant={activeStep >= index ? 'solid' : 'outlined'}
+                color={activeStep >= index ? 'primary' : 'neutral'}
               >
-                {state.activeStep > index ? <CheckCircle /> : step.icon}
+                {activeStep > index ? <CheckCircle /> : step.icon}
               </StepIndicator>
             }
-            active={state.activeStep === index}
-            completed={state.activeStep > index}
+            active={activeStep === index}
+            completed={activeStep > index}
           >
             <Typography level="title-sm" sx={{ display: { xs: 'none', md: 'block' } }}>
               {step.label}
@@ -194,7 +166,7 @@ export default function OnboardingWizard() {
       </Stepper>
 
       <Sheet variant="outlined" sx={{ p: { xs: 2, md: 4 }, borderRadius: 'xl', boxShadow: 'sm' }}>
-        {state.activeStep === STEPS.HOUSEHOLD && (
+        {state.matches('welcome') && (
           <Box>
             <Typography level="h3" mb={1}>
               Household Overview
@@ -206,32 +178,32 @@ export default function OnboardingWizard() {
               <Grid xs={12} sm={6}>
                 <FormControl>
                   <FormLabel>Name</FormLabel>
-                  <Input value={state.household?.name} readOnly variant="soft" />
+                  <Input value={data.household?.name} readOnly variant="soft" />
                 </FormControl>
               </Grid>
               <Grid xs={12} sm={6}>
                 <FormControl>
                   <FormLabel>Currency</FormLabel>
-                  <Input value={state.household?.currency} readOnly variant="soft" />
+                  <Input value={data.household?.currency} readOnly variant="soft" />
                 </FormControl>
               </Grid>
             </Grid>
           </Box>
         )}
 
-        {state.activeStep === STEPS.RESIDENTS && (
+        {state.matches('householdSetup') && (
           <Box>
             <Stack direction="row" justifyContent="space-between" mb={3}>
               <Typography level="h3">Residents & Family</Typography>
               <Button
                 startDecorator={<Add />}
-                onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: { emoji: '👤' } })}
+                onClick={() => setData((prev) => ({ ...prev, editItem: { emoji: '👤' } }))}
               >
                 Add Person
               </Button>
             </Stack>
             <Grid container spacing={2}>
-              {state.members.map((m) => (
+              {data.members.map((m) => (
                 <Grid key={m.id} xs={12} sm={6}>
                   <Card
                     variant="soft"
@@ -244,7 +216,7 @@ export default function OnboardingWizard() {
                     </Box>
                     <IconButton
                       size="sm"
-                      onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: m })}
+                      onClick={() => setData((prev) => ({ ...prev, editItem: m }))}
                     >
                       <Edit />
                     </IconButton>
@@ -255,19 +227,19 @@ export default function OnboardingWizard() {
           </Box>
         )}
 
-        {state.activeStep === STEPS.VEHICLES && (
+        {state.matches('memberSync') && (
           <Box>
             <Stack direction="row" justifyContent="space-between" mb={3}>
               <Typography level="h3">Garage & Fleet</Typography>
               <Button
                 startDecorator={<Add />}
-                onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: { emoji: '🚗' } })}
+                onClick={() => setData((prev) => ({ ...prev, editItem: { emoji: '🚗' } }))}
               >
                 Add Vehicle
               </Button>
             </Stack>
             <Grid container spacing={2}>
-              {state.vehicles.map((v) => (
+              {data.vehicles.map((v) => (
                 <Grid key={v.id} xs={12} sm={6}>
                   <Card
                     variant="soft"
@@ -281,7 +253,7 @@ export default function OnboardingWizard() {
                     </Box>
                     <IconButton
                       size="sm"
-                      onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: v })}
+                      onClick={() => setData((prev) => ({ ...prev, editItem: v }))}
                     >
                       <Edit />
                     </IconButton>
@@ -292,7 +264,7 @@ export default function OnboardingWizard() {
           </Box>
         )}
 
-        {state.activeStep === STEPS.FINISH && (
+        {state.matches('complete') && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Avatar
               color="success"
@@ -310,7 +282,7 @@ export default function OnboardingWizard() {
           </Box>
         )}
 
-        {state.activeStep < STEPS.FINISH && (
+        {!state.matches('complete') && (
           <Box
             sx={{
               mt: 6,
@@ -325,14 +297,14 @@ export default function OnboardingWizard() {
               variant="plain"
               color="neutral"
               startDecorator={<ArrowBack />}
-              onClick={() => dispatch({ type: 'PREV_STEP' })}
-              disabled={state.activeStep === 0}
+              onClick={() => send({ type: 'BACK' })}
+              disabled={state.matches('welcome')}
             >
               Back
             </Button>
             <Button
               variant="solid"
-              onClick={() => dispatch({ type: 'NEXT_STEP' })}
+              onClick={() => send({ type: 'NEXT' })}
               endDecorator={<ArrowForward />}
             >
               Next
@@ -342,11 +314,11 @@ export default function OnboardingWizard() {
       </Sheet>
 
       <Modal
-        open={Boolean(state.editItem)}
-        onClose={() => dispatch({ type: 'SET_EDIT_ITEM', item: null })}
+        open={Boolean(data.editItem)}
+        onClose={() => setData((prev) => ({ ...prev, editItem: null }))}
       >
         <ModalDialog>
-          <DialogTitle>{state.editItem?.id ? 'Edit' : 'Add New'}</DialogTitle>
+          <DialogTitle>{data.editItem?.id ? 'Edit' : 'Add New'}</DialogTitle>
           <DialogContent>
             <form onSubmit={saveItem}>
               <Stack spacing={2} mt={1}>
@@ -356,41 +328,41 @@ export default function OnboardingWizard() {
                     onClick={() => setEmojiPickerOpen(true)}
                     sx={{ width: 48, height: 48, fontSize: '1.5rem' }}
                   >
-                    {state.editItem?.emoji || '🏠'}
+                    {data.editItem?.emoji || '🏠'}
                   </IconButton>
-                  <Input name="emoji" type="hidden" value={state.editItem?.emoji || ''} />
+                  <Input name="emoji" type="hidden" value={data.editItem?.emoji || ''} />
                   <FormControl required sx={{ flexGrow: 1 }}>
                     <FormLabel>Name / Make</FormLabel>
                     <Input
-                      name={state.activeStep === 2 ? 'make' : 'name'}
+                      name={activeStep === 2 ? 'make' : 'name'}
                       defaultValue={
-                        state.activeStep === 2 ? state.editItem?.make : state.editItem?.name
+                        activeStep === 2 ? data.editItem?.make : data.editItem?.name
                       }
                       autoFocus
                     />
                   </FormControl>
                 </Box>
-                {state.activeStep === 1 && (
+                {activeStep === 1 && (
                   <FormControl required>
                     <FormLabel>Type</FormLabel>
-                    <Select name="type" defaultValue={state.editItem?.type || 'adult'}>
+                    <Select name="type" defaultValue={data.editItem?.type || 'adult'}>
                       <Option value="adult">Adult</Option>
                       <Option value="child">Child</Option>
                       <Option value="pet">Pet</Option>
                     </Select>
                   </FormControl>
                 )}
-                {state.activeStep === 2 && (
+                {activeStep === 2 && (
                   <FormControl required>
                     <FormLabel>Model</FormLabel>
-                    <Input name="model" defaultValue={state.editItem?.model} />
+                    <Input name="model" defaultValue={data.editItem?.model} />
                   </FormControl>
                 )}
                 <DialogActions>
                   <Button
                     variant="plain"
                     color="neutral"
-                    onClick={() => dispatch({ type: 'SET_EDIT_ITEM', item: null })}
+                    onClick={() => setData((prev) => ({ ...prev, editItem: null }))}
                   >
                     Cancel
                   </Button>
@@ -406,7 +378,7 @@ export default function OnboardingWizard() {
         open={emojiPickerOpen}
         onClose={() => setEmojiPickerOpen(false)}
         onEmojiSelect={(e) => {
-          dispatch({ type: 'SET_EDIT_ITEM', item: { ...state.editItem, emoji: e } });
+          setData((prev) => ({ ...prev, editItem: { ...data.editItem, emoji: e } }));
           setEmojiPickerOpen(false);
         }}
       />

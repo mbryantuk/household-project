@@ -27,7 +27,7 @@ import Edit from '@mui/icons-material/Edit';
 import PersonAdd from '@mui/icons-material/PersonAdd';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 
-import { useHousehold } from '../../contexts/HouseholdContext';
+import { useHousehold } from '../../context/HouseholdContext';
 import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 

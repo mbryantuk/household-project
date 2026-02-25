@@ -7,7 +7,7 @@ const {
 const fs = require('fs');
 const path = require('path');
 const config = require('../config');
-const logger = require('../utils/logger').default;
+const logger = require('../utils/logger');
 
 let s3Client = null;
 

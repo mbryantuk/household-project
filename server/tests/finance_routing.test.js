@@ -17,8 +17,8 @@ describe('💰 Finance Routing Verification', () => {
       email: adminEmail,
       password: 'Password123!',
     });
-    token = loginRes.body.token;
-    householdId = loginRes.body.household?.id;
+    token = loginRes.body.data.token;
+    householdId = loginRes.body.data.household?.id;
 
     // Select household
     await request(app)
@@ -41,7 +41,7 @@ describe('💰 Finance Routing Verification', () => {
 
     expect(res.status).not.toBe(404);
     if (res.status === 200) {
-      expect(Array.isArray(res.body)).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
     }
   });
 
@@ -52,7 +52,7 @@ describe('💰 Finance Routing Verification', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ institution: 'Test Bank', account_name: 'Main Savings' });
 
-    const itemId = createRes.body.id;
+    const itemId = createRes.body.data.id;
     expect(itemId).toBeDefined();
 
     const res = await request(app)
@@ -60,7 +60,7 @@ describe('💰 Finance Routing Verification', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.institution).toBe('Test Bank');
+    expect(res.body.data.institution).toBe('Test Bank');
   });
 
   test('GET /api/households/:id/finance/savings/999999 should return 404', async () => {
