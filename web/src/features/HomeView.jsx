@@ -22,11 +22,13 @@ import {
   ArrowForward,
   CleaningServices,
   WbSunny,
+  PushPin,
 } from '@mui/icons-material';
 import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import UtilityHealthWidget from '../components/widgets/UtilityHealthWidget';
+import MessageBoardWidget from '../components/widgets/MessageBoardWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { getRelativeTime } from '../utils/date';
@@ -71,6 +73,7 @@ export default function HomeView() {
               { i: 'analytics', x: 0, y: 2, w: 12, h: 3 },
               { i: 'activity', x: 0, y: 5, w: 6, h: 4 },
               { i: 'tasks', x: 6, y: 5, w: 6, h: 4 },
+              { i: 'board', x: 0, y: 9, w: 12, h: 3 },
             ],
           };
     } catch {
@@ -229,6 +232,7 @@ export default function HomeView() {
           size="sm"
           endDecorator={<ArrowForward />}
           sx={{ mt: 1, width: '100%' }}
+          onClick={() => navigate('../house/notifications')}
         >
           View All Activity
         </Button>
@@ -276,6 +280,11 @@ export default function HomeView() {
     utilities: showUtilityWidget ? (
       <UtilityHealthWidget api={api} householdId={household?.id} currency={household?.currency} />
     ) : null,
+    board: (
+      <DashboardWidget title="Household Board" icon={PushPin} color="primary">
+        <MessageBoardWidget api={api} householdId={household?.id} />
+      </DashboardWidget>
+    ),
   };
 
   return (

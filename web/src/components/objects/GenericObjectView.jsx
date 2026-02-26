@@ -32,12 +32,14 @@ import {
   Edit,
   Home,
   ChevronRight,
+  ChatBubble,
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 
 import RecurringChargesWidget from '../ui/RecurringChargesWidget';
 import EmojiPicker from '../EmojiPicker';
 import AppSelect from '../ui/AppSelect';
+import CommentThread from '../ui/CommentThread';
 import { useEntity, useEntityMutation } from '../../hooks/useEntity';
 
 /**
@@ -188,6 +190,15 @@ export default function GenericObjectView({
     );
   }
 
+  // Item 245: All entities support comments
+  const defaultTabs = [
+    { id: 'identity', label: 'Identity', icon: Info },
+    { id: 'costs', label: 'Recurring Costs', icon: Payments },
+    { id: 'discuss', label: 'Discussion', icon: ChatBubble },
+  ];
+
+  const totalTabs = [...defaultTabs, ...extraTabs];
+
   return (
     <Box data-testid="generic-object-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Breadcrumbs */}
@@ -331,24 +342,10 @@ export default function GenericObjectView({
                 '&::-webkit-scrollbar': { display: 'none' },
               }}
             >
-              <Tab
-                variant={activeTab === 0 ? 'solid' : 'plain'}
-                color="primary"
-                sx={{ flex: { xs: 'none', md: 1 }, py: 2, minWidth: 120, scrollSnapAlign: 'start' }}
-              >
-                <Info sx={{ mr: 1 }} /> Identity
-              </Tab>
-              <Tab
-                variant={activeTab === 1 ? 'solid' : 'plain'}
-                color="primary"
-                sx={{ flex: { xs: 'none', md: 1 }, py: 2, minWidth: 120, scrollSnapAlign: 'start' }}
-              >
-                <Payments sx={{ mr: 1 }} /> Recurring Costs
-              </Tab>
-              {extraTabs.map((tab, idx) => (
+              {totalTabs.map((tab, idx) => (
                 <Tab
                   key={tab.id}
-                  variant={activeTab === 2 + idx ? 'solid' : 'plain'}
+                  variant={activeTab === idx ? 'solid' : 'plain'}
                   color="primary"
                   sx={{
                     flex: { xs: 'none', md: 1 },
@@ -489,9 +486,18 @@ export default function GenericObjectView({
             />
           )}
 
+          {activeTab === 2 && !isNew && (
+            <CommentThread
+              api={api}
+              householdId={householdId}
+              entityType={`${type}s`} // Use plural for table naming consistency
+              entityId={id}
+            />
+          )}
+
           {extraTabs.map(
             (tab, idx) =>
-              activeTab === 2 + idx &&
+              activeTab === 3 + idx &&
               !isNew && <Box key={tab.id}>{tab.content(data, handleChange, handleSubmit)}</Box>
           )}
         </Box>

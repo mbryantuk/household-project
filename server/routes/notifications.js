@@ -38,6 +38,29 @@ router.get(
 );
 
 /**
+ * GET /api/households/:id/notifications/all
+ * Item 242: Full history
+ */
+router.get(
+  '/all',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const rows = await dbAll(
+        req.tenantDb,
+        'SELECT * FROM notifications WHERE household_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 200',
+        [req.hhId]
+      );
+      response.success(res, rows);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
  * POST /api/households/:id/notifications/:nid/read
  */
 router.post(

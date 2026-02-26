@@ -52,6 +52,7 @@ const EnergyView = lazy(() => import('./features/EnergyView'));
 const WaterView = lazy(() => import('./features/WaterView'));
 const WasteView = lazy(() => import('./features/WasteView'));
 const CouncilView = lazy(() => import('./features/CouncilView'));
+const NotificationHistoryView = lazy(() => import('./features/NotificationHistoryView'));
 const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const IDLE_WARNING_MS = 60 * 60 * 1000;
@@ -249,6 +250,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
                 path="house/security"
                 element={<SecurityAuditView api={api} householdId={householdId} />}
               />
+              <Route path="house/notifications" element={<NotificationHistoryView />} />
               <Route path="house" element={<HouseView />} />
               <Route path="vehicles" element={<VehiclesView />} />
               <Route path="profile" element={<ProfileView />} />

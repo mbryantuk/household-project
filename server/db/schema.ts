@@ -172,6 +172,23 @@ export const userHouseholds = pgTable(
   })
 );
 
+/**
+ * Item 241: Household Invitations
+ */
+export const invitations = pgTable('invitations', {
+  id: serial('id').primaryKey(),
+  householdId: integer('household_id')
+    .notNull()
+    .references(() => households.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  role: userRoleEnum('role').default('member'),
+  token: text('token').notNull().unique(),
+  invitedBy: integer('invited_by').references(() => users.id, { onDelete: 'set null' }),
+  expiresAt: timestamp('expires_at').notNull(),
+  isAccepted: boolean('is_accepted').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const auditLogs = pgTable('audit_logs', {
   id: serial('id').primaryKey(),
   householdId: integer('household_id')

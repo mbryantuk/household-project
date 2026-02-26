@@ -22,6 +22,7 @@ import {
   Button,
   DialogActions,
   useColorScheme,
+  AvatarGroup,
 } from '@mui/joy';
 import {
   Event,
@@ -254,6 +255,7 @@ export default function NavSidebar({
   onInstall,
   onOpenNotifications,
   notificationCount,
+  activeUsers = [],
 }) {
   const { mode: muiMode, systemMode, setMode } = useColorScheme();
   const isDark = muiMode === 'dark' || (muiMode === 'system' && systemMode === 'dark');
@@ -463,13 +465,13 @@ export default function NavSidebar({
       {/* RAIL SECTION */}
       <Sheet
         sx={{
-          width: isMobile ? '100%' : RAIL_WIDTH,
+          width: RAIL_WIDTH,
           borderRight: '1px solid',
           borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          alignItems: isMobile ? 'stretch' : 'center',
+          alignItems: 'center',
           pt: 1.5,
           pb: 1.5,
           bgcolor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
@@ -479,25 +481,6 @@ export default function NavSidebar({
         }}
       >
         <Box sx={{ width: '100%', flexShrink: 0 }}>
-          {isMobile && (
-            <Box
-              sx={{
-                px: 2,
-                pb: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Typography level="title-lg" sx={{ fontWeight: 'bold' }}>
-                Menu
-              </Typography>
-              <IconButton variant="plain" color="neutral" onClick={onClose}>
-                <Close />
-              </IconButton>
-            </Box>
-          )}
-
           <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
             <Tooltip title="Dashboard" variant="soft" placement="right">
               <Avatar
@@ -531,7 +514,7 @@ export default function NavSidebar({
               '--ListItem-radius': '8px',
               '--List-gap': '8px',
               width: '100%',
-              px: isMobile ? 1 : 0,
+              px: 0,
             }}
           >
             <RailIcon
@@ -551,7 +534,7 @@ export default function NavSidebar({
           <Divider
             sx={{
               my: 1.5,
-              width: isMobile ? '100%' : 48,
+              width: 48,
               mx: 'auto',
               bgcolor: isDark ? 'neutral.700' : 'neutral.300',
               height: '2px',
@@ -574,7 +557,7 @@ export default function NavSidebar({
               '--ListItem-radius': '8px',
               '--List-gap': '8px',
               width: '100%',
-              px: isMobile ? 1 : 0,
+              px: 0,
             }}
           >
             <RailIcon
@@ -675,6 +658,22 @@ export default function NavSidebar({
             gap: 2,
           }}
         >
+          {/* Item 244: Active Member Avatars (Desktop) */}
+          {activeUsers.length > 0 && (
+            <AvatarGroup size="sm" sx={{ '--Avatar-size': '28px' }}>
+              {activeUsers.map((au, idx) => (
+                <Tooltip
+                  key={idx}
+                  title={`${au.firstName} is online`}
+                  variant="soft"
+                  placement="right"
+                >
+                  <Avatar sx={{ bgcolor: getEmojiColor(au.avatar, isDark) }}>{au.avatar}</Avatar>
+                </Tooltip>
+              ))}
+            </AvatarGroup>
+          )}
+
           <Box sx={{ width: '100%', px: 1.5 }}>
             <Divider sx={{ mb: 1.5 }} />
           </Box>

@@ -48,6 +48,7 @@ const systemRoutes = require('./routes/system');
 const assetsVehiclesRoutes = require('./routes/assets_vehicles');
 const utilityRoutes = require('./routes/utilities');
 const transactionRoutes = require('./routes/transactions');
+const commentRoutes = require('./routes/comments');
 
 const app = express();
 
@@ -172,6 +173,7 @@ const apiRouters = [
   { path: '/households/:hhId/utilities', router: utilityRoutes },
   { path: '/households/:hhId/transactions', router: transactionRoutes },
   { path: '/households/:hhId/webhooks', router: webhookConfigRoutes },
+  { path: '/households/:hhId/comments', router: commentRoutes },
   { path: '/households/:hhId', router: assetsVehiclesRoutes },
   { path: '/households', router: householdRoutes },
   { path: '/webhooks', router: webhookRoutes },

@@ -98,6 +98,17 @@ const GLOBAL_SCHEMA = [
         joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (user_id, household_id)
     )`,
+  `CREATE TABLE IF NOT EXISTS invitations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        email TEXT,
+        role TEXT DEFAULT 'member',
+        token TEXT UNIQUE,
+        invited_by INTEGER,
+        expires_at DATETIME,
+        is_accepted INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
 ];
 
 const TENANT_SCHEMA = [
@@ -553,6 +564,17 @@ const TENANT_SCHEMA = [
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         deleted_at DATETIME
     )`,
+  `CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        entity_type TEXT NOT NULL, -- assets, vehicles, chores, etc.
+        entity_id INTEGER NOT NULL,
+        user_id INTEGER,
+        content TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        deleted_at DATETIME
+    )`,
 ];
 
 function initializeGlobalSchema(db) {
@@ -692,6 +714,7 @@ function initializeHouseholdSchema(db) {
         'council_accounts',
         'transactions',
         'webhooks',
+        'comments',
       ];
 
       allTenantTables.forEach((table) => {

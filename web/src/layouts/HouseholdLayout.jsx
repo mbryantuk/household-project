@@ -1,6 +1,17 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
+import {
+  Box,
+  IconButton,
+  Drawer,
+  Typography,
+  Sheet,
+  Stack,
+  Badge,
+  Avatar,
+  AvatarGroup,
+  Tooltip,
+} from '@mui/joy';
 import HomeIcon from '@mui/icons-material/Home';
 import EventIcon from '@mui/icons-material/Event';
 import MoreIcon from '@mui/icons-material/MoreHoriz';
@@ -23,6 +34,7 @@ import UtilityBar from '../components/UtilityBar';
 import ScrollToTop from '../components/ui/ScrollToTop';
 import { getEmojiColor } from '../utils/colors';
 import { APP_NAME } from '../constants';
+import { usePresence } from '../hooks/usePresence';
 
 const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
   const navigate = useNavigate();
@@ -109,6 +121,8 @@ export default function HouseholdLayout({
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const activeUsers = usePresence(api, id, user);
 
   const ROUTE_META = useMemo(
     () => ({
@@ -198,6 +212,7 @@ export default function HouseholdLayout({
         onInstall={onInstall}
         onOpenNotifications={() => setNotificationOpen(true)}
         notificationCount={badgeCount}
+        activeUsers={activeUsers}
       />
 
       <Box
@@ -228,18 +243,29 @@ export default function HouseholdLayout({
             <ChevronLeft />
           </IconButton>
 
-          <Typography
-            level="title-md"
-            onClick={() => navigate('dashboard')}
-            sx={{
-              fontWeight: 'bold',
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-            }}
-          >
-            {pageTitle}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography
+              level="title-md"
+              onClick={() => navigate('dashboard')}
+              sx={{
+                fontWeight: 'bold',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+              }}
+            >
+              {pageTitle}
+            </Typography>
+
+            {/* Item 244: Active Avatars (Mobile) */}
+            <AvatarGroup size="sm" sx={{ '--Avatar-size': '24px' }}>
+              {activeUsers.map((au, idx) => (
+                <Tooltip key={idx} title={`${au.firstName} is online`} variant="soft">
+                  <Avatar sx={{ bgcolor: getEmojiColor(au.avatar, isDark) }}>{au.avatar}</Avatar>
+                </Tooltip>
+              ))}
+            </AvatarGroup>
+          </Stack>
 
           <IconButton variant="plain" onClick={() => setNotificationOpen(true)} size="sm">
             <Badge color="danger" size="sm" invisible={!badgeCount}>
