@@ -44,6 +44,9 @@ import {
   Assignment,
   Edit,
   ChevronRight,
+  ElectricBolt,
+  DeleteSweep,
+  AccountBalance,
 } from '@mui/icons-material';
 import { getEmojiColor } from '../utils/colors';
 
@@ -191,6 +194,13 @@ export default function HouseView() {
     return parts.join(', ');
   }, [household]);
 
+  const UTILITY_LINKS = [
+    { label: 'Energy Accounts', to: 'energy', icon: <ElectricBolt />, color: 'warning' },
+    { label: 'Water Supply', to: 'water', icon: <WaterDrop />, color: 'primary' },
+    { label: 'Waste & Recycling', to: 'waste', icon: <DeleteSweep />, color: 'success' },
+    { label: 'Council Tax', to: 'council', icon: <AccountBalance />, color: 'neutral' },
+  ];
+
   return (
     <Box data-testid="house-view" sx={{ width: '100%', mx: 'auto', pb: 8 }}>
       {/* Breadcrumbs */}
@@ -280,6 +290,42 @@ export default function HouseView() {
                     color={growth >= 0 ? 'success' : 'danger'}
                   />
                 </Grid>
+              </Grid>
+            </Card>
+
+            {/* Utilities Quick Links */}
+            <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+              <Typography level="title-md" startDecorator={<Bolt color="primary" />} sx={{ mb: 2 }}>
+                Utilities & Compliance
+              </Typography>
+              <Grid container spacing={2}>
+                {UTILITY_LINKS.map((u) => (
+                  <Grid key={u.to} xs={6} sm={3}>
+                    <Sheet
+                      variant="soft"
+                      color={u.color}
+                      onClick={() => navigate(u.to)}
+                      sx={{
+                        p: 2,
+                        borderRadius: 'md',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 1,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 'md' },
+                      }}
+                    >
+                      <Avatar variant="solid" color={u.color} size="md">
+                        {u.icon}
+                      </Avatar>
+                      <Typography level="body-xs" fontWeight="bold" textAlign="center">
+                        {u.label}
+                      </Typography>
+                    </Sheet>
+                  </Grid>
+                ))}
               </Grid>
             </Card>
 

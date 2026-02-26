@@ -38,10 +38,10 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     console.log('Waiting for navigation and cookie...');
     await page.waitForURL(/.*(select-household|dashboard|onboarding)/, { timeout: 30000 });
-    
+
     // Item 130: Verify HttpOnly cookie exists in context
     const cookies = await context.cookies();
-    const authCookie = cookies.find(c => c.name === 'hearth_auth');
+    const authCookie = cookies.find((c) => c.name === 'hearth_auth');
     if (authCookie) {
       console.log('✅ Auth Cookie Verified');
     } else {
@@ -57,7 +57,9 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
 
     console.log('Waiting for dashboard view...');
     await page.waitForFunction(
-      () => !!document.querySelector('[data-testid="dashboard-view"]') || document.body.innerText.includes('Good'),
+      () =>
+        !!document.querySelector('[data-testid="dashboard-view"]') ||
+        document.body.innerText.includes('Good'),
       { timeout: 30000 }
     );
 
@@ -143,6 +145,26 @@ test.describe.serial('Hearth Frontend Smoke Test', () => {
   test('Settings Page', async ({ page }) => {
     await page.goto(`${getBaseUrl()}/settings?tab=0`, { waitUntil: 'networkidle' });
     await expect(page.getByTestId('settings-view')).toBeVisible();
+  });
+
+  test('Utility: Energy Page', async ({ page }) => {
+    await page.goto(`${getBaseUrl()}/house/energy`, { waitUntil: 'networkidle' });
+    await expect(page.getByText('Energy Accounts')).toBeVisible();
+  });
+
+  test('Utility: Water Page', async ({ page }) => {
+    await page.goto(`${getBaseUrl()}/house/water`, { waitUntil: 'networkidle' });
+    await expect(page.getByText('Water Supply')).toBeVisible();
+  });
+
+  test('Utility: Waste Page', async ({ page }) => {
+    await page.goto(`${getBaseUrl()}/house/waste`, { waitUntil: 'networkidle' });
+    await expect(page.getByText('Waste & Recycling')).toBeVisible();
+  });
+
+  test('Utility: Council Page', async ({ page }) => {
+    await page.goto(`${getBaseUrl()}/house/council`, { waitUntil: 'networkidle' });
+    await expect(page.getByText('Council Tax')).toBeVisible();
   });
 
   test.afterAll(() => {

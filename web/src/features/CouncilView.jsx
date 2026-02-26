@@ -45,7 +45,7 @@ export default function CouncilView() {
   const fetchAccounts = useCallback(async () => {
     if (!householdId) return;
     try {
-      const res = await api.get(`/households/${householdId}/council`);
+      const res = await api.get(`/households/${householdId}/utilities/council`);
       setAccounts(res.data || []);
     } catch (err) {
       console.error('Failed to fetch council accounts', err);
@@ -71,10 +71,10 @@ export default function CouncilView() {
 
     try {
       if (isNew) {
-        await api.post(`/households/${householdId}/council`, data);
+        await api.post(`/households/${householdId}/utilities/council`, data);
         showNotification('Council account added.', 'success');
       } else {
-        await api.put(`/households/${householdId}/council/${editAccount.id}`, data);
+        await api.put(`/households/${householdId}/utilities/council/${editAccount.id}`, data);
         showNotification('Council account updated.', 'success');
       }
       fetchAccounts();
@@ -91,7 +91,7 @@ export default function CouncilView() {
       'Are you sure you want to delete this council account? This cannot be undone.',
       async () => {
         try {
-          await api.delete(`/households/${householdId}/council/${id}`);
+          await api.delete(`/households/${householdId}/utilities/council/${id}`);
           showNotification('Council account deleted', 'success');
           fetchAccounts();
         } catch {

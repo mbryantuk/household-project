@@ -49,7 +49,7 @@ export default function EnergyView() {
     if (!householdId) return;
     setLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/energy`);
+      const res = await api.get(`/households/${householdId}/utilities/energy`);
       setAccounts(res.data || []);
     } catch (err) {
       console.error('Failed to fetch energy accounts', err);
@@ -69,10 +69,10 @@ export default function EnergyView() {
 
     try {
       if (isNew) {
-        await api.post(`/households/${householdId}/energy`, data);
+        await api.post(`/households/${householdId}/utilities/energy`, data);
         showNotification('Energy account added.', 'success');
       } else {
-        await api.put(`/households/${householdId}/energy/${editAccount.id}`, data);
+        await api.put(`/households/${householdId}/utilities/energy/${editAccount.id}`, data);
         showNotification('Energy account updated.', 'success');
       }
       fetchAccounts();
@@ -89,7 +89,7 @@ export default function EnergyView() {
       'Are you sure you want to delete this energy account? This cannot be undone.',
       async () => {
         try {
-          await api.delete(`/households/${householdId}/energy/${id}`);
+          await api.delete(`/households/${householdId}/utilities/energy/${id}`);
           showNotification('Energy account deleted', 'success');
           fetchAccounts();
         } catch {

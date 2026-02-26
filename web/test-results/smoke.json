@@ -88,44 +88,35 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 35486,
+                      "duration": 409,
                       "error": {
-                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
-                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:40:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:77:16",
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"networkidle\"\u001b[22m\n\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:28:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:77:22",
                         "location": {
                           "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                           "column": 16,
-                          "line": 40
+                          "line": 28
                         },
-                        "snippet": "  38 |\n  39 |     console.log('Waiting for navigation and cookie...');\n> 40 |     await page.waitForURL(/.*(select-household|dashboard|onboarding)/, { timeout: 30000 });\n     |                ^\n  41 |     \n  42 |     // Item 130: Verify HttpOnly cookie exists in context\n  43 |     const cookies = await context.cookies();"
+                        "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m   \u001b[36mconst\u001b[39m loginAndGetId \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (page\u001b[33m,\u001b[39m context) \u001b[33m=>\u001b[39m {\n \u001b[90m 27 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Navigating to /login...'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Filling legacy login form...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mconst\u001b[39m emailInput \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'Email'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                             "column": 16,
-                            "line": 40
+                            "line": 28
                           },
-                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  38 |\n  39 |     console.log('Waiting for navigation and cookie...');\n> 40 |     await page.waitForURL(/.*(select-household|dashboard|onboarding)/, { timeout: 30000 });\n     |                ^\n  41 |     \n  42 |     // Item 130: Verify HttpOnly cookie exists in context\n  43 |     const cookies = await context.cookies();\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:40:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:77:16"
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4001/login\nCall log:\n\u001b[2m  - navigating to \"http://localhost:4001/login\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 26 |\u001b[39m   \u001b[36mconst\u001b[39m loginAndGetId \u001b[33m=\u001b[39m \u001b[36masync\u001b[39m (page\u001b[33m,\u001b[39m context) \u001b[33m=>\u001b[39m {\n \u001b[90m 27 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Navigating to /login...'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m\n \u001b[90m 30 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'Filling legacy login form...'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m     \u001b[36mconst\u001b[39m emailInput \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'Email'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:28:16)\u001b[22m\n\u001b[2m    at /home/matt/household-project/web/tests/smoke.spec.js:77:22\u001b[22m"
                         }
                       ],
                       "stdout": [
                         {
                           "text": "Navigating to /login...\n"
-                        },
-                        {
-                          "text": "Filling legacy login form...\n"
-                        },
-                        {
-                          "text": "Clicking Login button...\n"
-                        },
-                        {
-                          "text": "Waiting for navigation and cookie...\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:42:34.418Z",
+                      "startTime": "2026-02-26T19:20:36.773Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -137,17 +128,12 @@
                           "name": "video",
                           "contentType": "video/webm",
                           "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/matt/household-project/web/tests/smoke.spec.js",
                         "column": 16,
-                        "line": 40
+                        "line": 28
                       }
                     }
                   ],
@@ -180,7 +166,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.491Z",
+                      "startTime": "2026-02-26T19:20:37.451Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -214,7 +200,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.492Z",
+                      "startTime": "2026-02-26T19:20:37.453Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -248,7 +234,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.493Z",
+                      "startTime": "2026-02-26T19:20:37.457Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -282,7 +268,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.493Z",
+                      "startTime": "2026-02-26T19:20:37.458Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -316,7 +302,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.495Z",
+                      "startTime": "2026-02-26T19:20:37.460Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -350,7 +336,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.496Z",
+                      "startTime": "2026-02-26T19:20:37.462Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -384,7 +370,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.496Z",
+                      "startTime": "2026-02-26T19:20:37.464Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -418,7 +404,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.497Z",
+                      "startTime": "2026-02-26T19:20:37.467Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -452,7 +438,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.497Z",
+                      "startTime": "2026-02-26T19:20:37.468Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -486,7 +472,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.498Z",
+                      "startTime": "2026-02-26T19:20:37.469Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -520,7 +506,7 @@
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T16:43:10.498Z",
+                      "startTime": "2026-02-26T19:20:37.470Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -532,6 +518,142 @@
               "file": "smoke.spec.js",
               "line": 143,
               "column": 3
+            },
+            {
+              "title": "Utility: Energy Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-26T19:20:37.471Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-35c0ad1fa5faad8189c5",
+              "file": "smoke.spec.js",
+              "line": 148,
+              "column": 3
+            },
+            {
+              "title": "Utility: Water Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-26T19:20:37.472Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-7c0d2b99180727b894a9",
+              "file": "smoke.spec.js",
+              "line": 153,
+              "column": 3
+            },
+            {
+              "title": "Utility: Waste Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-26T19:20:37.473Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-7c95328959647e910680",
+              "file": "smoke.spec.js",
+              "line": 158,
+              "column": 3
+            },
+            {
+              "title": "Utility: Council Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-26T19:20:37.474Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-173a3ea8e8ce10c64a56",
+              "file": "smoke.spec.js",
+              "line": 163,
+              "column": 3
             }
           ]
         }
@@ -540,10 +662,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-26T16:42:32.388Z",
-    "duration": 38129.294,
+    "startTime": "2026-02-26T19:20:34.781Z",
+    "duration": 2711.423,
     "expected": 0,
-    "skipped": 11,
+    "skipped": 15,
     "unexpected": 1,
     "flaky": 0
   }

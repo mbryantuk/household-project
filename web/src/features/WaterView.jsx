@@ -45,7 +45,7 @@ export default function WaterView() {
   const fetchAccounts = useCallback(async () => {
     if (!householdId) return;
     try {
-      const res = await api.get(`/households/${householdId}/water`);
+      const res = await api.get(`/households/${householdId}/utilities/water`);
       setAccounts(res.data || []);
     } catch (err) {
       console.error('Failed to fetch water accounts', err);
@@ -73,10 +73,10 @@ export default function WaterView() {
 
     try {
       if (isNew) {
-        await api.post(`/households/${householdId}/water`, data);
+        await api.post(`/households/${householdId}/utilities/water`, data);
         showNotification('Water account added.', 'success');
       } else {
-        await api.put(`/households/${householdId}/water/${editAccount.id}`, data);
+        await api.put(`/households/${householdId}/utilities/water/${editAccount.id}`, data);
         showNotification('Water account updated.', 'success');
       }
       fetchAccounts();
@@ -93,7 +93,7 @@ export default function WaterView() {
       'Are you sure you want to delete this water account? This cannot be undone.',
       async () => {
         try {
-          await api.delete(`/households/${householdId}/water/${id}`);
+          await api.delete(`/households/${householdId}/utilities/water/${id}`);
           showNotification('Water account deleted', 'success');
           fetchAccounts();
         } catch {

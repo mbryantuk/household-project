@@ -813,6 +813,32 @@ export default function NavSidebar({
                   onClick={handleSubItemClick}
                 />
                 <Divider sx={{ my: 1 }} />
+                <GroupHeader label="Utilities & Compliance" />
+                <SubItem
+                  label="Energy Accounts"
+                  to={`/household/${household.id}/house/energy`}
+                  emoji="⚡"
+                  onClick={handleSubItemClick}
+                />
+                <SubItem
+                  label="Water Supply"
+                  to={`/household/${household.id}/house/water`}
+                  emoji="💧"
+                  onClick={handleSubItemClick}
+                />
+                <SubItem
+                  label="Waste & Recycling"
+                  to={`/household/${household.id}/house/waste`}
+                  emoji="♻️"
+                  onClick={handleSubItemClick}
+                />
+                <SubItem
+                  label="Council Tax"
+                  to={`/household/${household.id}/house/council`}
+                  emoji="🏛️"
+                  onClick={handleSubItemClick}
+                />
+                <Divider sx={{ my: 1 }} />
                 <GroupHeader label="Residents" />
                 {members
                   .filter((m) => m.type !== 'pet')

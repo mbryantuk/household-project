@@ -26,6 +26,7 @@ import {
 import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
+import UtilityHealthWidget from '../components/widgets/UtilityHealthWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 import { getRelativeTime } from '../utils/date';
 import { prefetchComponent } from '../utils/prefetch';
@@ -269,6 +270,9 @@ export default function HomeView() {
       </DashboardWidget>
     ),
     analytics: <AnalyticsWidget household={household} api={api} />,
+    utilities: (
+      <UtilityHealthWidget api={api} householdId={household?.id} currency={household?.currency} />
+    ),
   };
 
   return (

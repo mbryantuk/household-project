@@ -239,6 +239,67 @@ const TENANT_SCHEMA = [
         purchase_price REAL DEFAULT 0,
         current_valuation REAL DEFAULT 0
     )`,
+  `CREATE TABLE IF NOT EXISTS energy_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        provider TEXT,
+        type TEXT, -- Dual Fuel, Electric Only, Gas Only
+        account_number TEXT,
+        tariff_name TEXT,
+        contractend DATE,
+        payment_method TEXT,
+        monthly_amount REAL,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1,
+        electric_meter_serial TEXT,
+        electric_mpan TEXT,
+        gas_meter_serial TEXT,
+        gas_mprn TEXT,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+  `CREATE TABLE IF NOT EXISTS water_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        provider TEXT,
+        supply_type TEXT, -- Metered, Rateable Value, etc.
+        account_number TEXT,
+        meter_serial TEXT,
+        monthly_amount REAL,
+        frequency TEXT,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1,
+        waste_provider TEXT,
+        waste_account_number TEXT,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+  `CREATE TABLE IF NOT EXISTS waste_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        waste_type TEXT, -- Recycling, General, etc.
+        frequency TEXT,
+        collection_day TEXT,
+        monthly_amount REAL,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+  `CREATE TABLE IF NOT EXISTS council_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        authority_name TEXT,
+        band TEXT,
+        account_number TEXT,
+        payment_method TEXT,
+        monthly_amount REAL,
+        frequency TEXT,
+        payment_day INTEGER,
+        nearest_working_day INTEGER DEFAULT 1,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
   `CREATE TABLE IF NOT EXISTS finance_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         household_id INTEGER,
@@ -565,17 +626,42 @@ function initializeHouseholdSchema(db) {
 
       // System-wide Soft Delete & Timestamps migration (Item 94)
       const allTenantTables = [
-        'members', 'vehicles', 'vehicle_services', 'assets', 'recurring_costs', 
-        'dates', 'meals', 'meal_plans', 'finance_profiles', 'finance_income', 
-        'finance_savings', 'finance_savings_pots', 'finance_current_accounts', 
-        'finance_credit_cards', 'finance_pensions', 'finance_pensions_history', 
-        'finance_investments', 'finance_budget_categories', 'finance_budget_progress',
-        'finance_budget_cycles', 'finance_assignments', 'chores', 
-        'chore_completions', 'shopping_schedules', 'notifications'
+        'members',
+        'vehicles',
+        'vehicle_services',
+        'assets',
+        'recurring_costs',
+        'dates',
+        'meals',
+        'meal_plans',
+        'finance_profiles',
+        'finance_income',
+        'finance_savings',
+        'finance_savings_pots',
+        'finance_current_accounts',
+        'finance_credit_cards',
+        'finance_pensions',
+        'finance_pensions_history',
+        'finance_investments',
+        'finance_budget_categories',
+        'finance_budget_progress',
+        'finance_budget_cycles',
+        'finance_assignments',
+        'chores',
+        'chore_completions',
+        'shopping_schedules',
+        'notifications',
+        'energy_accounts',
+        'water_accounts',
+        'waste_accounts',
+        'council_accounts',
       ];
 
-      allTenantTables.forEach(table => {
-        db.run(`ALTER TABLE ${table} ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP`, () => {});
+      allTenantTables.forEach((table) => {
+        db.run(
+          `ALTER TABLE ${table} ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP`,
+          () => {}
+        );
         db.run(`ALTER TABLE ${table} ADD COLUMN deleted_at DATETIME`, () => {});
         db.run(`ALTER TABLE ${table} ADD COLUMN version INTEGER DEFAULT 1`, () => {}); // Item 181
       });

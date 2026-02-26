@@ -46,7 +46,7 @@ export default function WasteView() {
     if (!householdId) return;
     setLoading(true);
     try {
-      const res = await api.get(`/households/${householdId}/waste`);
+      const res = await api.get(`/households/${householdId}/utilities/waste`);
       setCollections(res.data || []);
     } catch (err) {
       console.error('Failed to fetch collections', err);
@@ -66,10 +66,10 @@ export default function WasteView() {
 
     try {
       if (isNew) {
-        await api.post(`/households/${householdId}/waste`, data);
+        await api.post(`/households/${householdId}/utilities/waste`, data);
         showNotification('Waste collection added.', 'success');
       } else {
-        await api.put(`/households/${householdId}/waste/${editItem.id}`, data);
+        await api.put(`/households/${householdId}/utilities/waste/${editItem.id}`, data);
         showNotification('Waste collection updated.', 'success');
       }
       fetchCollections();
@@ -86,7 +86,7 @@ export default function WasteView() {
       'Are you sure you want to delete this collection schedule?',
       async () => {
         try {
-          await api.delete(`/households/${householdId}/waste/${id}`);
+          await api.delete(`/households/${householdId}/utilities/waste/${id}`);
           showNotification('Collection deleted', 'success');
           fetchCollections();
         } catch {

@@ -43,6 +43,7 @@ const notificationRoutes = require('./routes/notifications');
 const webhookRoutes = require('./routes/webhooks');
 const systemRoutes = require('./routes/system');
 const assetsVehiclesRoutes = require('./routes/assets_vehicles');
+const utilityRoutes = require('./routes/utilities');
 
 const app = express();
 
@@ -163,6 +164,7 @@ const apiRouters = [
   { path: '/households/:hhId/meals', router: mealRoutes },
   { path: '/households/:hhId/shopping-list', router: shoppingRoutes },
   { path: '/households/:hhId/notifications', router: notificationRoutes },
+  { path: '/households/:hhId/utilities', router: utilityRoutes },
   { path: '/households/:hhId', router: assetsVehiclesRoutes },
   { path: '/households', router: householdRoutes },
   { path: '/webhooks', router: webhookRoutes },
