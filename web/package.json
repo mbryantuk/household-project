@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.436",
+  "version": "3.2.441",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,6 @@
     "test:unit": "echo 'Frontend tests disabled by policy.'"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.61.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.2",

@@ -22,10 +22,6 @@ const envSchema = z.object({
   S3_ACCESS_KEY: z.string().optional(),
   S3_SECRET_KEY: z.string().optional(),
 
-  // Auth Provider (Clerk)
-  CLERK_PUBLISHABLE_KEY: z.string().optional(),
-  CLERK_SECRET_KEY: z.string().optional(),
-
   // Secrets Management (Infisical)
   INFISICAL_CLIENT_ID: z.string().optional(),
   INFISICAL_CLIENT_SECRET: z.string().optional(),

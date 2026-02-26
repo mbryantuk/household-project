@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Box, Typography, Stack, Card, Divider } from '@mui/joy';
-import { SignIn } from '@clerk/clerk-react';
+import { Box, Typography, Stack, Card } from '@mui/joy';
 import { APP_NAME } from '../constants';
 import AppButton from '../components/ui/AppButton';
 import AppInput from '../components/ui/AppInput';
@@ -12,8 +11,6 @@ export default function Login({ onLogin, onMfaLogin }) {
   const [error, setError] = useState('');
   const [mfaData, setMfaData] = useState(null);
   const [mfaCode, setMfaDataCode] = useState('');
-
-  const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,13 +46,6 @@ export default function Login({ onLogin, onMfaLogin }) {
         <Typography level="h2" textAlign="center">
           {APP_NAME}
         </Typography>
-
-        {clerkKey && (
-          <>
-            <SignIn routing="hash" />
-            <Divider>or legacy login</Divider>
-          </>
-        )}
 
         <Card variant="outlined">
           <form onSubmit={handleSubmit}>

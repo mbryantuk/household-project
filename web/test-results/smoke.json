@@ -74,7 +74,7 @@
           "specs": [
             {
               "title": "Dashboard Page",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -87,36 +87,9 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 133796,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /home/matt/household-project/web/tests/smoke.spec.js:70:8",
-                        "location": {
-                          "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                          "column": 8,
-                          "line": 70
-                        },
-                        "snippet": "  68 |   };\n  69 |\n> 70 |   test.beforeEach(async ({ page, context }) => {\n     |        ^\n  71 |     page.on('console', logMessage);\n  72 |     page.on('pageerror', (err) => {\n  73 |       const timestamp = new Date().toISOString();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 8,
-                            "line": 70
-                          },
-                          "message": "\u001b[31mTest timeout of 120000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  68 |   };\n  69 |\n> 70 |   test.beforeEach(async ({ page, context }) => {\n     |        ^\n  71 |     page.on('console', logMessage);\n  72 |     page.on('pageerror', (err) => {\n  73 |       const timestamp = new Date().toISOString();\n    at /home/matt/household-project/web/tests/smoke.spec.js:70:8"
-                        },
-                        {
-                          "location": {
-                            "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                            "column": 16,
-                            "line": 59
-                          },
-                          "message": "Error: page.waitForFunction: Test timeout of 120000ms exceeded.\n\n  57 |\n  58 |     console.log('Waiting for dashboard view...');\n> 59 |     await page.waitForFunction(\n     |                ^\n  60 |       () => !!document.querySelector('[data-testid=\"dashboard-view\"]') || document.body.innerText.includes('Good'),\n  61 |       { timeout: 30000 }\n  62 |     );\n    at loginAndGetId (/home/matt/household-project/web/tests/smoke.spec.js:59:16)\n    at /home/matt/household-project/web/tests/smoke.spec.js:77:16"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 6882,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "Navigating to /login...\n"
@@ -135,37 +108,22 @@
                         },
                         {
                           "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:16:36.938Z",
+                      "startTime": "2026-02-26T12:30:23.293Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/matt/household-project/web/test-results/smoke-Hearth-Frontend-Smoke-Test-Dashboard-Page-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/matt/household-project/web/tests/smoke.spec.js",
-                        "column": 8,
-                        "line": 70
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-cf40674c38354f943714",
@@ -186,20 +144,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5977,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.627Z",
+                      "startTime": "2026-02-26T12:30:30.492Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-65dcf704c9e1ebea0f13",
@@ -220,20 +203,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5671,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.627Z",
+                      "startTime": "2026-02-26T12:30:36.496Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-171e6d3e655016c9b313",
@@ -254,20 +262,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5777,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.628Z",
+                      "startTime": "2026-02-26T12:30:42.189Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-d5debc6616350aaa15fd",
@@ -288,20 +321,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5966,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.628Z",
+                      "startTime": "2026-02-26T12:30:47.984Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-530580c26c0460afd264",
@@ -322,20 +380,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4537,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.628Z",
+                      "startTime": "2026-02-26T12:30:53.970Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b8a32d849858bef88d91",
@@ -356,20 +439,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5836,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.629Z",
+                      "startTime": "2026-02-26T12:30:58.530Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-3f3914dfd176e10b7412",
@@ -390,20 +498,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5274,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.629Z",
+                      "startTime": "2026-02-26T12:31:04.401Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-564f135c59d12d104526",
@@ -424,20 +557,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5735,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.629Z",
+                      "startTime": "2026-02-26T12:31:09.700Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-19cb616ac6758b2216a5",
@@ -458,20 +616,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5329,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.629Z",
+                      "startTime": "2026-02-26T12:31:15.457Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-946a08a1def7a2a4b758",
@@ -492,20 +675,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5977,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.630Z",
+                      "startTime": "2026-02-26T12:31:20.807Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-57e59b230cf841f17917",
@@ -526,20 +734,45 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": -1,
-                      "parallelIndex": -1,
-                      "status": "skipped",
-                      "duration": 0,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5759,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "Navigating to /login...\n"
+                        },
+                        {
+                          "text": "Filling legacy login form...\n"
+                        },
+                        {
+                          "text": "Clicking Login button...\n"
+                        },
+                        {
+                          "text": "Waiting for navigation and cookie...\n"
+                        },
+                        {
+                          "text": "✅ Auth Cookie Verified\n"
+                        },
+                        {
+                          "text": "Waiting for dashboard view...\n"
+                        },
+                        {
+                          "text": "Final URL reached: http://localhost:4001/household/2162/dashboard\n"
+                        },
+                        {
+                          "text": "Smoke Test Household ID Locked: 2162\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T12:18:51.630Z",
+                      "startTime": "2026-02-26T12:31:26.808Z",
                       "annotations": [],
                       "attachments": []
                     }
                   ],
-                  "status": "skipped"
+                  "status": "expected"
                 }
               ],
               "id": "2c14808d47b386fba9eb-b6ba530ced5ca3494530",
@@ -554,11 +787,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-26T12:16:34.883Z",
-    "duration": 136765.54400000002,
-    "expected": 0,
-    "skipped": 11,
-    "unexpected": 1,
+    "startTime": "2026-02-26T12:30:21.184Z",
+    "duration": 71500.264,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -3022,7 +3022,7 @@ export default function BudgetView({ financialProfileId }) {
                 </FormControl>
                 <FormControl required>
                   <FormLabel>Amount (£)</FormLabel>
-                  <Input name="amount" type="number" step="0.01" />
+                  <Input name="amount" type="number" step="0.01" min="0" />
                 </FormControl>
                 <FormControl required>
                   <FormLabel>Date</FormLabel>
@@ -3065,7 +3065,7 @@ export default function BudgetView({ financialProfileId }) {
                 </FormControl>
                 <FormControl required>
                   <FormLabel>Amount (£)</FormLabel>
-                  <Input name="amount" type="number" step="0.01" />
+                  <Input name="amount" type="number" step="0.01" min="0" />
                 </FormControl>
                 <FormControl required>
                   <FormLabel>Date Received</FormLabel>
@@ -3108,7 +3108,7 @@ export default function BudgetView({ financialProfileId }) {
                   <Grid xs={12} sm={6}>
                     <FormControl required>
                       <FormLabel>Amount (£)</FormLabel>
-                      <Input name="amount" type="number" step="0.01" />
+                      <Input name="amount" type="number" step="0.01" min="0" />
                     </FormControl>
                   </Grid>
                 </Grid>

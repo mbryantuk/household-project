@@ -4,37 +4,6 @@ const { users, userSessions, userHouseholds } = require('../db/schema');
 const { eq, and } = require('drizzle-orm');
 const config = require('../config');
 const pkg = require('../package.json');
-const { createClerkClient } = require('@clerk/clerk-sdk-node');
-
-let _clerkClient = null;
-
-function getClerkClient() {
-  if (_clerkClient) return _clerkClient;
-  if (config.CLERK_SECRET_KEY) {
-    _clerkClient = createClerkClient({ secretKey: config.CLERK_SECRET_KEY });
-    return _clerkClient;
-  }
-  return null;
-}
-
-async function syncClerkUser(clerkUser) {
-  const email = clerkUser.emailAddresses[0]?.emailAddress;
-  if (!email) throw new Error('Clerk user missing email');
-
-  let [localUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-
-  if (!localUser) {
-    [localUser] = await db
-      .insert(users)
-      .values({
-        email,
-        passwordHash: 'CLERK_MANAGED',
-      })
-      .returning();
-  }
-
-  return localUser;
-}
 
 /**
  * UNIFIED AUTHENTICATOR
@@ -48,28 +17,7 @@ async function authenticateToken(req, res, next) {
   res.setHeader('x-api-version', pkg.version);
   if (!token) return res.sendStatus(401);
 
-  // 1. Try Clerk
-  const clerkClient = getClerkClient();
-  if (clerkClient) {
-    try {
-      const auth = await clerkClient.authenticateRequest(req);
-      if (auth.isSignedIn) {
-        const clerkUser = await clerkClient.users.getUser(auth.userId);
-        const localUser = await syncClerkUser(clerkUser);
-
-        req.user = {
-          id: localUser.id,
-          email: localUser.email,
-          systemRole: localUser.systemRole,
-          clerkId: clerkUser.id,
-        };
-        // ... tenancy logic ...
-        return next();
-      }
-    } catch (err) {}
-  }
-
-  // 2. Fallback JWT
+  // Fallback JWT
   jwt.verify(token, config.SECRET_KEY, async (err, decodedUser) => {
     if (err) return res.status(403).json({ error: 'Invalid token' });
 

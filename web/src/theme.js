@@ -95,6 +95,9 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             solidHoverBg: `hsl(${h}, ${s}%, ${Math.max(0, 40)}%)`,
             softBg: `${primaryColor}15`,
           },
+          neutral: {
+            500: '#52525b', // WCAG AA compliant for secondary text on white
+          },
         },
       },
       dark: {
@@ -110,15 +113,95 @@ export const getAppTheme = (themeId = 'hearth', customConfig = null) => {
             solidHoverBg: `hsl(${h}, ${s}%, ${Math.min(100, 60)}%)`,
             softBg: 'rgba(255,255,255,0.1)',
           },
+          neutral: {
+            500: '#a1a1aa', // WCAG AA compliant for secondary text on dark
+          },
         },
       },
     },
     components: {
+      JoyButton: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '--Button-focusedThickness': '3px',
+            '&:focus-visible': {
+              outline: `3px solid ${theme.vars.palette.primary[500]}`,
+              outlineOffset: '2px',
+            },
+            boxShadow: 'var(--joy-shadow-sm)',
+            '&:hover': {
+              boxShadow: 'var(--joy-shadow-md)',
+              transform: 'translateY(-2px)',
+            },
+          }),
+        },
+      },
+      JoyIconButton: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '&:focus-visible': {
+              outline: `3px solid ${theme.vars.palette.primary[500]}`,
+              outlineOffset: '2px',
+            },
+          }),
+        },
+      },
+      JoyInput: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '--Input-focusedThickness': '3px',
+            '&:focus-within': {
+              borderColor: theme.vars.palette.primary[500],
+            },
+          }),
+        },
+      },
+      JoySelect: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '--Select-focusedThickness': '3px',
+            '&:focus-within': {
+              borderColor: theme.vars.palette.primary[500],
+            },
+          }),
+        },
+      },
+      JoyCheckbox: {
+        styleOverrides: {
+          root: () => ({
+            '&:focus-within': {
+              '--Checkbox-focusedThickness': '3px',
+            },
+          }),
+          input: () => ({
+            '&:focus-visible + span': {
+              outline: `3px solid var(--joy-palette-primary-500)`,
+              outlineOffset: '4px',
+            },
+          }),
+        },
+      },
+      JoySwitch: {
+        styleOverrides: {
+          root: () => ({
+            '--Switch-focusedThickness': '3px',
+          }),
+          input: () => ({
+            '&:focus-visible + span': {
+              outline: `3px solid var(--joy-palette-primary-500)`,
+              outlineOffset: '4px',
+            },
+          }),
+        },
+      },
       JoyCard: {
         styleOverrides: {
           root: {
             boxShadow: 'var(--joy-shadow-sm)',
-            '&:hover': { boxShadow: 'var(--joy-shadow-md)', transform: 'translateY(-2px)' },
+            '&:hover': {
+              boxShadow: 'var(--joy-shadow-md)',
+              transform: 'translateY(-2px)',
+            },
           },
         },
       },

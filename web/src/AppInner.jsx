@@ -12,7 +12,6 @@ import {
   CircularProgress,
 } from '@mui/joy';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth as useClerkAuth, useUser as useClerkUser } from '@clerk/clerk-react';
 
 // Contexts
 import { useAuth } from './context/AuthContext';
@@ -46,7 +45,6 @@ const HouseholdDetailsView = lazy(() => import('./features/HouseholdDetailsView'
 const SecurityAuditView = lazy(() => import('./features/SecurityAuditView'));
 const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const IDLE_WARNING_MS = 60 * 60 * 1000;
 const IDLE_LOGOUT_MS = 120 * 60 * 1000;
 
@@ -64,36 +62,8 @@ const PageLoader = () => (
   </Box>
 );
 
-// Clerk Integration Component
-function ClerkSync({ api, setToken, setUser, setHousehold, token }) {
-  const clerkAuth = useClerkAuth();
-  const clerkUser = useClerkUser();
-
-  useEffect(() => {
-    if (clerkAuth?.isSignedIn && clerkUser?.user && clerkAuth.getToken) {
-      clerkAuth.getToken().then((clerkToken) => {
-        if (clerkToken && clerkToken !== token) {
-          api
-            .get('/auth/profile', { headers: { Authorization: `Bearer ${clerkToken}` } })
-            .then((res) => {
-              setToken(clerkToken);
-              setUser(res.data);
-              if (res.data.lastHouseholdId) {
-                api
-                  .get(`/households/${res.data.lastHouseholdId}/details`)
-                  .then((hRes) => setHousehold(hRes.data));
-              }
-            });
-        }
-      });
-    }
-  }, [clerkAuth, clerkUser, token, api, setToken, setUser, setHousehold]);
-
-  return null;
-}
-
 export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
-  const { token, setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } =
+  const { setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } =
     useAuth();
   const { household, setHousehold, members, dates, vehicles, updateSettings, householdId } =
     useHousehold();
@@ -160,15 +130,6 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
   return (
     <CommandBar householdId={householdId}>
       <OfflineOverlay />
-      {CLERK_PUBLISHABLE_KEY && (
-        <ClerkSync
-          api={api}
-          setToken={setToken}
-          setUser={setUser}
-          setHousehold={setHousehold}
-          token={token}
-        />
-      )}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route

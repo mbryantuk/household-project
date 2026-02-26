@@ -3,7 +3,6 @@ import { Toaster } from 'sonner';
 import { CssVarsProvider, GlobalStyles, CssBaseline } from '@mui/joy';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider } from '@clerk/clerk-react';
 
 // Theme and Local Components
 import { getAppTheme } from './theme';
@@ -18,8 +17,6 @@ import { TimezoneProvider } from './context/TimezoneContext';
 // Components
 import AppInner from './AppInner';
 import ErrorBoundary from './components/ui/ErrorBoundary';
-
-const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -120,9 +117,6 @@ export default function App() {
     </ErrorBoundary>
   );
 
-  // Item 176: Robust Clerk Bypass for Tests
-  const isSmokeTest = window.navigator.userAgent.includes('Hearth-Smoke-Test');
-
   return (
     <QueryClientProvider client={queryClient}>
       <GlobalStyles
@@ -145,11 +139,7 @@ export default function App() {
           },
         }}
       />
-      {CLERK_PUBLISHABLE_KEY && !isSmokeTest ? (
-        <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>{appContent}</ClerkProvider>
-      ) : (
-        appContent
-      )}
+      {appContent}
     </QueryClientProvider>
   );
 }

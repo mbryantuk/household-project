@@ -54,13 +54,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
-          'https://cdn.jsdelivr.net',
-          'https://*.clerk.accounts.dev',
-        ],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.jsdelivr.net'],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -68,9 +62,9 @@ app.use(
           'https://cdn.jsdelivr.net',
         ],
         fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https://*', 'https://img.clerk.com'],
-        connectSrc: ["'self'", 'https://*', 'https://*.clerk.accounts.dev'],
-        frameSrc: ["'self'", 'https://*.clerk.accounts.dev'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https://*'],
+        connectSrc: ["'self'", 'https://*'],
+        frameSrc: ["'self'"],
         workerSrc: ["'self'", 'blob:'],
       },
     },

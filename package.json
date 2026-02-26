@@ -1,6 +1,6 @@
 {
   "name": "household-project",
-  "version": "3.2.436",
+  "version": "3.2.441",
   "private": true,
   "workspaces": [
     "server",

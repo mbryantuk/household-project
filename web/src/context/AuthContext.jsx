@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const AuthContext = createContext(null);
 
@@ -22,14 +23,32 @@ export const AuthProvider = ({ children, initialUser, handleLoginSuccess, onLogo
       withCredentials: true,
     });
 
+    instance.interceptors.request.use((config) => {
+      config._slowTimer = setTimeout(() => {
+        if (!config._done) {
+          toast.info('Slow connection detected. Still working...', {
+            id: 'slow-connection',
+            duration: 5000,
+          });
+        }
+      }, 3000);
+      return config;
+    });
+
     instance.interceptors.response.use(
       (response) => {
+        response.config._done = true;
+        clearTimeout(response.config._slowTimer);
         if (response.data && response.data.success === true && response.data.data !== undefined) {
           return { ...response, data: response.data.data, _envelope: response.data };
         }
         return response;
       },
       (error) => {
+        if (error.config) {
+          error.config._done = true;
+          clearTimeout(error.config._slowTimer);
+        }
         if (error.response?.status === 401 && !isInitializing) {
           setToken(null);
           setUser(null);
