@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Chip, Stack, Card } from '@mui/joy';
+import { Box, Typography, Chip, Stack, Card, Tooltip } from '@mui/joy';
 import { Security, History } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import AppTable from '../components/ui/AppTable';
 import ModuleContainer from '../components/ui/ModuleContainer';
 import EmojiAvatar from '../components/ui/EmojiAvatar';
@@ -65,9 +66,15 @@ export default function SecurityAuditView({ api, householdId }) {
       },
       {
         field: 'createdAt',
-        headerName: 'Timestamp',
+        headerName: 'Time',
         width: 200,
-        valueGetter: (params) => new Date(params).toLocaleString(),
+        renderCell: (params) => (
+          <Tooltip title={new Date(params.value).toLocaleString()} variant="soft">
+            <Typography level="body-xs">
+              {formatDistanceToNow(parseISO(params.value), { addSuffix: true })}
+            </Typography>
+          </Tooltip>
+        ),
       },
     ],
     []

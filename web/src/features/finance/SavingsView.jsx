@@ -31,6 +31,7 @@ import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
+import { triggerConfetti } from '../../utils/fx';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -67,6 +68,7 @@ export default function SavingsView({ financialProfileId }) {
   const [pots, setPots] = useState({}); // Map of savingsId -> [pots]
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [adjustPot, setAdjustPot] = useState(null); // { savingsId, pot, type: 'add'|'remove' }
   const [adjustAccount, setAdjustAccount] = useState(null); // { account, type: 'add'|'remove' }
@@ -179,6 +181,7 @@ export default function SavingsView({ financialProfileId }) {
 
   const handleAccountSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
@@ -220,6 +223,8 @@ export default function SavingsView({ financialProfileId }) {
       setAccountId(null);
     } catch (err) {
       showNotification('Failed to save account: ' + err.message, 'danger');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -242,6 +247,7 @@ export default function SavingsView({ financialProfileId }) {
 
   const handlePotSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
@@ -257,10 +263,20 @@ export default function SavingsView({ financialProfileId }) {
         await api.post(`/households/${householdId}/finance/savings/${savingsId}/pots`, data);
         showNotification('Pot created.', 'success');
       }
+
+      if (
+        parseFloat(data.current_amount) >= parseFloat(data.target_amount) &&
+        data.target_amount > 0
+      ) {
+        triggerConfetti();
+      }
+
       await fetchData();
       setPotId(savingsId, null);
     } catch {
       alert('Failed to save pot');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -279,9 +295,13 @@ export default function SavingsView({ financialProfileId }) {
 
   const handleAdjustSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const amount = parseFloat(formData.get('amount'));
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+      setSubmitting(false);
+      return;
+    }
     const { savingsId, pot, type } = adjustPot;
     const newAmount =
       type === 'add' ? (pot.current_amount || 0) + amount : (pot.current_amount || 0) - amount;
@@ -290,18 +310,29 @@ export default function SavingsView({ financialProfileId }) {
         ...pot,
         current_amount: newAmount,
       });
+
+      if (newAmount >= parseFloat(pot.target_amount) && pot.target_amount > 0) {
+        triggerConfetti();
+      }
+
       await fetchData();
       setAdjustPot(null);
     } catch {
       alert('Failed to update balance');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleAdjustAccountSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const amount = parseFloat(formData.get('amount'));
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+      setSubmitting(false);
+      return;
+    }
     const { account, type } = adjustAccount;
     const newAmount =
       type === 'add'
@@ -315,6 +346,8 @@ export default function SavingsView({ financialProfileId }) {
       setAdjustAccount(null);
     } catch {
       alert('Failed to update account balance');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -571,13 +604,23 @@ export default function SavingsView({ financialProfileId }) {
             <form onSubmit={handleAdjustSubmit}>
               <FormControl required>
                 <FormLabel>Amount (£)</FormLabel>
-                <Input name="amount" type="number" step="0.01" autoFocus />
+                <Input
+                  name="amount"
+                  type="number"
+                  step="0.01"
+                  autoFocus
+                  slotProps={{ input: { inputMode: 'decimal' } }}
+                />
               </FormControl>
               <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                 <Button variant="plain" color="neutral" onClick={() => setAdjustPot(null)}>
                   Cancel
                 </Button>
-                <Button type="submit" color={adjustPot?.type === 'add' ? 'success' : 'danger'}>
+                <Button
+                  type="submit"
+                  color={adjustPot?.type === 'add' ? 'success' : 'danger'}
+                  loading={submitting}
+                >
                   {adjustPot?.type === 'add' ? 'Add' : 'Remove'}
                 </Button>
               </Box>
@@ -594,13 +637,23 @@ export default function SavingsView({ financialProfileId }) {
             <form onSubmit={handleAdjustAccountSubmit}>
               <FormControl required>
                 <FormLabel>Amount (£)</FormLabel>
-                <Input name="amount" type="number" step="0.01" autoFocus />
+                <Input
+                  name="amount"
+                  type="number"
+                  step="0.01"
+                  autoFocus
+                  slotProps={{ input: { inputMode: 'decimal' } }}
+                />
               </FormControl>
               <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                 <Button variant="plain" color="neutral" onClick={() => setAdjustAccount(null)}>
                   Cancel
                 </Button>
-                <Button type="submit" color={adjustAccount?.type === 'add' ? 'success' : 'danger'}>
+                <Button
+                  type="submit"
+                  color={adjustAccount?.type === 'add' ? 'success' : 'danger'}
+                  loading={submitting}
+                >
                   {adjustAccount?.type === 'add' ? 'Add' : 'Remove'}
                 </Button>
               </Box>
@@ -677,7 +730,7 @@ export default function SavingsView({ financialProfileId }) {
                       <Input
                         name="current_balance"
                         type="number"
-                        slotProps={{ input: { step: 'any' } }}
+                        slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                         defaultValue={selectedAccount?.current_balance}
                       />
                     </FormControl>
@@ -688,7 +741,7 @@ export default function SavingsView({ financialProfileId }) {
                       <Input
                         name="interest_rate"
                         type="number"
-                        slotProps={{ input: { step: 'any' } }}
+                        slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                         defaultValue={selectedAccount?.interest_rate}
                       />
                     </FormControl>
@@ -699,7 +752,7 @@ export default function SavingsView({ financialProfileId }) {
                       <Input
                         name="deposit_amount"
                         type="number"
-                        slotProps={{ input: { step: 'any' } }}
+                        slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                         defaultValue={selectedAccount?.deposit_amount}
                       />
                     </FormControl>
@@ -712,6 +765,7 @@ export default function SavingsView({ financialProfileId }) {
                         type="number"
                         min="1"
                         max="31"
+                        slotProps={{ input: { inputMode: 'numeric' } }}
                         defaultValue={selectedAccount?.deposit_day}
                         placeholder="e.g. 1"
                       />
@@ -774,7 +828,7 @@ export default function SavingsView({ financialProfileId }) {
                   <Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>
                     Cancel
                   </Button>
-                  <Button type="submit" color="primary">
+                  <Button type="submit" color="primary" loading={submitting}>
                     Save Account
                   </Button>
                 </Box>
@@ -843,7 +897,7 @@ export default function SavingsView({ financialProfileId }) {
                       <Input
                         name="current_amount"
                         type="number"
-                        slotProps={{ input: { step: 'any' } }}
+                        slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                         defaultValue={selectedPot?.current_amount}
                       />
                     </FormControl>
@@ -854,7 +908,7 @@ export default function SavingsView({ financialProfileId }) {
                       <Input
                         name="target_amount"
                         type="number"
-                        slotProps={{ input: { step: 'any' } }}
+                        slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                         defaultValue={selectedPot?.target_amount}
                       />
                     </FormControl>
@@ -887,7 +941,7 @@ export default function SavingsView({ financialProfileId }) {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" color="primary">
+                  <Button type="submit" color="primary" loading={submitting}>
                     Save Pot Details
                   </Button>
                 </Box>

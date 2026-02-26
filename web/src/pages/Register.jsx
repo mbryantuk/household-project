@@ -145,7 +145,12 @@ export default function Register() {
             <Stack direction="row" spacing={2}>
               <FormControl required sx={{ flex: 1 }}>
                 <FormLabel>First Name</FormLabel>
-                <Input name="firstName" value={formData.firstName} onChange={handleChange} />
+                <Input
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  autoFocus
+                />
               </FormControl>
               <FormControl required sx={{ flex: 1 }}>
                 <FormLabel>Last Name</FormLabel>

@@ -45,12 +45,12 @@ if [ "$SKIP_BACKEND" = false ]; then
     if npm test -- --json --outputFile=test-report.json; then
         echo "   🟢 Backend: SUCCESS"
         cd "$PROJECT_ROOT"
-        node scripts/ops/record_test_results.js backend "success" || true
+        npx tsx scripts/ops/record_test_results.js backend "success" || true
     else
         echo "   🔴 Backend: FAILED"
         cd "$PROJECT_ROOT"
         node scripts/utils/notify_slack_on_failure.js "$PROJECT_ROOT/server/test-report.json" || true
-        node scripts/ops/record_test_results.js backend "failure" || true
+        npx tsx scripts/ops/record_test_results.js backend "failure" || true
         EXIT_CODE=1
     fi
 else
@@ -79,12 +79,12 @@ else
         if eval "$CMD"; then
             echo "   🟢 $NAME: SUCCESS"
             cd "$PROJECT_ROOT"
-            node scripts/ops/record_test_results.js "$KEY" "success" || true
+            npx tsx scripts/ops/record_test_results.js "$KEY" "success" || true
         else
             echo "   🔴 $NAME: FAILED"
             cd "$PROJECT_ROOT"
             node scripts/utils/notify_slack_on_failure.js "$REPORT" || true
-            node scripts/ops/record_test_results.js "$KEY" "failure" || true
+            npx tsx scripts/ops/record_test_results.js "$KEY" "failure" || true
             EXIT_CODE=1
         fi
         cd "$PROJECT_ROOT/web"

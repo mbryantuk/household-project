@@ -1,12 +1,25 @@
 const fs = require('fs');
 const path = require('path');
-const { globalDb, dbRun } = require('../../server/db');
 const pkg = require('../../package.json');
 
 const BACKEND_REPORT = path.join(__dirname, '../../server/test-report.json');
 const FRONTEND_UNIT_REPORT = path.join(__dirname, '../../web/test-results/unit.json');
 const FRONTEND_SMOKE_REPORT = path.join(__dirname, '../../web/test-results/smoke.json');
 const FRONTEND_E2E_REPORT = path.join(__dirname, '../../web/results-all.json');
+
+async function getDb() {
+  if (process.env.DATABASE_URL) {
+    try {
+      const { db } = require('../../server/db/index');
+      const { testResults } = require('../../server/db/schema');
+      return { type: 'postgres', db, table: testResults };
+    } catch (e) {
+      console.warn('⚠️ Failed to load Postgres DB, falling back to SQLite:', e.message);
+    }
+  }
+  const { globalDb, dbRun } = require('../../server/db');
+  return { type: 'sqlite', db: globalDb, run: dbRun };
+}
 
 async function recordBackendResults(runId = null) {
   if (!fs.existsSync(BACKEND_REPORT)) {
@@ -21,21 +34,35 @@ async function recordBackendResults(runId = null) {
     const total = data.numTotalTests || 0;
     const duration = (Date.now() - (data.startTime || Date.now())) / 1000;
 
-    await dbRun(
-      globalDb,
-      `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        'backend',
-        'Jest Integration Suite',
+    const target = await getDb();
+    if (target.type === 'postgres') {
+      await target.db.insert(target.table).values({
+        testType: 'backend',
+        suiteName: 'Jest Integration Suite',
         passes,
         fails,
         total,
         duration,
-        JSON.stringify(data),
-        pkg.version,
-        runId,
-      ]
-    );
+        reportJson: JSON.stringify(data),
+        version: pkg.version,
+      });
+    } else {
+      await target.run(
+        target.db,
+        `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'backend',
+          'Jest Integration Suite',
+          passes,
+          fails,
+          total,
+          duration,
+          JSON.stringify(data),
+          pkg.version,
+          runId,
+        ]
+      );
+    }
     console.log(`✅ Backend test results recorded: ${passes}/${total} passed.`);
   } catch (err) {
     console.error('❌ Failed to record backend results:', err);
@@ -77,11 +104,25 @@ async function recordFrontendResults(
       duration = (stats.duration || 0) / 1000;
     }
 
-    await dbRun(
-      globalDb,
-      `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [type, suiteName, passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
-    );
+    const target = await getDb();
+    if (target.type === 'postgres') {
+      await target.db.insert(target.table).values({
+        testType: type,
+        suiteName,
+        passes,
+        fails,
+        total,
+        duration,
+        reportJson: JSON.stringify(data),
+        version: pkg.version,
+      });
+    } else {
+      await target.run(
+        target.db,
+        `INSERT INTO test_results (test_type, suite_name, passes, fails, total, duration, report_json, version, run_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [type, suiteName, passes, fails, total, duration, JSON.stringify(data), pkg.version, runId]
+      );
+    }
     console.log(`✅ Frontend test results recorded for ${type}: ${passes}/${total} passed.`);
   } catch (err) {
     console.error(`❌ Failed to record frontend results for ${type}:`, err);

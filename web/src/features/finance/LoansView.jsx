@@ -23,6 +23,7 @@ import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
+import { triggerConfetti } from '../../utils/fx';
 
 const formatCurrency = (val, currencyCode = 'GBP') => {
   const num = parseFloat(val) || 0;
@@ -200,6 +201,10 @@ export default function LoansView({ financialProfileId }) {
         ),
       ]);
 
+      if (payload.remaining_balance <= 0 && (selectedLoan?.remaining_balance > 0 || isNew)) {
+        triggerConfetti();
+      }
+
       showNotification(isNew ? 'Loan added.' : 'Loan updated.', 'success');
       await fetchLoans();
       setLoanId(null);
@@ -362,7 +367,7 @@ export default function LoansView({ financialProfileId }) {
                     <Input
                       name="total_amount"
                       type="number"
-                      slotProps={{ input: { step: 'any' } }}
+                      slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                       startDecorator="£"
                       value={formData.total_amount}
                       onChange={(e) => setFormData({ ...formData, total_amount: e.target.value })}
@@ -375,7 +380,7 @@ export default function LoansView({ financialProfileId }) {
                     <Input
                       name="remaining_balance"
                       type="number"
-                      slotProps={{ input: { step: 'any' } }}
+                      slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                       startDecorator="£"
                       value={formData.remaining_balance}
                       onChange={(e) =>
@@ -390,7 +395,7 @@ export default function LoansView({ financialProfileId }) {
                     <Input
                       name="monthly_payment"
                       type="number"
-                      slotProps={{ input: { step: 'any' } }}
+                      slotProps={{ input: { step: 'any', inputMode: 'decimal' } }}
                       startDecorator="£"
                       value={formData.monthly_payment}
                       onChange={(e) =>
@@ -406,6 +411,7 @@ export default function LoansView({ financialProfileId }) {
                       name="payment_day"
                       type="number"
                       placeholder="1-31"
+                      slotProps={{ input: { inputMode: 'numeric' } }}
                       value={formData.payment_day}
                       onChange={(e) => setFormData({ ...formData, payment_day: e.target.value })}
                     />

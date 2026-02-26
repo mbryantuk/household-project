@@ -30,6 +30,7 @@ import { getEmojiColor } from '../../utils/colors';
 import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
+import CopyToClipboard from '../../components/ui/CopyToClipboard';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -39,6 +40,12 @@ const formatCurrency = (val) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+};
+
+const formatSortCode = (val) => {
+  const digits = val.replace(/\D/g, '').substring(0, 6);
+  const groups = digits.match(/.{1,2}/g) || [];
+  return groups.join('-');
 };
 
 export default function BankingView({ financialProfileId }) {
@@ -59,6 +66,7 @@ export default function BankingView({ financialProfileId }) {
   const [accounts, setAccounts] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [assignItem, setAssignItem] = useState(null);
 
   // Import State
@@ -129,21 +137,25 @@ export default function BankingView({ financialProfileId }) {
   );
 
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [sortCode, setSortCode] = useState('');
 
   useEffect(() => {
     if (selectedAccount) {
       setSelectedMembers(getAssignees(selectedAccount.id).map((m) => m.id));
       setSelectedEmoji(selectedAccount.emoji || '💰');
+      setSortCode(selectedAccount.sort_code || '');
     } else if (selectedAccountId === 'new') {
       const defaultMember =
         members.find((m) => m.id === currentUser?.id) || members.find((m) => m.type !== 'pet');
       setSelectedMembers(defaultMember ? [defaultMember.id] : []);
       setSelectedEmoji('💰');
+      setSortCode('');
     }
   }, [selectedAccount, selectedAccountId, getAssignees, members, currentUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     data.emoji = selectedEmoji;
@@ -188,6 +200,8 @@ export default function BankingView({ financialProfileId }) {
     } catch (err) {
       console.error('BankingView Save Error:', err);
       showNotification('Failed to save account', 'danger');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -403,13 +417,19 @@ export default function BankingView({ financialProfileId }) {
                   <Typography level="body-xs" color="neutral">
                     Sort Code
                   </Typography>
-                  <Typography level="body-sm">{a.sort_code || '-'}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography level="body-sm">{a.sort_code || '-'}</Typography>
+                    {a.sort_code && <CopyToClipboard value={a.sort_code} size="sm" />}
+                  </Box>
                 </Grid>
                 <Grid xs={6}>
                   <Typography level="body-xs" color="neutral">
                     Account No
                   </Typography>
-                  <Typography level="body-sm">{a.account_number || '-'}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography level="body-sm">{a.account_number || '-'}</Typography>
+                    {a.account_number && <CopyToClipboard value={a.account_number} size="sm" />}
+                  </Box>
                 </Grid>
               </Grid>
             </FinanceCard>
@@ -495,8 +515,10 @@ export default function BankingView({ financialProfileId }) {
                     <FormLabel>Sort Code</FormLabel>
                     <Input
                       name="sort_code"
-                      defaultValue={selectedAccount?.sort_code}
+                      value={sortCode}
+                      onChange={(e) => setSortCode(formatSortCode(e.target.value))}
                       placeholder="00-00-00"
+                      slotProps={{ input: { inputMode: 'numeric' } }}
                     />
                   </FormControl>
                 </Grid>
@@ -579,7 +601,7 @@ export default function BankingView({ financialProfileId }) {
                 <Button variant="plain" color="neutral" onClick={() => setAccountId(null)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="solid">
+                <Button type="submit" variant="solid" loading={submitting}>
                   Save Account
                 </Button>
               </DialogActions>

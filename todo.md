@@ -216,11 +216,11 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 
 ### Chunk 31: Micro-Interactions
 
-- [ ] **Item 151:** Add subtle "press" scale animations to all `AppButton` instances (scale 0.98).
+- [x] **Item 151:** Add subtle "press" scale animations to all `AppButton` instances (scale 0.98).
 - [ ] **Item 152:** Implement "Pull to Refresh" on mobile list views (Shopping, Chores) integrating with TanStack Query.
-- [ ] **Item 153:** Add a canvas-confetti burst on completion of a major task (e.g., clearing the shopping list or zeroing a debt).
+- [x] **Item 153:** Add a canvas-confetti burst on completion of a major task (e.g., clearing the shopping list or zeroing a debt).
 - [ ] **Item 154:** Implement smooth height transitions when expanding/collapsing sidebar modules and accordion items.
-- [ ] **Item 155:** Add hover-sensitive "Copy to Clipboard" icons to ID fields, serial numbers, or currency values.
+- [x] **Item 155:** Add hover-sensitive "Copy to Clipboard" icons to ID fields, serial numbers, or currency values.
 
 ### Chunk 32: Accessibility (a11y)
 
@@ -240,19 +240,19 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 
 ### Chunk 34: Form Ergonomics
 
-- [ ] **Item 166:** Auto-focus the first empty input field in any newly opened modal or slide-over drawer.
-- [ ] **Item 167:** Implement intelligent "Input Masks" for specific formats (Phone numbers, Date of Birth, Sort Codes).
-- [ ] **Item 168:** Add a quick "Clear" (X) button to the right side of all search and filter inputs.
-- [ ] **Item 169:** Enable "Enter to Submit" functionality on all single-field forms or modal dialogs.
-- [ ] **Item 170:** Implement numeric-only keyboards (`inputMode="decimal"`) that trigger automatically for price/quantity fields on mobile.
+- [x] **Item 166:** Auto-focus the first empty input field in any newly opened modal or slide-over drawer.
+- [x] **Item 167:** Implement intelligent "Input Masks" for specific formats (Phone numbers, Date of Birth, Sort Codes).
+- [x] **Item 168:** Add a quick "Clear" (X) button to the right side of all search and filter inputs.
+- [x] **Item 169:** Enable "Enter to Submit" functionality on all single-field forms or modal dialogs.
+- [x] **Item 170:** Implement numeric-only keyboards (`inputMode="decimal"`) that trigger automatically for price/quantity fields on mobile.
 
 ### Chunk 35: Cognitive Load Reduction
 
-- [ ] **Item 171:** Replace raw timestamps with "Relative Time" (e.g., '2 mins ago', 'yesterday') for recent activity and audit logs.
+- [x] **Item 171:** Replace raw timestamps with "Relative Time" (e.g., '2 mins ago', 'yesterday') for recent activity and audit logs.
 - [ ] **Item 172:** Add contextual 'Tooltips' explaining complex financial terms (e.g., "AER", "Depreciation") in the Finance view.
 - [ ] **Item 173:** Collapse "Advanced" or less frequently used options by default in complex forms (e.g., Asset details).
 - [ ] **Item 174:** Implement "Search Highlighting" where the matching text snippet is bolded in the Command Bar and list filters.
-- [ ] **Item 175:** Standardize "Module Headers" to ensure Page Title, Subtitle, and Primary Actions are exactly in the same DOM position across all views.
+- [x] **Item 175:** Standardize "Module Headers" to ensure Page Title, Subtitle, and Primary Actions are exactly in the same DOM position across all views.
 
 ### Chunk 36: Responsive Layout & Mobile
 
@@ -266,16 +266,16 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 
 - [ ] **Item 181:** Implement skeleton loading states specifically for individual dashboard widgets during their initial data fetch.
 - [ ] **Item 182:** Add a subtle pulsing animation to "Optimistic UI" elements while they wait for the background server sync to complete.
-- [ ] **Item 183:** Disable "Submit" buttons instantly when clicked and show a loading spinner inline to prevent double-clicks.
+- [x] **Item 183:** Disable "Submit" buttons instantly when clicked and show a loading spinner inline to prevent double-clicks.
 - [ ] **Item 184:** Add a non-blocking "Slow Connection" toast hint if a critical API request takes longer than 3 seconds to resolve.
 - [ ] **Item 185:** Pre-load the Javascript/CSS chunks for adjacent pages (e.g., pre-fetch Finance module when hovering its sidebar link).
 
 ### Chunk 38: Smart Defaults & Assistance
 
-- [ ] **Item 186:** Implement "Smart Defaults" for date pickers (e.g., defaulting to the nearest upcoming weekend for chore scheduling).
+- [x] **Item 186:** Implement "Smart Defaults" for date pickers (e.g., defaulting to the nearest upcoming weekend for chore scheduling).
 - [ ] **Item 187:** Group related form fields into visual "Sections" with subtle divider lines and clear subheaders.
 - [ ] **Item 188:** Auto-fill common fields based on context (e.g., automatically setting the "Provider" dropdown based on the uploaded receipt logo).
-- [ ] **Item 189:** Provide "Select All" / "Deselect All" master toggles for bulk operations on long lists.
+- [x] **Item 189:** Provide "Select All" / "Deselect All" master toggles for bulk operations on long lists.
 - [ ] **Item 190:** Add +/- stepper controls to quantity inputs on mobile, minimizing the need to open the numeric keyboard.
 
 ### Chunk 39: UI Polish & Consistency
@@ -283,7 +283,7 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 - [ ] **Item 191:** Support the `prefers-reduced-motion` media query to instantly disable all UI transitions/animations for sensitive users.
 - [ ] **Item 192:** Ensure the contrast of all "Secondary" or "Muted" text meets the strict WCAG AA (4.5:1) requirement across all 100 themes.
 - [ ] **Item 193:** Add descriptive SR-only text to "Icon-only" buttons (e.g., Trash can, Edit pencil) to clarify their action.
-- [ ] **Item 194:** Implement a "Scroll to Top" floating button on long vertical lists (like the transaction ledger).
+- [x] **Item 194:** Implement a "Scroll to Top" floating button on long vertical lists (like the transaction ledger).
 - [ ] **Item 195:** Add a temporary "Newly Added" highlight (e.g., background flashes light blue then fades) when an item is added to a list.
 
 ### Chunk 40: Navigation & Context

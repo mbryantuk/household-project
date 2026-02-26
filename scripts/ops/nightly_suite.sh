@@ -103,7 +103,7 @@ fi
 # 3. Cleanup
 echo "🧹 [3/5] Cleaning up test data..."
 cd "$PROJECT_ROOT"
-node server/scripts/cleanup_test_data.js || true
+npx tsx server/scripts/cleanup_test_data.js || true
 echo "✅ Cleanup complete."
 
 # 4. Report

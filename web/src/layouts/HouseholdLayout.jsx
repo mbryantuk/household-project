@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Box, IconButton, Drawer, Typography, Sheet, Stack, Badge, Avatar } from '@mui/joy';
 import HomeIcon from '@mui/icons-material/Home';
@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import NotificationsDrawer from '../components/NotificationsDrawer';
 import NavSidebar from '../components/NavSidebar';
 import UtilityBar from '../components/UtilityBar';
+import ScrollToTop from '../components/ui/ScrollToTop';
 import { getEmojiColor } from '../utils/colors';
 import { APP_NAME } from '../constants';
 
@@ -153,6 +154,8 @@ export default function HouseholdLayout({
     (notifications.urgent?.length || 0) + (notifications.upcoming?.length || 0);
   const badgeCount = totalNotifications > 0 ? totalNotifications : null;
 
+  const scrollRef = useRef(null);
+
   useEffect(() => {
     const targetId = parseInt(id);
     const targetHousehold = (households || []).find((h) => h && h.id === targetId);
@@ -246,6 +249,7 @@ export default function HouseholdLayout({
         <Box
           component="main"
           id="main-content"
+          ref={scrollRef}
           sx={{
             flexGrow: 1,
             minHeight: 0,
@@ -276,6 +280,8 @@ export default function HouseholdLayout({
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
           <UtilityBar />
         </Box>
+
+        <ScrollToTop scrollRef={scrollRef} />
 
         <Sheet
           component="nav"

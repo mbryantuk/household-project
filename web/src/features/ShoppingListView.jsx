@@ -36,6 +36,7 @@ import ModuleHeader from '../components/ui/ModuleHeader';
 import { useShoppingList } from '../hooks/useHouseholdData';
 import { useShoppingMutations } from './shopping/hooks';
 import haptics from '../utils/haptics';
+import { triggerConfetti } from '../utils/fx';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -130,7 +131,26 @@ export default function ShoppingListView() {
 
   const handleClearCompleted = () => {
     confirmAction('Clear Completed', 'Remove checked items?', () => {
-      mutations.clearCompleted.mutate();
+      mutations.clearCompleted.mutate(null, {
+        onSuccess: () => {
+          triggerConfetti();
+          showNotification('Cleared completed items', 'success');
+        },
+      });
+    });
+  };
+
+  const handleSelectAll = (checked) => {
+    const actions = items.map((item) => ({
+      type: 'update',
+      id: item.id,
+      data: { is_checked: checked ? 1 : 0 },
+    }));
+    // Item 108: Use bulk endpoint
+    api.post(`/households/${householdId}/shopping-list/bulk`, { actions }).then(() => {
+      queryClient.invalidateQueries({
+        queryKey: ['households', householdId, 'shopping-list', weekStr],
+      });
     });
   };
 
@@ -209,6 +229,7 @@ export default function ShoppingListView() {
                   sx={{ width: 80 }}
                   value={newItemQty}
                   onChange={(e) => setNewItemQty(e.target.value)}
+                  slotProps={{ input: { inputMode: 'decimal' } }}
                 />
                 <Select
                   value={newItemCat}
@@ -228,6 +249,7 @@ export default function ShoppingListView() {
                   sx={{ width: 80 }}
                   value={newItemCost}
                   onChange={(e) => setNewItemCost(e.target.value)}
+                  slotProps={{ input: { inputMode: 'decimal' } }}
                 />
                 <Button type="submit" loading={mutations.addItem.isPending}>
                   <Add />
@@ -237,6 +259,21 @@ export default function ShoppingListView() {
           </Sheet>
 
           <Stack spacing={1}>
+            {items.length > 0 && (
+              <Box sx={{ px: 1.5, py: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Checkbox
+                  size="sm"
+                  checked={items.length > 0 && items.every((i) => i.is_checked)}
+                  indeterminate={
+                    items.some((i) => i.is_checked) && !items.every((i) => i.is_checked)
+                  }
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                />
+                <Typography level="body-xs" fontWeight="bold">
+                  {items.every((i) => i.is_checked) ? 'DESELECT ALL' : 'SELECT ALL'}
+                </Typography>
+              </Box>
+            )}
             {items.map((item) => (
               <Sheet
                 key={item.id}

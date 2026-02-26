@@ -59,6 +59,7 @@ import {
   DeleteForever,
   Sort,
   Search,
+  Clear,
   ExpandMore,
   TrendingUp,
   Block,
@@ -2351,6 +2352,13 @@ export default function BudgetView({ financialProfileId }) {
             size="sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            endDecorator={
+              searchQuery && (
+                <IconButton variant="plain" size="sm" onClick={() => setSearchQuery('')}>
+                  <Clear />
+                </IconButton>
+              )
+            }
             sx={{ width: { xs: '100%', sm: 180 } }}
           />
 

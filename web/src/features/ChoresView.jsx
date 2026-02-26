@@ -31,11 +31,13 @@ import {
   RadioButtonUnchecked,
   Edit,
 } from '@mui/icons-material';
-import { format, parseISO, isPast, isToday, isTomorrow } from 'date-fns';
+import { format, parseISO, isPast, isToday, isTomorrow, nextSaturday } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 import { getEmojiColor } from '../utils/colors';
 import EmojiPicker from '../components/EmojiPicker';
+import ModuleHeader from '../components/ui/ModuleHeader';
 import { useChores, useChoreStats } from '../hooks/useHouseholdData';
+import { triggerConfetti } from '../utils/fx';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -78,6 +80,7 @@ export default function ChoresView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedChore, setSelectedChore] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -103,7 +106,7 @@ export default function ChoresView() {
       assigned_member_id: null,
       frequency: 'weekly',
       value: '',
-      next_due_date: format(new Date(), 'yyyy-MM-dd'),
+      next_due_date: format(nextSaturday(new Date()), 'yyyy-MM-dd'),
       emoji: '🧹',
     });
     setIsEditMode(false);
@@ -127,6 +130,7 @@ export default function ChoresView() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const payload = {
         ...formData,
@@ -147,6 +151,8 @@ export default function ChoresView() {
       invalidateChores();
     } catch {
       showNotification('Operation failed', 'danger');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -168,6 +174,7 @@ export default function ChoresView() {
         date: new Date().toISOString(),
       });
 
+      triggerConfetti();
       showNotification(`Completed: ${chore.name} (+${formatCurrency(chore.value)})`, 'success');
       invalidateChores();
     } catch {
@@ -185,20 +192,18 @@ export default function ChoresView() {
 
   return (
     <Box data-testid="chores-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box>
-          <Typography level="h2" data-testid="chores-heading" startDecorator={<CleaningServices />}>
-            Chores Tracker
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Assign tasks, track completion, and manage pocket money.
-          </Typography>
-        </Box>
-        <Button startDecorator={<Add />} onClick={handleOpenAdd}>
-          Add Chore
-        </Button>
-      </Box>
+      <ModuleHeader
+        title="Chores Tracker"
+        titleTestId="chores-heading"
+        description="Assign tasks, track completion, and manage pocket money."
+        emoji="🧹"
+        isDark={isDark}
+        action={
+          <Button startDecorator={<Add />} onClick={handleOpenAdd}>
+            Add Chore
+          </Button>
+        }
+      />
 
       {/* Gamification / Earnings Widget */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -446,7 +451,9 @@ export default function ChoresView() {
                   <Button variant="plain" color="neutral" onClick={() => setIsModalOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">{isEditMode ? 'Save Changes' : 'Create Task'}</Button>
+                  <Button type="submit" loading={submitting}>
+                    {isEditMode ? 'Save Changes' : 'Create Task'}
+                  </Button>
                 </DialogActions>
               </Stack>
             </form>

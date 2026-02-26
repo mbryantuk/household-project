@@ -13,11 +13,13 @@ import {
   Input,
   Button,
   CircularProgress,
+  Stack,
 } from '@mui/joy';
-import { Edit, Add, Search } from '@mui/icons-material';
+import { Edit, Add, Search, Clear } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 import { getEmojiColor } from '../utils/colors';
 import GenericObjectView from '../components/objects/GenericObjectView';
+import ModuleHeader from '../components/ui/ModuleHeader';
 import { useAssets } from '../hooks/useHouseholdData';
 
 export default function AssetsView() {
@@ -202,40 +204,35 @@ export default function AssetsView() {
 
   return (
     <Box data-testid="assets-view">
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography level="h2" sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}>
-            Appliance & Asset Register
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Manage your household inventory and valuables.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Input
-            placeholder="Search assets..."
-            startDecorator={<Search />}
-            value={filterQuery}
-            onChange={(e) => setFilterQuery(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 250 } }}
-          />
-          {isAdmin && (
-            <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>
-              Add Asset
-            </Button>
-          )}
-        </Box>
-      </Box>
+      <ModuleHeader
+        title="Appliance & Asset Register"
+        description="Manage your household inventory and valuables."
+        emoji="📦"
+        isDark={isDark}
+        action={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Input
+              placeholder="Search assets..."
+              startDecorator={<Search />}
+              endDecorator={
+                filterQuery && (
+                  <IconButton variant="plain" size="sm" onClick={() => setFilterQuery('')}>
+                    <Clear />
+                  </IconButton>
+                )
+              }
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 200 } }}
+            />
+            {isAdmin && (
+              <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>
+                Add Asset
+              </Button>
+            )}
+          </Stack>
+        }
+      />
       {/* DESKTOP VIEW: Standard Table with Sorting */}
       {!isMobile ? (
         <Sheet variant="outlined" sx={{ borderRadius: 'sm', overflow: 'auto', flexGrow: 1 }}>

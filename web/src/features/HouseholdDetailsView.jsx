@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import GenericObjectView from '../components/objects/GenericObjectView';
 import AppSelect from '../components/ui/AppSelect';
+import CopyToClipboard from '../components/ui/CopyToClipboard';
 import FinanceSchemaEditor from './settings/FinanceSchemaEditor';
 
 export default function HouseholdDetailsView() {
@@ -256,6 +257,9 @@ export default function HouseholdDetailsView() {
                   <Input
                     value={data.broadband_account || ''}
                     onChange={(e) => handleChange('broadband_account', e.target.value)}
+                    endDecorator={
+                      data.broadband_account && <CopyToClipboard value={data.broadband_account} />
+                    }
                   />
                 </FormControl>
               </Grid>
@@ -266,6 +270,9 @@ export default function HouseholdDetailsView() {
                     type="password"
                     value={data.wifi_password || ''}
                     onChange={(e) => handleChange('wifi_password', e.target.value)}
+                    endDecorator={
+                      data.wifi_password && <CopyToClipboard value={data.wifi_password} />
+                    }
                   />
                 </FormControl>
               </Grid>

@@ -68,6 +68,7 @@ export default function Login({ onLogin, onMfaLogin }) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoFocus
                   />
                   <AppInput
                     placeholder="Password"
