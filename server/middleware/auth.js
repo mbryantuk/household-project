@@ -94,7 +94,7 @@ async function authenticateToken(req, res, next) {
           .limit(1);
         if (!session || session.isRevoked)
           return res.status(401).json({ error: 'Session revoked' });
-        
+
         db.update(userSessions)
           .set({ lastActive: new Date() })
           .where(eq(userSessions.id, decodedUser.sid))
@@ -102,7 +102,8 @@ async function authenticateToken(req, res, next) {
       }
 
       req.user = { ...decodedUser, systemRole: row.systemRole };
-      const effectiveHhId = req.headers['x-household-id'] || decodedUser.householdId || row.lastHouseholdId;
+      const effectiveHhId =
+        req.headers['x-household-id'] || decodedUser.householdId || row.lastHouseholdId;
 
       if (effectiveHhId) {
         const results = await db
@@ -138,7 +139,7 @@ async function authenticateToken(req, res, next) {
  */
 function requireHouseholdRole(requiredRole) {
   return async (req, res, next) => {
-    let targetIdRaw = req.params.id || req.params.hhId || req.headers['x-household-id'];
+    let targetIdRaw = req.params.hhId || req.params.id || req.headers['x-household-id'];
     if (!targetIdRaw) targetIdRaw = req.body.householdId || req.query.id || req.query.hhId;
 
     const targetHouseholdId = targetIdRaw ? parseInt(targetIdRaw) : null;

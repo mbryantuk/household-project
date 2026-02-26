@@ -55,13 +55,18 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: [
-          "'self'", 
-          "'unsafe-inline'", 
-          "'unsafe-eval'", 
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
           'https://cdn.jsdelivr.net',
           'https://*.clerk.accounts.dev',
         ],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com',
+          'https://cdn.jsdelivr.net',
+        ],
         fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https://*', 'https://img.clerk.com'],
         connectSrc: ["'self'", 'https://*', 'https://*.clerk.accounts.dev'],
@@ -79,11 +84,14 @@ app.use(cookieParser());
 const frontendPath = path.resolve(__dirname, '../web/dist');
 if (fs.existsSync(frontendPath)) {
   // Serve hashed assets with aggressive caching
-  app.use('/assets', express.static(path.join(frontendPath, 'assets'), {
-    maxAge: '1y',
-    immutable: true,
-    fallthrough: false
-  }));
+  app.use(
+    '/assets',
+    express.static(path.join(frontendPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+      fallthrough: false,
+    })
+  );
 
   // Serve root static files (favicon, manifest, etc)
   app.use(express.static(frontendPath, { index: false }));
@@ -98,7 +106,11 @@ app.use(
       if (!origin) return callback(null, true);
 
       // 2. Allow whitelisted origins
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || process.env.NODE_ENV === 'test') {
+      if (
+        allowedOrigins.indexOf(origin) !== -1 ||
+        allowedOrigins.includes('*') ||
+        process.env.NODE_ENV === 'test'
+      ) {
         return callback(null, true);
       }
 
@@ -111,7 +123,14 @@ app.use(
       callback(new Error('Not allowed by CORS'));
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-version', 'x-household-id', 'x-dry-run', 'idempotency-key'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-api-version',
+      'x-household-id',
+      'x-dry-run',
+      'idempotency-key',
+    ],
     credentials: true,
     exposedHeaders: ['x-api-version'],
   })
@@ -141,16 +160,16 @@ const apiRouters = [
   { path: '/auth', router: authRoutes },
   { path: '/passkeys', router: passkeyRoutes },
   { path: '/admin', router: adminRoutes },
-  { path: '/households/:id/finance/profiles', router: financeProfileRoutes },
-  { path: '/households/:id/finance', router: financeRoutes },
-  { path: '/households/:id/chores', router: choresRoutes },
-  { path: '/households/:id/members', router: memberRoutes },
-  { path: '/households/:id/calendar', router: calendarRoutes },
-  { path: '/households/:id/details', router: detailsRoutes },
-  { path: '/households/:id/meals', router: mealRoutes },
-  { path: '/households/:id/shopping-list', router: shoppingRoutes },
-  { path: '/households/:id/notifications', router: notificationRoutes },
-  { path: '/households/:id', router: assetsVehiclesRoutes },
+  { path: '/households/:hhId/finance/profiles', router: financeProfileRoutes },
+  { path: '/households/:hhId/finance', router: financeRoutes },
+  { path: '/households/:hhId/chores', router: choresRoutes },
+  { path: '/households/:hhId/members', router: memberRoutes },
+  { path: '/households/:hhId/calendar', router: calendarRoutes },
+  { path: '/households/:hhId/details', router: detailsRoutes },
+  { path: '/households/:hhId/meals', router: mealRoutes },
+  { path: '/households/:hhId/shopping-list', router: shoppingRoutes },
+  { path: '/households/:hhId/notifications', router: notificationRoutes },
+  { path: '/households/:hhId', router: assetsVehiclesRoutes },
   { path: '/households', router: householdRoutes },
   { path: '/webhooks', router: webhookRoutes },
   { path: '/system', router: systemRoutes },

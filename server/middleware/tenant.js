@@ -6,7 +6,7 @@ const { getHouseholdDb, ensureHouseholdSchema } = require('../db');
  * before passing control to the route handlers.
  */
 const useTenantDb = async (req, res, next) => {
-  const hhId = req.params.id;
+  const hhId = req.params.hhId || req.params.id;
   if (!hhId) return res.status(400).json({ error: 'Household ID required' });
 
   try {

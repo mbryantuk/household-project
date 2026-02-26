@@ -1,4 +1,4 @@
 {
-  "commitMessage": "fix: resolve brady seed db concurrency and swagger gaps",
-  "date": "Wed 25 Feb 22:29:14 GMT 2026"
+  "commitMessage": "fix: resolve RBAC/Tenancy collision by renaming household param to :hhId",
+  "date": "Thu 26 Feb 09:31:12 GMT 2026"
 }

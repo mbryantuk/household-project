@@ -10,26 +10,32 @@ const response = require('../utils/response');
  * GET /api/households/:id/notifications
  * Pattern: DI, Category Filtering
  */
-router.get('/', authenticateToken, requireHouseholdRole('viewer'), useTenantDb, async (req, res, next) => {
-  try {
-    const rows = await dbAll(
-      req.tenantDb,
-      'SELECT * FROM notifications WHERE household_id = ? AND deleted_at IS NULL ORDER BY created_at DESC',
-      [req.hhId]
-    );
+router.get(
+  '/',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const rows = await dbAll(
+        req.tenantDb,
+        'SELECT * FROM notifications WHERE household_id = ? AND deleted_at IS NULL ORDER BY created_at DESC',
+        [req.hhId]
+      );
 
-    // Grouping by type for UI consumption
-    const categorized = {
-      urgent: rows.filter((n) => n.type === 'urgent'),
-      upcoming: rows.filter((n) => n.type === 'upcoming'),
-      info: rows.filter((n) => n.type === 'info' || !n.type),
-    };
+      // Grouping by type for UI consumption
+      const categorized = {
+        urgent: rows.filter((n) => n.type === 'urgent'),
+        upcoming: rows.filter((n) => n.type === 'upcoming'),
+        info: rows.filter((n) => n.type === 'info' || !n.type),
+      };
 
-    response.success(res, categorized);
-  } catch (err) {
-    next(err);
+      response.success(res, categorized);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /**
  * POST /api/households/:id/notifications/:nid/read
@@ -64,8 +70,8 @@ router.get('/stream', authenticateToken, requireHouseholdRole('viewer'), (req, r
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const hhId = req.params.id;
-  
+  const hhId = req.params.hhId || req.params.id;
+
   const onActivity = (data) => {
     if (String(data.householdId) === String(hhId)) {
       res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -74,7 +80,7 @@ router.get('/stream', authenticateToken, requireHouseholdRole('viewer'), (req, r
 
   const { EventEmitter } = require('events');
   if (!global.activityEmitter) global.activityEmitter = new EventEmitter();
-  
+
   global.activityEmitter.on('activity', onActivity);
 
   req.on('close', () => {
@@ -84,4 +90,3 @@ router.get('/stream', authenticateToken, requireHouseholdRole('viewer'), (req, r
 });
 
 module.exports = router;
-
