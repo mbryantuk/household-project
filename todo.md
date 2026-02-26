@@ -22,7 +22,7 @@ _Goal: Secure data persistence, type-safe communication, and centralized state._
 
 - [x] **Item 3: ORM Adoption (Drizzle)** - Connection and schema implementation.
 - [x] **Item 5: Centralized Postgres** - Migrated from SQLite to production Postgres.
-- [x] **Item 51: Auth Provider (Clerk)** - Modern identity management with MFA support.
+- [x] **Item 51: Auth Provider (Clerk)** - Modern identity management with MFA support. (REPLACED with Self-Hosted)
 - [x] **Item 12: Server State (TanStack Query)** - Standardized data fetching and caching.
 - [x] **Item 53: API Rate Limiting** - Redis-based protection for all endpoints.
 - [x] **Item 54: Immutable Audit Logging** - System-wide action tracking.
@@ -168,7 +168,7 @@ _Goal: Address the 100 critical architectural, operational, and structural consi
 - [x] **Item 158: Aggressive Asset Optimization** - Optimize images and assets aggressively during the Vite build process.
 - [x] **Item 159: Core Web Vitals Tracking** - Monitor and optimize Core Web Vitals (LCP, FID, CLS) as a key performance metric in CI.
 - [x] **Item 160: Memory Profiling** - Use a memory profiler periodically to identify and fix memory leaks in the Node.js backend. (Admin heapdump implemented)
-- [x] **Item 161: DataLoader Pattern** - Implement request batching (e.g., DataLoader) to resolve the N+1 query problem in REST/GraphQL resolvers. (Integrated into household routes)
+- [x] **Item 161: DataLoader Pattern** - Implement request batching (e.g., DataLoader) to resolve the n+1 query problem in REST/GraphQL resolvers. (Integrated into household routes)
 - [x] **Item 162: Strict External Timeouts** - Ensure all external API calls have strict timeouts and fallback mechanisms to prevent cascading failures.
 - [x] **Item 163: Server-Sent Events (SSE)** - Prefer Server-Sent Events (SSE) for unidirectional real-time updates over WebSockets to save resources. (Implemented for notifications)
 
@@ -322,3 +322,52 @@ _Goal: Formalize the tracking of household utilities (Energy, Water, Waste) and 
 - [x] **Item 215:** Add automated renewal and payment date synchronization from Utility accounts to the unified household calendar.
 - [x] **Item 216:** Implement "Utility Health" dashboard widget showing upcoming contract expirations and monthly cost breakdowns.
 - [x] **Item 217:** Update the automated smoke test suite to verify the accessibility and functionality of all Utility modules.
+
+## Phase 16: Enterprise Reliability & Smart Automation
+
+_Goal: Transition from a reactive management system to a proactive automation engine with enhanced telemetry and enterprise-grade resilience._
+
+### Chunk 43: Smart Financial Automation
+
+- [x] **Item 221:** Implement "Smart Overdraft Protection" alerts that notify users if an upcoming recurring cost will exceed their current account balance.
+- [x] **Item 222:** Create an automated "Monthly Financial Report" generator that produces a PDF summary of income vs. expenses and net worth growth.
+- [x] **Item 223:** Add "Grocery Auto-Populate" which generates shopping list items based on the upcoming week's meal plan ingredients.
+- [x] **Item 224:** Implement "Vehicle Maintenance Forecasting" based on average monthly mileage to predict next MOT/Service dates more accurately.
+
+### Chunk 44: System Resilience & Backups
+
+- [x] **Item 225:** Implement "S3 Offsite Backups" for tenant databases, allowing admins to configure AWS/S3-compatible destinations for nightly snapshots.
+- [x] **6:** Add "Point-in-Time Recovery" (PITR) support for the PostgreSQL Global Registry to ensure zero data loss during system failures.
+- [x] **Item 227:** Implement "Heartbeat Monitoring" for the Node.js backend that triggers an external alert if the event loop latency exceeds 200ms for sustained periods.
+- [x] **Item 228:** Create a "System Health" Admin dashboard showing real-time Redis memory usage, BullMQ job success rates, and PostgreSQL connection pool status.
+
+### Chunk 45: Enhanced User Experience & Mobile
+
+- [x] **Item 229:** Implement "Biometric App Lock" for the PWA using the Web Authentication API to protect sensitive financial data on mobile devices.
+- [x] **Item 230:** Add "Dark Mode Auto-Switch" based on system settings or sunrise/sunset times using the Geolocation API.
+- [x] **Item 231:** Implement "Inline Batch Editing" for the MUI X Data Grid, allowing users to update multiple transaction categories or dates simultaneously.
+- [x] **Item 232:** Add "Interactive Canvas-Confetti" triggers for custom milestones (e.g. reaching a savings pot target).
+
+### Chunk 46: Advanced Telemetry & Security
+
+- [x] **Item 233:** Implement "Geographic Login Logic" that flags or blocks login attempts from unexpected countries based on IP geolocation.
+- [x] **Item 234:** Add "Sensitive Field Masking" in the UI that requires a secondary click/password confirmation to reveal account numbers or serials.
+- [x] **Item 235:** Integrate "PostHog Feature Flags" more deeply into the frontend to allow gradual rollout of the new "Utility Health" widget.
+- [x] **Item 236:** Implement "CSV Import for Transactions" with a mapping wizard to support generic bank exports beyond the existing hardcoded providers.
+
+### Chunk 47: Integration & Extensibility
+
+- [x] **Item 237:** Create a "Hearthstone Public API" (Developer Beta) with API Key management for users who want to build their own integrations.
+- [x] **Item 238:** Implement "Webhook Notifications" for external services (e.g. Triggering a Zapier flow when a chore is completed).
+- [x] **Item 239:** Add "Google Calendar Sync" (One-way) to export household events and bill dates to a shared family Google Calendar.
+- [x] **Item 240:** Implement "Barcode Scanning" for the shopping list mobile view to quickly add items by scanning their UPC.
+
+## Phase 17: Communication & Collaboration (The "Nexus" Update)
+
+_Goal: Enhance the multi-user experience with direct communication, improved onboarding, and systemic feedback loops._
+
+- [ ] **Item 241:** Implement a real "Invite via Email" flow that allows adding users who don't have an account yet, generating registration tokens.
+- [ ] **Item 242:** Create a central "Notification History" view allowing users to browse and search through past household alerts.
+- [ ] **Item 243:** Implement a "Household Message Board" widget for pinning important notes, WiFi passwords, or local emergency contacts.
+- [ ] **Item 244:** Add "Active Member" avatars to the header showing who is currently online in the household (via Socket.io).
+- [ ] **Item 245:** Implement "Comment Threads" on core entities (Assets, Vehicles, Chores) to allow members to discuss specific items.

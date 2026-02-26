@@ -28,6 +28,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import HouseholdSelector from './pages/HouseholdSelector';
 import OfflineOverlay from './components/ui/OfflineOverlay';
+import LockScreen from './components/ui/LockScreen';
+import { useAppLock } from './context/AppLockContext';
+import { useAutoMode } from './hooks/useAutoMode';
 
 // Lazy Loaded Features
 const HomeView = lazy(() => import('./features/HomeView'));
@@ -85,6 +88,8 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
   const { showNotification, confirmAction, confirmDialog, closeConfirm } = useUI();
 
   const { setMode } = useColorScheme();
+  useAutoMode();
+  const { isLocked } = useAppLock();
 
   // Idle Management
   const lastActivity = useRef(null);
@@ -145,6 +150,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
   return (
     <CommandBar householdId={householdId}>
       <OfflineOverlay />
+      {isLocked && <LockScreen />}
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route

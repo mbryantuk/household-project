@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import { CssVarsProvider, GlobalStyles, CssBaseline } from '@mui/joy';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import posthog from 'posthog-js';
 
 // Theme and Local Components
 import { getAppTheme } from './theme';
@@ -13,6 +14,7 @@ import { AuthProvider } from './context/AuthContext';
 import { HouseholdProvider } from './context/HouseholdContext';
 import { UIProvider } from './context/UIContext';
 import { TimezoneProvider } from './context/TimezoneContext';
+import { AppLockProvider } from './context/AppLockContext';
 
 // Components
 import AppInner from './AppInner';
@@ -23,6 +25,13 @@ const queryClient = new QueryClient({
     queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 1000 * 60 * 5 },
   },
 });
+
+if (typeof window !== 'undefined' && import.meta.env.VITE_POSTHOG_KEY) {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+    api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com',
+    capture_pageview: false, // Handled manually
+  });
+}
 
 export default function App() {
   const [initialUser] = useState(() => {
@@ -92,24 +101,26 @@ export default function App() {
         <UIProvider>
           <TimezoneProvider>
             <HouseholdProvider initialHousehold={initialHousehold}>
-              <CssVarsProvider
-                theme={theme}
-                defaultMode="system"
-                modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
-                disableNestedContext
-              >
-                <CssBaseline />
-                <BrowserRouter>
-                  <Suspense fallback={null}>
-                    <AppInner
-                      themeId={themeId}
-                      setThemeId={setThemeId}
-                      onPreviewTheme={setPreviewThemeId}
-                    />
-                  </Suspense>
-                </BrowserRouter>
-                <Toaster position="bottom-center" />
-              </CssVarsProvider>
+              <AppLockProvider>
+                <CssVarsProvider
+                  theme={theme}
+                  defaultMode="system"
+                  modeStorageKey={`${APP_NAME.toLowerCase()}-mode`}
+                  disableNestedContext
+                >
+                  <CssBaseline />
+                  <BrowserRouter>
+                    <Suspense fallback={null}>
+                      <AppInner
+                        themeId={themeId}
+                        setThemeId={setThemeId}
+                        onPreviewTheme={setPreviewThemeId}
+                      />
+                    </Suspense>
+                  </BrowserRouter>
+                  <Toaster position="bottom-center" />
+                </CssVarsProvider>
+              </AppLockProvider>
             </HouseholdProvider>
           </TimezoneProvider>
         </UIProvider>

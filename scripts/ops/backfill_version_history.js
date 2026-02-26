@@ -1,5 +1,11 @@
-const { execSync } = require('child_process');
-const { globalDb, dbRun } = require('../../server/db');
+/**
+ * MODERN VERSION HISTORY BACKFILLER
+ * Item 5: Migrated to PostgreSQL.
+ */
+import { execSync } from 'child_process';
+import { db } from '../../server/db/index';
+import { versionHistory } from '../../server/db/schema';
+import { and, eq } from 'drizzle-orm';
 
 async function backfill() {
   try {
@@ -28,30 +34,26 @@ async function backfill() {
         );
         comment = comment.replace(versionCleanPattern, '');
 
-        // Check if already exists
-        const existing = await new Promise((resolve) => {
-          globalDb.get(
-            'SELECT id FROM version_history WHERE version = ? AND comment = ?',
-            [version, comment],
-            (err, row) => {
-              resolve(row);
-            }
-          );
-        });
+        // Check if already exists in PostgreSQL
+        const [existing] = await db
+          .select()
+          .from(versionHistory)
+          .where(and(eq(versionHistory.version, version), eq(versionHistory.comment, comment)))
+          .limit(1);
 
         if (!existing) {
-          await dbRun(
-            globalDb,
-            'INSERT INTO version_history (version, comment, created_at) VALUES (?, ?, ?)',
-            [version, comment, date]
-          );
+          await db.insert(versionHistory).values({
+            version,
+            comment,
+            createdAt: new Date(date),
+          });
           count++;
         }
       }
     }
-    console.log(`✅ Backfilled ${count} version entries from Git history.`);
+    console.log(`✅ Backfilled ${count} version entries from Git history into PostgreSQL.`);
   } catch (err) {
-    console.error('❌ Failed to backfill history:', err);
+    console.error('❌ Failed to backfill history:', err.message);
   }
   process.exit(0);
 }

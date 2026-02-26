@@ -25,6 +25,7 @@ import ProfileSettings from './settings/ProfileSettings';
 import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';
 import SecuritySettings from './settings/SecuritySettings';
+import DeveloperSettings from './settings/DeveloperSettings';
 
 export default function SettingsView() {
   const location = useLocation();
@@ -175,7 +176,7 @@ export default function SettingsView() {
                 DEVELOPER
               </Typography>
               <Tab variant="plain" color="neutral">
-                <Code sx={{ mr: 2 }} /> API Access
+                <Code sx={{ mr: 2 }} /> API & Webhooks
               </Tab>
 
               {isAdmin && (
@@ -211,47 +212,11 @@ export default function SettingsView() {
             <TabPanel value={1} sx={{ p: 0 }}>
               <SecuritySettings />
             </TabPanel>
-            {/* Index 2 skipped (Redirect) */}
             <TabPanel value={2} sx={{ p: 0 }}>
               <ThemeSettings />
             </TabPanel>
             <TabPanel value={3} sx={{ p: 0 }}>
-              <Box>
-                <Typography level="h4" sx={{ mb: 2 }}>
-                  API Access & Documentation
-                </Typography>
-                <Typography level="body-md" sx={{ mb: 3 }}>
-                  Explore the Hearth Household SaaS API documentation. Use this reference to
-                  integrate with external tools or build custom extensions.
-                </Typography>
-
-                <Sheet
-                  variant="outlined"
-                  sx={{
-                    p: 3,
-                    borderRadius: 'md',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Box>
-                    <Typography level="title-md">Swagger UI</Typography>
-                    <Typography level="body-sm" color="neutral">
-                      Interactive API documentation (OpenAPI 3.0)
-                    </Typography>
-                  </Box>
-                  <Button
-                    component="a"
-                    href="/api-docs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    endDecorator={<OpenInNew />}
-                  >
-                    Open Docs
-                  </Button>
-                </Sheet>
-              </Box>
+              <DeveloperSettings />
             </TabPanel>
             <TabPanel value={4} sx={{ p: 0 }}>
               <AdminSettings />

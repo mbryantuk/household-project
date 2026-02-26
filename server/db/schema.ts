@@ -39,6 +39,8 @@ export const users = pgTable(
     currentChallenge: text('current_challenge'),
     resetToken: text('reset_token'),
     resetTokenExpires: timestamp('reset_token_expires'),
+    lastLoginIp: text('last_login_ip'),
+    allowedCountries: text('allowed_countries'), // JSON Array
     version: integer('version').default(1).notNull(),
 
     // LEGACY COLUMNS (Moved to user_profiles, but kept here to avoid blocking db:push)
@@ -229,5 +231,20 @@ export const featureFlags = pgTable('feature_flags', {
   rolloutPercentage: integer('rollout_percentage').default(0),
   criteria: jsonb('criteria'),
   updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const apiKeys = pgTable('api_keys', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  householdId: integer('household_id').references(() => households.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  keyHash: text('key_hash').notNull().unique(),
+  keyPrefix: text('key_prefix').notNull(), // first 8 chars
+  lastUsedAt: timestamp('last_used_at'),
+  expiresAt: timestamp('expires_at'),
+  isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
 });

@@ -1,46 +1,53 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+/**
+ * MODERN USER ACCESS CHECKER
+ * Item 5: Migrated from SQLite to Centralized PostgreSQL.
+ */
+import { db } from '../../server/db/index';
+import { users, userHouseholds, households, userProfiles } from '../../server/db/schema';
+import { eq } from 'drizzle-orm';
 
-const GLOBAL_DB_PATH = path.join(__dirname, '../../server/data/global.db');
 const USER_EMAIL = 'mbryantuk@gmail.com';
 
-const db = new sqlite3.Database(GLOBAL_DB_PATH, sqlite3.OPEN_READONLY, (err) => {
-  if (err) {
-    console.error('Failed to connect to Global DB:', err.message);
-    process.exit(1);
-  }
-});
-
-const query = `
-    SELECT 
-        u.email, 
-        u.first_name,
-        h.id as household_id, 
-        h.name as household_name, 
-        uh.role 
-    FROM users u
-    JOIN user_households uh ON u.id = uh.user_id
-    JOIN households h ON uh.household_id = h.id
-    WHERE u.email = ?
-`;
-
-db.all(query, [USER_EMAIL], (err, rows) => {
-  if (err) {
-    console.error('Query failed:', err.message);
-    process.exit(1);
-  }
-
-  console.log(`
-🔍 Access Report for: ${USER_EMAIL}`);
+async function checkAccess() {
+  console.log(`🔍 Access Report for: ${USER_EMAIL}`);
   console.log('='.repeat(50));
 
-  if (rows.length === 0) {
-    console.log('❌ No households found for this user.');
-  } else {
-    rows.forEach((row) => {
-      console.log(`🏠 [ID: ${row.household_id}] ${row.household_name} (${row.role})`);
-    });
+  try {
+    const results = await db
+      .select({
+        email: users.email,
+        firstName: userProfiles.firstName,
+        householdId: households.id,
+        householdName: households.name,
+        role: userHouseholds.role,
+      })
+      .from(users)
+      .leftJoin(userProfiles, eq(users.id, userProfiles.userId))
+      .innerJoin(userHouseholds, eq(users.id, userHouseholds.userId))
+      .innerJoin(households, eq(userHouseholds.householdId, households.id))
+      .where(eq(users.email, USER_EMAIL));
+
+    if (results.length === 0) {
+      console.log('❌ No households found for this user in PostgreSQL.');
+
+      // Check if user exists at all
+      const user = await db.select().from(users).where(eq(users.email, USER_EMAIL)).limit(1);
+      if (user.length === 0) {
+        console.log('❓ User does not exist in the Global Registry.');
+      } else {
+        console.log('✅ User exists but has no household associations.');
+      }
+    } else {
+      results.forEach((row) => {
+        console.log(`🏠 [ID: ${row.householdId}] ${row.householdName} (${row.role})`);
+      });
+    }
+  } catch (err) {
+    console.error('❌ Query failed:', err.message);
   }
+
   console.log('='.repeat(50));
-  db.close();
-});
+  process.exit(0);
+}
+
+checkAccess();

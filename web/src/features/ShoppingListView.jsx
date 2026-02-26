@@ -33,6 +33,7 @@ import { useTranslation } from 'react-i18next';
 import ReceiptImporter from './shopping/components/ReceiptImporter';
 import ShoppingSchedules from './shopping/components/ShoppingSchedules';
 import ShoppingTrends from './shopping/components/ShoppingTrends';
+import BarcodeScanner from './shopping/components/BarcodeScanner';
 import ModuleHeader from '../components/ui/ModuleHeader';
 import PullToRefresh from '../components/ui/PullToRefresh';
 import SwipeableListItem from '../components/ui/SwipeableListItem';
@@ -64,6 +65,7 @@ export default function ShoppingListView() {
   const [newItemQty, setNewItemQty] = useState('1');
   const [newItemCat, setNewItemCat] = useState('general');
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false);
   const [lastAddedId, setLastAddedId] = useState(null);
 
   // Budget State
@@ -208,9 +210,19 @@ export default function ShoppingListView() {
     return { total, checkedCount, progress };
   }, [items, budgetLimit]);
 
+  const handleBarcodeScan = (code) => {
+    setBarcodeScannerOpen(false);
+    setNewItemName(`Barcode: ${code}`);
+    showNotification(`Scanned ${code}. Fetching product info...`, 'info');
+    // Future: Call a UPC API to get the real name
+  };
+
   return (
     <PullToRefresh onRefresh={() => refetch()}>
       <Box data-testid="shopping-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
+        {barcodeScannerOpen && (
+          <BarcodeScanner onScan={handleBarcodeScan} onClose={() => setBarcodeScannerOpen(false)} />
+        )}
         <ModuleHeader
           title={t('nav.groceries')}
           titleTestId="shopping-heading"
@@ -321,6 +333,16 @@ export default function ShoppingListView() {
                   <Button type="submit" loading={mutations.addItem.isPending}>
                     <Add />
                   </Button>
+                  <IconButton
+                    variant="soft"
+                    color="primary"
+                    onClick={() => setBarcodeScannerOpen(true)}
+                    sx={{ display: { xs: 'flex', md: 'none' } }}
+                  >
+                    <Box component="span" sx={{ fontSize: '1.2rem' }}>
+                      📷
+                    </Box>
+                  </IconButton>
                 </Stack>
               </form>
             </Sheet>

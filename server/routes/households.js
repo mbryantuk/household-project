@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { households, userHouseholds, users } = require('../db/schema');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const { households, userHouseholds, users, userProfiles } = require('../db/schema');
 const { eq, ilike, and, sql } = require('drizzle-orm');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { auditLog } = require('../services/audit');
@@ -19,7 +21,10 @@ router.post('/', authenticateToken, async (req, res, next) => {
     if (!name) throw new AppError('Name required', 400);
 
     if (req.isDryRun) {
-      return response.success(res, { message: 'Dry run successful', data: { name, currency, is_test } });
+      return response.success(res, {
+        message: 'Dry run successful',
+        data: { name, currency, is_test },
+      });
     }
 
     const result = await req.ctx.db.transaction(async (tx) => {
@@ -105,32 +110,42 @@ router.put('/:id', authenticateToken, requireHouseholdRole('admin'), async (req,
 /**
  * GET /api/households/:id/backups (List)
  */
-router.get('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
-  try {
-    const { listBackups } = require('../services/backup');
-    const backups = await listBackups(req.params.id);
-    response.success(res, backups);
-  } catch (err) {
-    next(err);
+router.get(
+  '/:id/backups',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const { listBackups } = require('../services/backup');
+      const backups = await listBackups(req.params.id);
+      response.success(res, backups);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /**
  * POST /api/households/:id/backups (Create)
  */
-router.post('/:id/backups', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
-  try {
-    const { createBackup } = require('../services/backup');
-    const filename = await createBackup(req.params.id, {
-      source: 'User Triggered',
-      created_by: req.user.id,
-      exported_at: new Date().toISOString(),
-    });
-    response.success(res, { message: 'Backup created', filename });
-  } catch (err) {
-    next(err);
+router.post(
+  '/:id/backups',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const { createBackup } = require('../services/backup');
+      const filename = await createBackup(req.params.id, {
+        source: 'User Triggered',
+        created_by: req.user.id,
+        exported_at: new Date().toISOString(),
+      });
+      response.success(res, { message: 'Backup created', filename });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /**
  * DELETE /api/households/:id
@@ -156,76 +171,130 @@ router.delete('/:id', authenticateToken, requireHouseholdRole('admin'), async (r
 /**
  * POST /api/households/:id/select
  */
-router.post('/:id/select', authenticateToken, requireHouseholdRole('viewer'), async (req, res, next) => {
-  try {
-    const hhId = parseInt(req.params.id);
-    await req.ctx.db.update(users).set({ lastHouseholdId: hhId }).where(eq(users.id, req.user.id));
-    response.success(res, { message: 'Household selected' });
-  } catch (err) {
-    next(err);
+router.post(
+  '/:id/select',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  async (req, res, next) => {
+    try {
+      const hhId = parseInt(req.params.id);
+      await req.ctx.db
+        .update(users)
+        .set({ lastHouseholdId: hhId })
+        .where(eq(users.id, req.user.id));
+      response.success(res, { message: 'Household selected' });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /**
  * GET /api/households/:id/users
- * Item 161: Using DataLoader for batching.
  */
-router.get('/:id/users', authenticateToken, requireHouseholdRole('viewer'), async (req, res, next) => {
-  try {
-    const hhId = parseInt(req.params.id);
+router.get(
+  '/:id/users',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  async (req, res, next) => {
+    try {
+      const hhId = parseInt(req.params.id);
 
-    const links = await req.ctx.db
-      .select({
-        userId: userHouseholds.userId,
-        role: userHouseholds.role,
-        isActive: userHouseholds.isActive,
-        joinedAt: userHouseholds.joinedAt,
-      })
-      .from(userHouseholds)
-      .where(eq(userHouseholds.householdId, hhId));
+      const links = await req.ctx.db
+        .select({
+          userId: userHouseholds.userId,
+          role: userHouseholds.role,
+          isActive: userHouseholds.isActive,
+          joinedAt: userHouseholds.joinedAt,
+        })
+        .from(userHouseholds)
+        .where(eq(userHouseholds.householdId, hhId));
 
-    const userIds = links.map((l) => l.userId);
-    const userDatas = await req.ctx.loaders.getUsersLoader().loadMany(userIds);
+      const userIds = links.map((l) => l.userId);
+      const userDatas = await req.ctx.loaders.getUsersLoader().loadMany(userIds);
 
-    const results = links.map((link, idx) => ({
-      ...link,
-      user: userDatas[idx],
-    }));
+      const results = links.map((link, idx) => ({
+        ...link,
+        user: userDatas[idx],
+      }));
 
-    response.success(res, results);
-  } catch (err) {
-    next(err);
+      response.success(res, results);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 /**
  * POST /api/households/:id/users
+ * Item 180: Advanced Invite System
+ * Support adding existing users or creating new ones with temp passwords.
  */
-router.post('/:id/users', authenticateToken, requireHouseholdRole('admin'), async (req, res, next) => {
-  try {
-    const { email, role } = req.body;
-    const householdId = parseInt(req.params.id);
+router.post(
+  '/:id/users',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const { email, role, first_name, last_name, password: manualPassword } = req.body;
+      const householdId = parseInt(req.params.id);
 
-    const [user] = await req.ctx.db.select().from(users).where(ilike(users.email, email)).limit(1);
-    if (!user) throw new NotFoundError('User not found');
+      if (!email) throw new AppError('Email required', 400);
 
-    await req.ctx.db
-      .insert(userHouseholds)
-      .values({
-        userId: user.id,
-        householdId: householdId,
-        role: role || 'member',
-      })
-      .onConflictDoUpdate({
-        target: [userHouseholds.userId, userHouseholds.householdId],
-        set: { role: role || 'member', isActive: true },
+      let [targetUser] = await req.ctx.db
+        .select()
+        .from(users)
+        .where(ilike(users.email, email))
+        .limit(1);
+      let generatedPassword = null;
+
+      if (!targetUser) {
+        // Create new user if not found
+        const tempPass = manualPassword || crypto.randomBytes(6).toString('hex') + '!1A';
+        const passwordHash = bcrypt.hashSync(tempPass, 8);
+        generatedPassword = tempPass;
+
+        await req.ctx.db.transaction(async (tx) => {
+          const [newUser] = await tx
+            .insert(users)
+            .values({
+              email,
+              passwordHash,
+              defaultHouseholdId: householdId,
+              isActive: true,
+            })
+            .returning();
+
+          await tx.insert(userProfiles).values({
+            userId: newUser.id,
+            firstName: first_name || 'Member',
+            lastName: last_name || '',
+          });
+
+          targetUser = newUser;
+        });
+      }
+
+      await req.ctx.db
+        .insert(userHouseholds)
+        .values({
+          userId: targetUser.id,
+          householdId: householdId,
+          role: role || 'member',
+        })
+        .onConflictDoUpdate({
+          target: [userHouseholds.userId, userHouseholds.householdId],
+          set: { role: role || 'member', isActive: true },
+        });
+
+      response.success(res, {
+        message: generatedPassword ? 'New user created and invited' : 'Existing user invited',
+        generatedPassword,
       });
-
-    response.success(res, { message: 'User added/updated in household' });
-  } catch (err) {
-    next(err);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 module.exports = router;
-

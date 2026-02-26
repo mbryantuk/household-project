@@ -22,6 +22,9 @@ import {
   FormControl,
   FormLabel,
   Input,
+  LinearProgress,
+  Card,
+  CardContent,
 } from '@mui/joy';
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety';
 import Update from '@mui/icons-material/Update';
@@ -35,6 +38,9 @@ import Home from '@mui/icons-material/Home';
 import CloudDownload from '@mui/icons-material/CloudDownload';
 import DataObject from '@mui/icons-material/DataObject';
 import Add from '@mui/icons-material/Add';
+import Storage from '@mui/icons-material/Storage';
+import Memory from '@mui/icons-material/Memory';
+import SyncAlt from '@mui/icons-material/SyncAlt';
 
 import { useHousehold } from '../../context/HouseholdContext';
 import { APP_NAME, APP_VERSION } from '../../constants';
@@ -64,7 +70,11 @@ export default function AdminSettings() {
   const [versionHistory, setVersionHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // Health Check State
+  // System Health State (Item 228)
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [loadingHealth, setLoadingHealth] = useState(false);
+
+  // Health Check State (Diagnostic)
   const [healthOptions] = useState({
     skipDocker: true,
     skipBackend: false,
@@ -83,7 +93,7 @@ export default function AdminSettings() {
   const fetchTenants = useCallback(async () => {
     setLoadingTenants(true);
     try {
-      const res = await api.get('/admin/all-households');
+      const res = await api.get('/admin/households');
       setTenants(res.data);
     } catch {
       showNotification('Failed to fetch tenants.', 'danger');
@@ -95,7 +105,7 @@ export default function AdminSettings() {
   const fetchTestResults = useCallback(async () => {
     setLoadingTests(true);
     try {
-      const res = await api.get('/admin/test-results');
+      const res = await api.get('/admin/nightly-health');
       setTestResults(res.data);
     } catch {
       showNotification('Failed to fetch test results.', 'danger');
@@ -116,13 +126,24 @@ export default function AdminSettings() {
     }
   }, [api, showNotification]);
 
+  const fetchSystemHealth = useCallback(async () => {
+    setLoadingHealth(true);
+    try {
+      const res = await api.get('/admin/health/stats');
+      setSystemHealth(res.data);
+    } catch {
+      showNotification('Failed to fetch system health.', 'danger');
+    } finally {
+      setLoadingHealth(false);
+    }
+  }, [api, showNotification]);
+
   const onExportTenant = async (tenant) => {
     try {
       showNotification(`Preparing export for "${tenant.name}"...`, 'neutral');
       const res = await api.get(`/admin/households/${tenant.id}/export`);
       const filename = res.data.filename;
 
-      // Use axios to download with Auth header
       const downloadRes = await api.get(`/admin/backups/download/${filename}`, {
         responseType: 'blob',
       });
@@ -181,7 +202,7 @@ export default function AdminSettings() {
       `⚠️ DANGER: Are you sure you want to destroy tenant "${tenant.name}" (ID: ${tenant.id})? This will permanently delete ALL data, backups, and user associations. This cannot be undone.`,
       async () => {
         try {
-          await api.delete(`/households/${tenant.id}`);
+          await api.delete(`/admin/households/${tenant.id}`);
           showNotification(`Tenant "${tenant.name}" destroyed successfully.`, 'success');
           fetchTenants();
         } catch (err) {
@@ -213,8 +234,9 @@ export default function AdminSettings() {
   useEffect(() => {
     if (activeTab === 0) fetchTenants();
     if (activeTab === 1) fetchTestResults();
-    if (activeTab === 2) fetchVersionHistory();
-  }, [activeTab, fetchTenants, fetchTestResults, fetchVersionHistory]);
+    if (activeTab === 2) fetchSystemHealth();
+    if (activeTab === 3) fetchVersionHistory();
+  }, [activeTab, fetchTenants, fetchTestResults, fetchSystemHealth, fetchVersionHistory]);
 
   return (
     <Stack spacing={4}>
@@ -227,8 +249,9 @@ export default function AdminSettings() {
         <TabList variant="plain" sx={{ mb: 2 }}>
           <Tab value={0}>Tenants</Tab>
           <Tab value={1}>Nightly Health</Tab>
-          <Tab value={2}>Release Notes</Tab>
-          <Tab value={3}>About</Tab>
+          <Tab value={2}>System Health</Tab>
+          <Tab value={3}>Release Notes</Tab>
+          <Tab value={4}>About</Tab>
         </TabList>
 
         <TabPanel value={0}>
@@ -294,7 +317,7 @@ export default function AdminSettings() {
                         }}
                       >
                         <Typography level="body-xs">
-                          {new Date(t.created_at).toLocaleDateString()}
+                          {new Date(t.createdAt).toLocaleDateString()}
                         </Typography>
                       </td>
                       <td
@@ -303,8 +326,8 @@ export default function AdminSettings() {
                           borderBottom: '1px solid var(--joy-palette-divider)',
                         }}
                       >
-                        <Chip size="sm" variant="soft" color={t.is_test ? 'warning' : 'success'}>
-                          {t.is_test ? 'Test' : 'Production'}
+                        <Chip size="sm" variant="soft" color={t.isTest ? 'warning' : 'success'}>
+                          {t.isTest ? 'Test' : 'Production'}
                         </Chip>
                       </td>
                       <td
@@ -435,7 +458,7 @@ export default function AdminSettings() {
                           }}
                         >
                           <Typography level="body-xs">
-                            {new Date(r.created_at).toLocaleString()}
+                            {new Date(r.createdAt).toLocaleString()}
                           </Typography>
                         </td>
                         <td
@@ -445,7 +468,7 @@ export default function AdminSettings() {
                           }}
                         >
                           <Typography level="body-sm" sx={{ fontWeight: 'bold' }}>
-                            {r.suite_name}
+                            {r.suiteName}
                           </Typography>
                         </td>
                         <td
@@ -487,6 +510,98 @@ export default function AdminSettings() {
         <TabPanel value={2}>
           <Stack spacing={3}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography level="title-md">Infrastructure Real-time Metrics</Typography>
+              <Button
+                variant="soft"
+                color="primary"
+                startDecorator={<Update />}
+                onClick={fetchSystemHealth}
+                loading={loadingHealth}
+              >
+                Refresh
+              </Button>
+            </Box>
+
+            {systemHealth ? (
+              <Grid container spacing={3}>
+                <Grid xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography level="title-md" startDecorator={<Memory color="primary" />}>
+                        Redis
+                      </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography level="body-sm">Used Memory</Typography>
+                        <Typography level="body-sm" fontWeight="bold">
+                          {systemHealth.redis.used_memory}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography level="title-md" startDecorator={<SyncAlt color="success" />}>
+                        Background Jobs (BullMQ)
+                      </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Stack spacing={1}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography level="body-xs">Completed</Typography>
+                          <Typography level="body-xs" color="success">
+                            {systemHealth.jobs.completed}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography level="body-xs">Failed</Typography>
+                          <Typography level="body-xs" color="danger">
+                            {systemHealth.jobs.failed}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography level="body-xs">Active/Waiting</Typography>
+                          <Typography level="body-xs">
+                            {systemHealth.jobs.active + systemHealth.jobs.wait}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid xs={12} md={4}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography level="title-md" startDecorator={<Storage color="warning" />}>
+                        PostgreSQL
+                      </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography level="body-sm">Active Connections</Typography>
+                        <Typography level="body-sm" fontWeight="bold">
+                          {systemHealth.postgres.active_connections}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            ) : (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Typography level="body-sm" color="neutral">
+                  Click Refresh to load system health data.
+                </Typography>
+              </Box>
+            )}
+          </Stack>
+        </TabPanel>
+
+        <TabPanel value={3}>
+          <Stack spacing={3}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography level="title-md">Release Notes</Typography>
               <Button
                 variant="soft"
@@ -517,7 +632,7 @@ export default function AdminSettings() {
                         }}
                       >
                         <Typography level="body-xs">
-                          {new Date(v.created_at).toLocaleDateString()}
+                          {new Date(v.createdAt).toLocaleDateString()}
                         </Typography>
                       </td>
                       <td
@@ -546,7 +661,7 @@ export default function AdminSettings() {
           </Stack>
         </TabPanel>
 
-        <TabPanel value={3}>
+        <TabPanel value={4}>
           <Grid container spacing={3}>
             <Grid xs={12} md={7}>
               <Stack spacing={3}>
@@ -572,7 +687,7 @@ export default function AdminSettings() {
                     >
                       <b>Core Engine:</b> V{APP_VERSION}-STABLE
                       <b>Architecture:</b> Monolithic Stone
-                      <b>Database:</b> SQLite (Optimized for {APP_NAME} V4 Architecture)
+                      <b>Database:</b> PostgreSQL (Global) + SQLite (Tenant)
                     </Typography>
                   </Sheet>
                 </Box>
@@ -590,7 +705,7 @@ export default function AdminSettings() {
                     <br />
                     <b>Core Icons:</b> Google Material Symbols
                     <br />
-                    <b>Database:</b> SQLite (Optimized for {APP_NAME} V4 Architecture)
+                    <b>Database:</b> PostgreSQL & SQLite (Hybrid Multi-tenant)
                   </Typography>
                 </Box>
 

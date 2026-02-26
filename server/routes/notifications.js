@@ -25,9 +25,9 @@ router.get(
 
       // Grouping by type for UI consumption
       const categorized = {
-        urgent: rows.filter((n) => n.type === 'urgent'),
-        upcoming: rows.filter((n) => n.type === 'upcoming'),
-        info: rows.filter((n) => n.type === 'info' || !n.type),
+        urgent: rows.filter((n) => n.type === 'urgent' && !n.is_read),
+        upcoming: rows.filter((n) => n.type === 'upcoming' && !n.is_read),
+        info: rows.filter((n) => (n.type === 'info' || !n.type) && !n.is_read),
       };
 
       response.success(res, categorized);
@@ -54,6 +54,28 @@ router.post(
       );
       if (result.changes === 0) throw new NotFoundError('Notification not found');
       response.success(res, { message: 'Marked as read' });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * POST /api/households/:id/notifications/dismiss-all
+ */
+router.post(
+  '/dismiss-all',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      await dbRun(
+        req.tenantDb,
+        'UPDATE notifications SET is_read = 1, updated_at = CURRENT_TIMESTAMP WHERE household_id = ? AND is_read = 0',
+        [req.hhId]
+      );
+      response.success(res, { message: 'All notifications dismissed' });
     } catch (err) {
       next(err);
     }

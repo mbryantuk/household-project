@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Sheet, Grid, Button } from '@mui/joy';
+import { Box, Typography, Sheet, Grid, Button, Chip, Alert } from '@mui/joy';
+import { Build, Warning } from '@mui/icons-material';
+import { useQuery } from '@tanstack/react-query';
 import GenericObjectView from '../components/objects/GenericObjectView';
 
 const VEHICLE_TYPES = [
@@ -27,9 +29,22 @@ export default function VehiclesView() {
   const { vehicleId } = useParams();
   const isAdmin = currentUser?.role === 'admin';
 
+  // Fetch Maintenance Forecast (Item 224)
+  const { data: forecasts = [] } = useQuery({
+    queryKey: ['households', householdId, 'vehicles', 'forecast'],
+    queryFn: () =>
+      api.get(`/households/${householdId}/vehicles/forecast/maintenance`).then((res) => res.data),
+    enabled: !!householdId,
+  });
+
   const selectedVehicle = useMemo(
     () => vehicles.find((v) => v.id === parseInt(vehicleId)),
     [vehicles, vehicleId]
+  );
+
+  const selectedForecast = useMemo(
+    () => forecasts.find((f) => f.vehicleId === parseInt(vehicleId)),
+    [forecasts, vehicleId]
   );
 
   const groupedVehicles = useMemo(() => {
@@ -82,9 +97,27 @@ export default function VehiclesView() {
       gridSpan: { xs: 6, md: 3 },
     },
 
-    { type: 'header', label: 'Maintenance Schedule' },
+    { type: 'header', label: 'Maintenance & Usage (Item 224)' },
     { name: 'mot_due', label: 'MOT Due Date', type: 'date', gridSpan: { md: 4 } },
     { name: 'tax_due', label: 'Tax Due Date', type: 'date', gridSpan: { md: 4 } },
+    {
+      name: 'current_mileage',
+      label: 'Current Odometer',
+      type: 'number',
+      gridSpan: { xs: 12, md: 4 },
+    },
+    {
+      name: 'avg_monthly_mileage',
+      label: 'Avg. Monthly Miles',
+      type: 'number',
+      gridSpan: { xs: 6, md: 4 },
+    },
+    {
+      name: 'service_interval_miles',
+      label: 'Service Interval (Miles)',
+      type: 'number',
+      gridSpan: { xs: 6, md: 4 },
+    },
   ];
 
   const COST_SEGMENTS = [
@@ -147,34 +180,64 @@ export default function VehiclesView() {
               {type}s
             </Typography>
             <Grid container spacing={2}>
-              {groupVehicles.map((v) => (
-                <Grid xs={12} sm={6} md={4} key={v.id}>
-                  <Sheet
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      borderRadius: 'md',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s',
-                      '&:hover': { bgcolor: 'background.level1' },
-                    }}
-                    onClick={() => navigate(String(v.id))}
-                  >
-                    <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
-                    <Box>
-                      <Typography level="title-md" sx={{ fontWeight: 'lg' }}>
-                        {v.make} {v.model}
-                      </Typography>
-                      <Typography level="body-sm" color="neutral">
-                        {v.registration}
-                      </Typography>
-                    </Box>
-                  </Sheet>
-                </Grid>
-              ))}
+              {groupVehicles.map((v) => {
+                const forecast = forecasts.find((f) => f.vehicleId === v.id);
+                return (
+                  <Grid xs={12} sm={6} md={4} key={v.id}>
+                    <Sheet
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: 'md',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': { bgcolor: 'background.level1', boxShadow: 'sm' },
+                      }}
+                      onClick={() => navigate(String(v.id))}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box sx={{ fontSize: '2.5rem' }}>{v.emoji || '🚗'}</Box>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography level="title-md" sx={{ fontWeight: 'lg' }}>
+                            {v.make} {v.model}
+                          </Typography>
+                          <Typography level="body-xs" color="neutral">
+                            {v.registration}
+                          </Typography>
+                        </Box>
+                        {forecast?.isOverdue && (
+                          <Chip
+                            color="danger"
+                            variant="solid"
+                            size="sm"
+                            startDecorator={<Warning />}
+                          >
+                            Overdue
+                          </Chip>
+                        )}
+                      </Box>
+                      {forecast && (
+                        <Box sx={{ mt: 1, p: 1, bgcolor: 'background.level2', borderRadius: 'xs' }}>
+                          <Typography
+                            level="body-xs"
+                            startDecorator={<Build sx={{ fontSize: '0.75rem' }} />}
+                          >
+                            Next Service:{' '}
+                            <b>{new Date(forecast.predictedServiceDate).toLocaleDateString()}</b>
+                          </Typography>
+                          <Typography level="body-xs" color="neutral">
+                            Approx. {Math.max(0, forecast.milesToNextService).toLocaleString()}{' '}
+                            miles remaining
+                          </Typography>
+                        </Box>
+                      )}
+                    </Sheet>
+                  </Grid>
+                );
+              })}
             </Grid>
           </Box>
         ))}
@@ -183,28 +246,51 @@ export default function VehiclesView() {
   }
 
   return (
-    <GenericObjectView
-      key={vehicleId}
-      type="vehicle"
-      id={vehicleId}
-      householdId={householdId}
-      api={api}
-      endpoint={`/households/${householdId}/vehicles`}
-      initialData={selectedVehicle}
-      defaultValues={{ emoji: '🚗', type: 'Car', make: '', model: '' }}
-      fields={FIELDS}
-      costSegments={COST_SEGMENTS}
-      onSave={() => refreshSidebar()}
-      onDelete={() => {
-        refreshSidebar();
-        navigate('..');
-      }}
-      onCancel={() => navigate('..')}
-      scope={{ isAdmin, showNotification, confirmAction }}
-      title={(data) => (vehicleId === 'new' ? 'Add New Vehicle' : `${data.make} ${data.model}`)}
-      subtitle={
-        vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'
-      }
-    />
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      {selectedForecast && (
+        <Alert
+          variant="soft"
+          color={selectedForecast.isOverdue ? 'danger' : 'warning'}
+          startDecorator={selectedForecast.isOverdue ? <Warning /> : <Build />}
+          sx={{ mb: 1 }}
+        >
+          <Box sx={{ width: '100%' }}>
+            <Typography level="title-sm">
+              {selectedForecast.isOverdue
+                ? 'Maintenance Overdue'
+                : 'Upcoming Maintenance Prediction'}
+            </Typography>
+            <Typography level="body-sm" sx={{ mt: 0.5 }}>
+              Based on your average mileage, this vehicle will reach its service interval around{' '}
+              <b>{new Date(selectedForecast.predictedServiceDate).toLocaleDateString()}</b>.
+            </Typography>
+          </Box>
+        </Alert>
+      )}
+
+      <GenericObjectView
+        key={vehicleId}
+        type="vehicle"
+        id={vehicleId}
+        householdId={householdId}
+        api={api}
+        endpoint={`/households/${householdId}/vehicles`}
+        initialData={selectedVehicle}
+        defaultValues={{ emoji: '🚗', type: 'Car', make: '', model: '' }}
+        fields={FIELDS}
+        costSegments={COST_SEGMENTS}
+        onSave={() => refreshSidebar()}
+        onDelete={() => {
+          refreshSidebar();
+          navigate('..');
+        }}
+        onCancel={() => navigate('..')}
+        scope={{ isAdmin, showNotification, confirmAction }}
+        title={(data) => (vehicleId === 'new' ? 'Add New Vehicle' : `${data.make} ${data.model}`)}
+        subtitle={
+          vehicleId === 'new' ? 'Enter vehicle details below.' : 'View and manage vehicle details.'
+        }
+      />
+    </Box>
   );
 }

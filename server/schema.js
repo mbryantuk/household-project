@@ -136,6 +136,9 @@ const TENANT_SCHEMA = [
         depreciation_rate REAL,
         mot_due DATE,
         tax_due DATE,
+        current_mileage INTEGER,
+        avg_monthly_mileage INTEGER DEFAULT 1000,
+        service_interval_miles INTEGER DEFAULT 10000,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
   `CREATE TABLE IF NOT EXISTS vehicle_services (
@@ -208,6 +211,7 @@ const TENANT_SCHEMA = [
         household_id INTEGER,
         name TEXT,
         description TEXT,
+        ingredients TEXT, -- JSON Array of items
         emoji TEXT,
         category TEXT,
         last_prepared DATE
@@ -238,6 +242,33 @@ const TENANT_SCHEMA = [
         enabled_modules TEXT,
         purchase_price REAL DEFAULT 0,
         current_valuation REAL DEFAULT 0
+    )`,
+  `CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        account_id INTEGER,
+        date DATE,
+        description TEXT,
+        amount REAL,
+        category TEXT,
+        tags TEXT, -- Comma separated
+        is_reconciled INTEGER DEFAULT 0,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        deleted_at DATETIME,
+        version INTEGER DEFAULT 1
+    )`,
+  `CREATE TABLE IF NOT EXISTS webhooks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        url TEXT NOT NULL,
+        events TEXT, -- JSON Array of event names
+        secret TEXT,
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        deleted_at DATETIME
     )`,
   `CREATE TABLE IF NOT EXISTS energy_accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -614,6 +645,10 @@ function initializeHouseholdSchema(db) {
         ['recurring_costs', 'financial_profile_id', 'INTEGER'],
         ['assets', 'insurance_status', 'TEXT'],
         ['assets', 'monthly_maintenance_cost', 'REAL DEFAULT 0'],
+        ['meals', 'ingredients', 'TEXT'],
+        ['vehicles', 'current_mileage', 'INTEGER'],
+        ['vehicles', 'avg_monthly_mileage', 'INTEGER DEFAULT 1000'],
+        ['vehicles', 'service_interval_miles', 'INTEGER DEFAULT 10000'],
       ];
 
       migrations.forEach(([table, col, type]) => {
@@ -655,6 +690,8 @@ function initializeHouseholdSchema(db) {
         'water_accounts',
         'waste_accounts',
         'council_accounts',
+        'transactions',
+        'webhooks',
       ];
 
       allTenantTables.forEach((table) => {

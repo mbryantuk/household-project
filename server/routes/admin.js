@@ -137,7 +137,10 @@ router.get('/stats', async (req, res, next) => {
   try {
     const userCount = await req.ctx.db.select({ count: sql`count(*)` }).from(users);
     const hhCount = await req.ctx.db.select({ count: sql`count(*)` }).from(households);
-    response.success(res, { users: parseInt(userCount[0].count), households: parseInt(hhCount[0].count) });
+    response.success(res, {
+      users: parseInt(userCount[0].count),
+      households: parseInt(hhCount[0].count),
+    });
   } catch (err) {
     next(err);
   }
@@ -182,6 +185,44 @@ router.get('/version-history', async (req, res, next) => {
       .orderBy(desc(versionHistory.createdAt))
       .limit(10);
     response.success(res, history);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/admin/health/stats
+ * Item 228: System Health Metrics
+ */
+router.get('/health/stats', async (req, res, next) => {
+  try {
+    const { getMainQueue } = require('../services/queue');
+    const queue = getMainQueue();
+
+    // 1. BullMQ Stats
+    const counts = await queue.getJobCounts('wait', 'completed', 'failed', 'delayed', 'active');
+
+    // 2. Redis Memory
+    const redis = queue.client;
+    const info = await redis.info('memory');
+    const memoryMatch = info.match(/used_memory_human:([^\r\n]+)/);
+
+    // 3. PostgreSQL Pool
+    // In Drizzle/PG, we don't have direct access to the pool from the db object easily
+    // but we can query PG internal stats
+    const pgStats = await req.ctx.db.execute(
+      sql`SELECT count(*) FROM pg_stat_activity WHERE datname = current_database()`
+    );
+
+    response.success(res, {
+      jobs: counts,
+      redis: {
+        used_memory: memoryMatch ? memoryMatch[1] : 'unknown',
+      },
+      postgres: {
+        active_connections: parseInt(pgStats[0]?.count || 0),
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -235,7 +276,7 @@ router.get('/heapdump', requireAdminSignature, (req, res) => {
     v8.writeHeapSnapshot(filepath);
     res.download(filepath, filename, (err) => {
       if (err) req.ctx.logger.error('Heapdump download failed', err);
-      fs.unlink(filepath, () => {}); 
+      fs.unlink(filepath, () => {});
     });
   } catch (err) {
     res.status(500).json({ error: 'Heapdump failed: ' + err.message });
@@ -243,4 +284,3 @@ router.get('/heapdump', requireAdminSignature, (req, res) => {
 });
 
 module.exports = router;
-

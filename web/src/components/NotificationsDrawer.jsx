@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Drawer,
   Sheet,
@@ -12,7 +12,6 @@ import {
   Chip,
   Divider,
   Button,
-  Badge,
 } from '@mui/joy';
 import {
   Close,
@@ -30,21 +29,41 @@ export default function NotificationsDrawer({ open, onClose }) {
   const [notifications, setNotifications] = useState({ urgent: [], upcoming: [], info: [] });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (open && household?.id) {
+  const fetchNotifications = useCallback(() => {
+    if (household?.id) {
       api
         .get(`/households/${household.id}/notifications`)
         .then((res) => setNotifications(res.data))
         .catch(console.error);
     }
-  }, [open, household, api]);
+  }, [household, api]);
+
+  useEffect(() => {
+    if (open) {
+      fetchNotifications();
+    }
+  }, [open, fetchNotifications]);
 
   const handleItemClick = (n) => {
     onClose();
+    // Mark as read
+    api.post(`/households/${household.id}/notifications/${n.id}/read`).then(() => {
+      fetchNotifications();
+    });
+
     if (n.type === 'chore') navigate(`../chores`);
     if (n.type === 'bill') navigate(`../finance`);
     if (n.type === 'vehicle') navigate(`../vehicles/${n.id}`);
     if (n.type === 'event') navigate(`../calendar`);
+  };
+
+  const handleDismissAll = async () => {
+    try {
+      await api.post(`/households/${household.id}/notifications/dismiss-all`);
+      fetchNotifications();
+    } catch (err) {
+      console.error('Failed to dismiss all', err);
+    }
   };
 
   const renderSection = (title, items, color, icon) => {
@@ -72,7 +91,7 @@ export default function NotificationsDrawer({ open, onClose }) {
               <ListItemContent sx={{ cursor: 'pointer' }} onClick={() => handleItemClick(n)}>
                 <Typography level="title-sm">{n.title}</Typography>
                 <Typography level="body-xs">
-                  {n.message} • {new Date(n.date).toLocaleDateString()}
+                  {n.message} {n.created_at && `• ${new Date(n.created_at).toLocaleDateString()}`}
                 </Typography>
               </ListItemContent>
               {n.amount && (
@@ -150,12 +169,16 @@ export default function NotificationsDrawer({ open, onClose }) {
           )}
         </Box>
 
-        <Divider />
-        <Box sx={{ p: 2 }}>
-          <Button fullWidth variant="soft" color="neutral" onClick={onClose}>
-            Dismiss All
-          </Button>
-        </Box>
+        {totalCount > 0 && (
+          <>
+            <Divider />
+            <Box sx={{ p: 2 }}>
+              <Button fullWidth variant="soft" color="neutral" onClick={handleDismissAll}>
+                Dismiss All
+              </Button>
+            </Box>
+          </>
+        )}
       </Sheet>
     </Drawer>
   );

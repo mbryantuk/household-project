@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     container_name: hearth-db
+    command: ["postgres", "-c", "wal_level=replica", "-c", "archive_mode=on", "-c", "archive_command=test ! -f /var/lib/postgresql/data/archive/%f && cp %p /var/lib/postgresql/data/archive/%f"]
     environment:
       POSTGRES_USER: hearth_user
       POSTGRES_PASSWORD: hearth_password
@@ -38,9 +39,6 @@ services:
       - DATABASE_URL=postgres://hearth_user:hearth_password@db:5432/hearthstone
       - REDIS_URL=redis://redis:6379
       - ALLOWED_ORIGINS=https://hearthstone.mbryantuk.uk,http://localhost:4001,http://localhost:5173
-      - CLERK_PUBLISHABLE_KEY=pk_test_Y2xvc2luZy10ZXJyYXBpbi01Ni5jbGVyay5hY2NvdW50cy5kZXYk
-      - CLERK_SECRET_KEY=sk_test_J1AUPpcG7lgYRQAWhiLvsXOxbwtdfn0pp0KCCaUQ5f
-      - VITE_CLERK_PUBLISHABLE_KEY=pk_test_Y2xvc2luZy10ZXJyYXBpbi01Ni5jbGVyay5hY2NvdW50cy5kZXYk
 
 volumes:
   totem_db_data:

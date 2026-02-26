@@ -15,30 +15,52 @@ async function cleanupTestData() {
   try {
     const dbUrl = process.env.DATABASE_URL || require('../config').DATABASE_URL;
     let keepIds = [PERMANENT_HOUSEHOLD_ID];
-    let latestBrady = null;
     let skipDb = false;
 
     if (!dbUrl) {
-      console.log('⚠️ DATABASE_URL not set, skipping Postgres cleanup (useful after ephemeral testcontainers).');
+      console.log(
+        '⚠️ DATABASE_URL not set, skipping Postgres cleanup (useful after ephemeral testcontainers).'
+      );
       skipDb = true;
     }
 
     if (!skipDb) {
       try {
-        // 1. Identify the latest Brady household to preserve it
+        // 1. Identify households to preserve
+        // Latest Brady
         const bradyHouseholds = await db
           .select({ id: households.id })
           .from(households)
           .where(like(households.name, 'The Brady Bunch %'))
           .orderBy(desc(households.id))
           .limit(1);
+        if (bradyHouseholds.length > 0) keepIds.push(bradyHouseholds[0].id);
 
-        latestBrady = bradyHouseholds.length > 0 ? bradyHouseholds[0] : null;
+        // Diverse Profiles (Preserve the latest of each major type created by seed_diverse_households)
+        const diverseNames = [
+          'The High-Flyer',
+          'The Golden Years',
+          'The Wilson Hub',
+          'Roomies 101',
+          'The Miller Home',
+          'The Tech Duo',
+          'Green Pastures',
+          'First Nest',
+          'Global Base',
+          'The Ancestral Home',
+        ];
 
-        if (latestBrady) {
-          keepIds.push(latestBrady.id);
-          console.log(`📍 Preserving Latest Brady Household: ID ${latestBrady.id}`);
+        for (const namePrefix of diverseNames) {
+          const matched = await db
+            .select({ id: households.id })
+            .from(households)
+            .where(like(households.name, `${namePrefix}%`))
+            .orderBy(desc(households.id))
+            .limit(1);
+          if (matched.length > 0) keepIds.push(matched[0].id);
         }
+
+        console.log(`📍 Preserving ${keepIds.length} key households: ${keepIds.join(', ')}`);
 
         // 2. TAGGING: Mark any household NOT in the keep list as 'is_test = 1'
         await db
@@ -54,7 +76,6 @@ async function cleanupTestData() {
 
         if (householdsToDelete.length > 0) {
           const deleteIds = householdsToDelete.map((h) => h.id);
-
           await db.delete(userHouseholds).where(inArray(userHouseholds.householdId, deleteIds));
           await db.delete(households).where(inArray(households.id, deleteIds));
           console.log(`✅ Purged ${householdsToDelete.length} old test households.`);
@@ -63,30 +84,20 @@ async function cleanupTestData() {
         // 4. ORPHAN USERS: Purge test users except the primary maintainer
         const testUserPatterns = [
           like(users.email, 'ephemeral%'),
+          like(users.email, 'admin.%'),
           like(users.email, 'mike%'),
-          like(users.email, 'carol%'),
-          like(users.email, 'greg%'),
-          like(users.email, 'marcia%'),
-          like(users.email, 'peter%'),
-          like(users.email, 'jan%'),
-          like(users.email, 'bobby%'),
-          like(users.email, 'cindy%'),
           like(users.email, 'smoke%'),
           like(users.email, 'routing%'),
-          like(users.email, 'brady%'),
           like(users.email, 'test%'),
           eq(users.isTest, 1),
         ];
 
-        await db.delete(users).where(
-          and(
-            or(...testUserPatterns),
-            not(eq(users.email, MAINTAINED_USER_EMAIL))
-          )
-        );
+        await db
+          .delete(users)
+          .where(and(or(...testUserPatterns), not(eq(users.email, MAINTAINED_USER_EMAIL))));
         console.log(`✅ Purged orphan test user accounts.`);
       } catch (err) {
-        console.error('⚠️ DB Cleanup Failed (possibly due to ephemeral test db):', err.message);
+        console.error('⚠️ DB Cleanup Failed:', err.message);
         skipDb = true;
       }
     }
@@ -97,8 +108,6 @@ async function cleanupTestData() {
       if (!fs.existsSync(dir)) return;
       fs.readdirSync(dir).forEach((file) => {
         const fullPath = path.join(dir, file);
-
-        // Pattern for .db files
         const dbMatch = file.match(/^household_(\d+)\.db/);
         if (dbMatch) {
           const id = parseInt(dbMatch[1]);
@@ -111,23 +120,15 @@ async function cleanupTestData() {
             } catch (e) {}
           }
         }
-
-        // Pattern for .zip backup files
-        const zipMatch = file.match(/^household-(\d+)-backup-.*\.zip/);
-        if (zipMatch) {
-          const id = parseInt(zipMatch[1]);
-          if (!keepIds.includes(id)) {
-            try {
-              fs.unlinkSync(fullPath);
-            } catch (e) {}
-          }
-        }
       });
     });
 
     // 6. RESTORE PRIMARY ACCESS
     if (!skipDb) {
-      const targetUsers = await db.select({ id: users.id }).from(users).where(eq(users.email, MAINTAINED_USER_EMAIL));
+      const targetUsers = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, MAINTAINED_USER_EMAIL));
       if (targetUsers.length > 0) {
         const targetUser = targetUsers[0];
         for (const hhId of keepIds) {
@@ -139,12 +140,9 @@ async function cleanupTestData() {
               set: { role: 'admin', isActive: true },
             });
         }
-
-        // Default to latest Brady
-        if (latestBrady) {
-          await db.update(users).set({ lastHouseholdId: latestBrady.id }).where(eq(users.id, targetUser.id));
-        }
-        console.log(`🔗 Access verified for ${MAINTAINED_USER_EMAIL} to households: ${keepIds.join(', ')}`);
+        console.log(
+          `🔗 Access verified for ${MAINTAINED_USER_EMAIL} to ${keepIds.length} households.`
+        );
       }
     }
   } catch (err) {

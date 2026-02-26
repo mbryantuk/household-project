@@ -70,6 +70,13 @@ function initWorker() {
             break;
           }
 
+          case 'WEBHOOK_DELIVERY': {
+            const { deliverWebhook } = require('./webhook_dispatcher');
+            const { url, secret, eventName, payload } = job.data;
+            await deliverWebhook(url, secret, eventName, payload);
+            break;
+          }
+
           case 'REFRESH_MATERIALIZED_VIEWS': {
             const { db } = require('../db/index');
             const { sql } = require('drizzle-orm');
@@ -81,6 +88,18 @@ function initWorker() {
           case 'AUDIT_LOG_PERSIST':
             // Future: Move DB persistence of audit logs here if Postgres is slow
             break;
+
+          case 'FINANCE_OVERDRAFT_CHECK': {
+            const { checkUpcomingOverdrafts } = require('./finance_alerts');
+            await checkUpcomingOverdrafts(job.data.householdId);
+            break;
+          }
+
+          case 'S3_BACKUP': {
+            const { backupToS3 } = require('./s3_backup');
+            await backupToS3(job.data.householdId);
+            break;
+          }
 
           case 'SEND_EMAIL': {
             const { subject, text, to, userId, householdId } = job.data;

@@ -26,6 +26,7 @@ import {
   ListItem,
   Grid,
   Card,
+  Tooltip,
 } from '@mui/joy';
 import {
   ArrowBack,
@@ -37,6 +38,7 @@ import {
   Close,
   CheckCircle,
   MenuBook,
+  ShoppingCartCheckout,
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 import EmojiPicker from '../components/EmojiPicker';
@@ -64,6 +66,7 @@ export default function MealPlannerView() {
   const queryClient = useQueryClient();
 
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const startStr = formatDate(currentWeekStart);
   const endStr = formatDate(
@@ -175,6 +178,19 @@ export default function MealPlannerView() {
     } catch (err) {
       console.error('Failed to copy week', err);
       showNotification('Failed to copy previous week.', 'danger');
+    }
+  };
+
+  const handleSyncGroceries = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await api.post(`/households/${householdId}/meals/sync-groceries`);
+      showNotification(`Added ${res.data.addedCount} items to your shopping list!`, 'success');
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'shopping-list'] });
+    } catch {
+      showNotification('Failed to sync ingredients.', 'danger');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -394,6 +410,17 @@ export default function MealPlannerView() {
           }}
         >
           <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+            <Tooltip title="Populate Shopping List (Item 223)" variant="soft">
+              <Button
+                variant="soft"
+                color="primary"
+                startDecorator={<ShoppingCartCheckout />}
+                onClick={handleSyncGroceries}
+                loading={isSyncing}
+              >
+                Sync Groceries
+              </Button>
+            </Tooltip>
             <Button
               variant="outlined"
               color="neutral"

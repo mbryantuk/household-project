@@ -11,9 +11,13 @@ const { SECRET_KEY } = require('../config');
  */
 async function finalizeLogin(user, req, res, rememberMe = false, dbInstance = null) {
   const db = dbInstance || defaultDb;
-  
+
   try {
-    const [profile] = await db.select().from(userProfiles).where(eq(userProfiles.userId, user.id)).limit(1);
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id))
+      .limit(1);
 
     let householdId = user.lastHouseholdId || user.defaultHouseholdId;
     let userRole = 'member';
@@ -77,6 +81,19 @@ async function finalizeLogin(user, req, res, rememberMe = false, dbInstance = nu
     const duration = (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000;
     const expiresAt = new Date(Date.now() + duration);
 
+    // Item 233: Geographic Security Check
+    const { getCountryFromIP } = require('../utils/geo');
+    const country = getCountryFromIP(req.ip);
+    const allowed = user.allowedCountries ? JSON.parse(user.allowedCountries) : [];
+
+    if (allowed.length > 0 && !allowed.includes(country) && country !== 'LOCAL') {
+      const logger = req.ctx?.logger || console;
+      logger.warn(
+        `🚩 [SECURITY] Login from untrusted country: ${country} for ${user.email} (IP: ${req.ip})`
+      );
+      // We don't block by default, but we'll flag it in the session metadata
+    }
+
     await db.insert(userSessions).values({
       id: sessionId,
       userId: user.id,
@@ -85,6 +102,8 @@ async function finalizeLogin(user, req, res, rememberMe = false, dbInstance = nu
       userAgent: req.headers['user-agent'],
       expiresAt,
     });
+
+    await db.update(users).set({ lastLoginIp: req.ip }).where(eq(users.id, user.id));
 
     const tokenPayload = {
       id: user.id,
@@ -109,7 +128,9 @@ async function finalizeLogin(user, req, res, rememberMe = false, dbInstance = nu
 
     if (process.env.NODE_ENV !== 'test') {
       const logger = req.ctx?.logger || console;
-      logger.info(`🔑 [AUTH] Login Successful: ${user.email} (SID: ${sessionId.substring(0, 8)}...)`);
+      logger.info(
+        `🔑 [AUTH] Login Successful: ${user.email} (SID: ${sessionId.substring(0, 8)}...)`
+      );
     }
 
     const { success } = require('../utils/response');

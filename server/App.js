@@ -28,7 +28,9 @@ const compressionConfig = require('./middleware/compression');
 // Routes
 const authRoutes = require('./routes/auth');
 const passkeyRoutes = require('./routes/auth_passkeys');
+const apiKeyRoutes = require('./routes/api_keys');
 const householdRoutes = require('./routes/households');
+const publicCalendarFeed = require('./routes/calendar_feed');
 const memberRoutes = require('./routes/members');
 const adminRoutes = require('./routes/admin');
 const calendarRoutes = require('./routes/calendar');
@@ -41,9 +43,11 @@ const shoppingScheduleRoutes = require('./routes/shopping_schedules');
 const choresRoutes = require('./routes/chores');
 const notificationRoutes = require('./routes/notifications');
 const webhookRoutes = require('./routes/webhooks');
+const webhookConfigRoutes = require('./routes/webhook_configs');
 const systemRoutes = require('./routes/system');
 const assetsVehiclesRoutes = require('./routes/assets_vehicles');
 const utilityRoutes = require('./routes/utilities');
+const transactionRoutes = require('./routes/transactions');
 
 const app = express();
 
@@ -153,6 +157,7 @@ app.use((req, res, next) => {
 // 🚀 4. MOUNT API ROUTES
 const apiRouters = [
   { path: '/auth', router: authRoutes },
+  { path: '/auth/api-keys', router: apiKeyRoutes },
   { path: '/passkeys', router: passkeyRoutes },
   { path: '/admin', router: adminRoutes },
   { path: '/households/:hhId/finance/profiles', router: financeProfileRoutes },
@@ -165,6 +170,8 @@ const apiRouters = [
   { path: '/households/:hhId/shopping-list', router: shoppingRoutes },
   { path: '/households/:hhId/notifications', router: notificationRoutes },
   { path: '/households/:hhId/utilities', router: utilityRoutes },
+  { path: '/households/:hhId/transactions', router: transactionRoutes },
+  { path: '/households/:hhId/webhooks', router: webhookConfigRoutes },
   { path: '/households/:hhId', router: assetsVehiclesRoutes },
   { path: '/households', router: householdRoutes },
   { path: '/webhooks', router: webhookRoutes },
@@ -175,6 +182,9 @@ const apiRouters = [
 apiRouters.forEach((r) => {
   app.use(`/api${r.path}`, r.router);
 });
+
+// Public / Unauthenticated routes
+app.use('/api/public/calendar', publicCalendarFeed);
 
 app.get('/api/system/status', async (req, res) => {
   const { users: userTable } = require('./db/schema');

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../db/index');
-const { users, userSessions, userHouseholds } = require('../db/schema');
+const { users, userSessions, userHouseholds, apiKeys } = require('../db/schema');
 const { eq, and } = require('drizzle-orm');
 const config = require('../config');
 const pkg = require('../package.json');
@@ -11,6 +11,42 @@ const pkg = require('../package.json');
  */
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
+  const apiKeyHeader = req.headers['x-api-key'];
+
+  // Item 237: Support API Key
+  if (apiKeyHeader) {
+    try {
+      const keyHash = require('crypto').createHash('sha256').update(apiKeyHeader).digest('hex');
+      const [keyData] = await db
+        .select()
+        .from(apiKeys)
+        .where(and(eq(apiKeys.keyHash, keyHash), eq(apiKeys.isActive, true)))
+        .limit(1);
+
+      if (keyData) {
+        if (keyData.expiresAt && keyData.expiresAt < new Date()) {
+          return res.status(403).json({ error: 'API Key expired' });
+        }
+
+        // Update last used
+        db.update(apiKeys)
+          .set({ lastUsedAt: new Date() })
+          .where(eq(apiKeys.id, keyData.id))
+          .execute();
+
+        req.user = {
+          id: keyData.userId,
+          householdId: keyData.householdId,
+          role: 'admin',
+          isApiKey: true,
+        };
+        return next();
+      }
+    } catch (err) {
+      console.error('[AUTH] API Key verification failed:', err);
+    }
+  }
+
   // Item 130: Read from header or cookie
   const token = (authHeader && authHeader.split(' ')[1]) || req.cookies?.hearth_auth;
 

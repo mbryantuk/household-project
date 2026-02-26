@@ -1,8 +1,10 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-
-const DB_PATH = path.join(__dirname, '../../server/data/global.db');
-const db = new sqlite3.Database(DB_PATH);
+/**
+ * MODERN DASHBOARD LAYOUT MIGRATOR
+ * Item 20: Bento Box Grid System (v2)
+ */
+import { db } from '../../server/db/index';
+import { userProfiles } from '../../server/db/schema';
+import { sql } from 'drizzle-orm';
 
 const DEFAULT_LAYOUT = [
   { i: 'clock-1', x: 0, y: 0, w: 4, h: 4, type: 'clock' },
@@ -24,12 +26,21 @@ const DEFAULT_LAYOUT = [
 
 const layoutJson = JSON.stringify({ 1: DEFAULT_LAYOUT });
 
-console.log('🛠️ Migrating all users to new Bento Box Dashboard layout...');
+async function migrate() {
+  console.log('🛠️ Migrating all user profiles to new Bento Box Dashboard layout in PostgreSQL...');
 
-db.serialize(() => {
-  db.run('UPDATE users SET dashboard_layout = ?', [layoutJson], function (err) {
-    if (err) console.error('Migration Error:', err.message);
-    else console.log(`✅ Successfully updated ${this.changes} users to new layout.`);
-    db.close();
-  });
-});
+  try {
+    const result = await db.update(userProfiles).set({
+      dashboardLayout: layoutJson,
+      updatedAt: sql`CURRENT_TIMESTAMP`,
+    });
+
+    console.log(`✅ Successfully updated users to new layout.`);
+  } catch (err) {
+    console.error('❌ Migration Error:', err.message);
+  }
+
+  process.exit(0);
+}
+
+migrate();

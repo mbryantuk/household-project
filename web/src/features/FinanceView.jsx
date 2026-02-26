@@ -18,6 +18,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Tooltip,
 } from '@mui/joy';
 import {
   Payments,
@@ -33,6 +34,8 @@ import {
   DirectionsCar,
   Receipt,
   Add,
+  List as ListIcon,
+  PictureAsPdf,
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -50,6 +53,7 @@ import MortgagesView from './finance/MortgagesView';
 import VehicleFinanceView from './finance/VehicleFinanceView';
 import BudgetView from './finance/BudgetView';
 import ChargesView from './finance/ChargesView';
+import TransactionLedger from './finance/TransactionLedger';
 
 import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 import EmojiPicker from '../components/EmojiPicker';
@@ -73,6 +77,7 @@ export default function FinanceView() {
   const [openCreate, setOpenCreate] = useState(false);
   const [createEmoji, setCreateEmoji] = useState('💰');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   // 1. Auto-select default profile if none selected
   useEffect(() => {
@@ -117,6 +122,33 @@ export default function FinanceView() {
     }
   };
 
+  const handleDownloadReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      showNotification('Generating your monthly report PDF...', 'neutral');
+      const res = await api.get(`/households/${householdId}/finance/report`, {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().slice(0, 7);
+      link.setAttribute('download', `Hearthstone-Report-${dateStr}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      showNotification('Report downloaded successfully.', 'success');
+    } catch (err) {
+      console.error(err);
+      showNotification('Failed to generate report.', 'danger');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   const handleProfileSelect = (id) => {
     const newParams = new URLSearchParams(location.search);
     newParams.set('financial_profile_id', id);
@@ -144,6 +176,11 @@ export default function FinanceView() {
         label: 'Monthly Budget',
         icon: PieChart,
         desc: 'Analyze your financial health and spending limits.',
+      },
+      ledger: {
+        label: 'Transaction Ledger',
+        icon: ListIcon,
+        desc: 'Audit and reconcile all household transactions.',
       },
       charges: {
         label: 'Recurring Charges',
@@ -322,6 +359,7 @@ export default function FinanceView() {
     const props = { financialProfileId: profileParam };
 
     if (activeTabKey === 'budget') return <BudgetView {...props} />;
+    if (activeTabKey === 'ledger') return <TransactionLedger api={api} householdId={householdId} />;
     if (activeTabKey === 'charges') return <ChargesView {...props} />;
     if (activeTabKey === 'income') return <IncomeView {...props} />;
     if (activeTabKey === 'banking') return <BankingView {...props} />;
@@ -336,19 +374,32 @@ export default function FinanceView() {
   };
 
   const profileSwitcher = (
-    <Box sx={{ width: 200 }}>
-      <FinancialProfileSelector
-        profiles={profiles}
-        value={Number(profileParam)}
-        onChange={handleProfileSelect}
-        onProfileCreated={() =>
-          queryClient.invalidateQueries({
-            queryKey: ['households', householdId, 'finance-profiles'],
-          })
-        }
-        label={null}
-      />
-    </Box>
+    <Stack direction="row" spacing={2} alignItems="center">
+      <Tooltip title="Generate Monthly PDF Report (Item 222)" variant="soft">
+        <Button
+          variant="soft"
+          color="neutral"
+          startDecorator={<PictureAsPdf />}
+          onClick={handleDownloadReport}
+          loading={isGeneratingReport}
+        >
+          Report
+        </Button>
+      </Tooltip>
+      <Box sx={{ width: 200 }}>
+        <FinancialProfileSelector
+          profiles={profiles}
+          value={Number(profileParam)}
+          onChange={handleProfileSelect}
+          onProfileCreated={() =>
+            queryClient.invalidateQueries({
+              queryKey: ['households', householdId, 'finance-profiles'],
+            })
+          }
+          label={null}
+        />
+      </Box>
+    </Stack>
   );
 
   // Dashboard Grid View

@@ -9,7 +9,8 @@ const RUN_ID = Date.now();
 const DATE_STR = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 const HOUSEHOLD_NAME = `The Brady Bunch (API) v${VERSION} [${DATE_STR}]`;
 const ADMIN_EMAIL = `mike.brady.${RUN_ID}@test.com`;
-const PASSWORD = 'Password123!';
+// Item 131: Use env or non-sensitive default for tests
+const SEED_PASS = process.env.SEED_PASSWORD || 'BradyBunch123!';
 const PRIMARY_USER = 'mbryantuk@gmail.com';
 
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
@@ -72,7 +73,11 @@ function apiRequest(method, urlPath, data = null, token = null) {
           parsed = body;
         }
         if (res.statusCode >= 400) reject({ status: res.statusCode, data: parsed, path: urlPath });
-        else resolve({ status: res.statusCode, data: (parsed && parsed.success) ? parsed.data : parsed });
+        else
+          resolve({
+            status: res.statusCode,
+            data: parsed && parsed.success ? parsed.data : parsed,
+          });
       });
     });
     req.on('error', reject);
@@ -88,12 +93,12 @@ async function seed() {
     await apiRequest('POST', '/api/auth/register', {
       householdName: HOUSEHOLD_NAME,
       email: ADMIN_EMAIL,
-      password: PASSWORD,
+      password: SEED_PASS,
       is_test: 1,
     });
     const login = await apiRequest('POST', '/api/auth/login', {
       email: ADMIN_EMAIL,
-      password: PASSWORD,
+      password: SEED_PASS,
     });
     const token = login.data.token;
     const hhId =
@@ -103,7 +108,7 @@ async function seed() {
     await apiRequest(
       'POST',
       `/api/households/${hhId}/users`,
-      { email: PRIMARY_USER, role: 'admin', first_name: 'Matt', password: PASSWORD },
+      { email: PRIMARY_USER, role: 'admin', first_name: 'Matt', password: SEED_PASS },
       token
     );
 
@@ -242,7 +247,6 @@ async function seed() {
     );
 
     // 7. FINANCIAL ACCOUNTS
-    // Lower balance and add overdraft limit
     const bank1 = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/current-accounts`,
@@ -276,7 +280,6 @@ async function seed() {
 
     // 6. CONSOLIDATED RECURRING COSTS
     const costDefs = [
-      // Household Utility/Tax/Insurance (Paid from Bills Account)
       {
         n: 'Council Tax',
         a: 280,
@@ -316,8 +319,6 @@ async function seed() {
         m: { policy_number: 'H-9988-77', provider: 'State Farm' },
         ba: billsBankId,
       },
-
-      // Life Insurance (Paid from Main)
       {
         n: 'Life Insurance (Mike)',
         a: 40,
@@ -347,8 +348,6 @@ async function seed() {
         ot: 'household',
         ba: billsBankId,
       },
-
-      // Subscriptions & Tech (Main)
       {
         n: 'Netflix Premium',
         a: 18,
@@ -385,8 +384,6 @@ async function seed() {
         ot: 'household',
         ba: mainBankId,
       },
-
-      // Vehicle Costs (Tesla) - Main
       {
         n: 'Tesla Insurance',
         a: 120,
@@ -417,8 +414,6 @@ async function seed() {
         oi: v1.data.id,
         ba: mainBankId,
       },
-
-      // Vehicle Costs (Rivian) - Main
       {
         n: 'Rivian Insurance',
         a: 135,
@@ -449,8 +444,6 @@ async function seed() {
         oi: v2.data.id,
         ba: mainBankId,
       },
-
-      // Adults Fun Money - Main
       {
         n: 'Golf Club (Mike)',
         a: 150,
@@ -521,8 +514,6 @@ async function seed() {
         oi: members.Alice,
         ba: mainBankId,
       },
-
-      // Kids Pocket Money - Main
       {
         n: 'Pocket Money (Peter)',
         a: 25,
@@ -563,8 +554,6 @@ async function seed() {
         oi: members.Cindy,
         ba: mainBankId,
       },
-
-      // Pet Expenses - Main
       {
         n: 'Dog Food (Tiger)',
         a: 60,
@@ -625,8 +614,6 @@ async function seed() {
         oi: members.Fluffy,
         ba: mainBankId,
       },
-
-      // TRIGGER OVERDRAFT (Home Office Expansion)
       {
         n: 'Home Office Expansion Loan',
         a: 3200,
@@ -658,6 +645,64 @@ async function seed() {
       );
     }
 
+    // 6b. SEED NEW UTILITY TABLES
+    await apiRequest(
+      'POST',
+      `/api/households/${hhId}/utilities/energy`,
+      {
+        provider: 'Pacific Power',
+        type: 'Dual Fuel',
+        account_number: 'ELEC-222',
+        tariff_name: 'Brady Value Plan',
+        monthly_amount: 250,
+        payment_day: 20,
+        electric_meter_serial: 'M-123456',
+        gas_meter_serial: 'G-987654',
+      },
+      token
+    );
+
+    await apiRequest(
+      'POST',
+      `/api/households/${hhId}/utilities/water`,
+      {
+        provider: 'LA Water',
+        supply_type: 'Metered',
+        account_number: 'W-555-444',
+        meter_serial: 'H2O-555',
+        monthly_amount: 45,
+        payment_day: 15,
+      },
+      token
+    );
+
+    await apiRequest(
+      'POST',
+      `/api/households/${hhId}/utilities/waste`,
+      {
+        waste_type: 'Full Recycling & Trash',
+        frequency: 'Weekly',
+        collection_day: 'Tuesday',
+        monthly_amount: 35,
+        payment_day: 1,
+      },
+      token
+    );
+
+    await apiRequest(
+      'POST',
+      `/api/households/${hhId}/utilities/council`,
+      {
+        authority_name: 'Los Angeles County',
+        band: 'G',
+        account_number: 'LA-TAX-999',
+        payment_method: 'Direct Debit',
+        monthly_amount: 280,
+        payment_day: 1,
+      },
+      token
+    );
+
     // 6a. CALENDAR BIRTHDAYS
     await apiRequest(
       'POST',
@@ -672,7 +717,7 @@ async function seed() {
       token
     );
 
-    // Mike gets paid late in the month (28th) - but for THIS cycle (starting Jan 28) we assume he was JUST paid
+    // Mike gets paid late in the month (28th)
     const mikeInc = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/income`,
@@ -719,7 +764,6 @@ async function seed() {
     );
 
     // MARK MIKE'S INCOME AS PAID FOR THIS CYCLE
-    // This ensures the projection starts from the 3500 balance without adding 9500 on top
     await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/budget-progress`,
@@ -794,7 +838,7 @@ async function seed() {
       token
     );
 
-    // Individual Savings (No Pots)
+    // Individual Savings
     await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/savings`,
@@ -834,8 +878,7 @@ async function seed() {
       token
     );
 
-    // 7a. DEBT (Mortgages, Loans, Car Finance, Credit Cards)
-    // Mortgage
+    // DEBT
     const mortRes = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/mortgages`,
@@ -867,7 +910,6 @@ async function seed() {
       token
     );
 
-    // Personal Loan
     const loanRes = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/loans`,
@@ -891,7 +933,6 @@ async function seed() {
       token
     );
 
-    // Car Finance (Tesla)
     const carFinRes = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/vehicle-finance`,
@@ -917,7 +958,6 @@ async function seed() {
       token
     );
 
-    // Credit Cards
     const amexRes = await apiRequest(
       'POST',
       `/api/households/${hhId}/finance/credit-cards`,
@@ -962,7 +1002,7 @@ async function seed() {
       token
     );
 
-    // 8. MEALS & MEAL PLAN (2 MONTHS)
+    // MEALS
     const allRecipes = [
       { n: 'Meatloaf', e: '🍞', t: 'dinner' },
       { n: 'Spaghetti', e: '🍝', t: 'dinner' },
@@ -1000,14 +1040,11 @@ async function seed() {
       mealIds.push({ id: res.data.id, type: r.t });
     }
 
-    // Generate Plan for 60 Days
     const startDate = new Date();
     for (let i = 0; i < 60; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-
-      // Dinner (Every night)
       const dinner = mealIds.filter((m) => m.type === 'dinner')[
         Math.floor(Math.random() * mealIds.filter((m) => m.type === 'dinner').length)
       ];
@@ -1017,8 +1054,6 @@ async function seed() {
         { date: dateStr, meal_id: dinner.id, type: 'dinner', member_id: members.Alice },
         token
       );
-
-      // Breakfast (Weekends only for big meals, else cereal implicitly)
       if (date.getDay() === 0 || date.getDay() === 6) {
         const breakfast = mealIds.filter((m) => m.type === 'breakfast')[
           Math.floor(Math.random() * mealIds.filter((m) => m.type === 'breakfast').length)
@@ -1032,7 +1067,7 @@ async function seed() {
       }
     }
 
-    // 9. CHORES
+    // CHORES
     const choreDefs = [
       { n: 'Mow the Lawn', d: 'Front and back yard', a: 'Greg', f: 'weekly', v: 10, e: '🌱' },
       { n: 'Wash the Car', d: 'Wash the Station Wagon', a: 'Peter', f: 'weekly', v: 5, e: '🚗' },
@@ -1070,7 +1105,7 @@ async function seed() {
       );
     }
 
-    // 10. SHOPPING LIST
+    // SHOPPING
     const shoppingItems = [
       { n: 'Milk (3 Gallons)', c: 'dairy', q: '3', v: 12 },
       { n: 'Eggs (2 Dozen)', c: 'dairy', q: '2', v: 8 },
@@ -1089,12 +1124,7 @@ async function seed() {
       await apiRequest(
         'POST',
         `/api/households/${hhId}/shopping-list`,
-        {
-          name: item.n,
-          category: item.c,
-          quantity: item.q,
-          estimated_cost: item.v,
-        },
+        { name: item.n, category: item.c, quantity: item.q, estimated_cost: item.v },
         token
       );
     }

@@ -31,6 +31,7 @@ import EmojiPicker from '../../components/EmojiPicker';
 import ModuleHeader from '../../components/ui/ModuleHeader';
 import FinanceCard from '../../components/ui/FinanceCard';
 import CopyToClipboard from '../../components/ui/CopyToClipboard';
+import SensitiveField from '../../components/ui/SensitiveField';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -417,19 +418,13 @@ export default function BankingView({ financialProfileId }) {
                   <Typography level="body-xs" color="neutral">
                     Sort Code
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography level="body-sm">{a.sort_code || '-'}</Typography>
-                    {a.sort_code && <CopyToClipboard value={a.sort_code} size="sm" />}
-                  </Box>
+                  <SensitiveField value={a.sort_code} />
                 </Grid>
                 <Grid xs={6}>
                   <Typography level="body-xs" color="neutral">
                     Account No
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography level="body-sm">{a.account_number || '-'}</Typography>
-                    {a.account_number && <CopyToClipboard value={a.account_number} size="sm" />}
-                  </Box>
+                  <SensitiveField value={a.account_number} />
                 </Grid>
               </Grid>
             </FinanceCard>

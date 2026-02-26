@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Hearthstone Pro API",
-    "version": "3.2.395",
+    "version": "3.3.0",
     "description": "Mission-critical multi-tenant household management API. Features strict physical data isolation, distributed tracing, and real-time telemetry.",
     "contact": {
       "name": "Lead Architect",

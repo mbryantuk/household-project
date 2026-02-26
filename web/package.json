@@ -1,7 +1,7 @@
 {
   "name": "household-web",
   "private": true,
-  "version": "3.2.451",
+  "version": "3.3.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,10 +27,12 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "emoji-picker-react": "^4.16.1",
+    "html5-qrcode": "^2.3.8",
     "i18next": "^25.8.13",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-http-backend": "^3.0.2",
     "kbar": "^0.1.0-beta.48",
+    "posthog-js": "^1.356.0",
     "react": "^18.3.1",
     "react-big-calendar": "^1.19.4",
     "react-dom": "^18.3.1",
