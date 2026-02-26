@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/joy';
-import { Slide } from '@mui/material';
 import { WifiOff } from '@mui/icons-material';
 
 /**
@@ -24,30 +23,30 @@ export default function NetworkStatusBanner() {
   }, []);
 
   return (
-    <Slide in={isOffline} direction="down">
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 11000, // Above everything
-          bgcolor: 'danger.solidBg',
-          color: 'danger.contrastText',
-          py: 1,
-          px: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 1.5,
-          boxShadow: 'md',
-        }}
-      >
-        <WifiOff sx={{ fontSize: '1.2rem' }} />
-        <Typography level="body-sm" sx={{ color: 'inherit', fontWeight: 'bold' }}>
-          Network Connection Lost. Working in Offline Mode.
-        </Typography>
-      </Box>
-    </Slide>
+    <Box
+      sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 11000, // Above everything
+        bgcolor: 'danger.solidBg',
+        color: 'danger.contrastText',
+        py: 1,
+        px: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1.5,
+        boxShadow: 'md',
+        transform: isOffline ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.3s ease-in-out',
+      }}
+    >
+      <WifiOff sx={{ fontSize: '1.2rem' }} />
+      <Typography level="body-sm" sx={{ color: 'inherit', fontWeight: 'bold' }}>
+        Network Connection Lost. Working in Offline Mode.
+      </Typography>
+    </Box>
   );
 }
