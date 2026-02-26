@@ -1,4 +1,4 @@
 {
-  "commitMessage": "feat: implement phase 13 usability polish and remove clerk auth dependency",
-  "date": "Thu 26 Feb 13:20:37 GMT 2026"
+  "commitMessage": "fix: resolve crash in ChoresView by removing useBlocker (take 2)",
+  "date": "Thu 26 Feb 13:56:51 GMT 2026"
 }

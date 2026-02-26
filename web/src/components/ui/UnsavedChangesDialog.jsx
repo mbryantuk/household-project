@@ -15,6 +15,7 @@ import {
  * @param {object} blocker - The blocker object from react-router-dom useBlocker.
  */
 export default function UnsavedChangesDialog({ blocker }) {
+  if (!blocker) return null;
   const isBlocked = blocker.state === 'blocked';
 
   return (

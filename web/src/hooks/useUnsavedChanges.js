@@ -1,9 +1,8 @@
-import { useEffect, useCallback } from 'react';
-import { useBlocker } from 'react-router-dom';
+import { useEffect } from 'react';
 
 /**
  * Hook to prevent accidental navigation when a form is dirty.
- * Handles both browser-level (refresh/close) and React Router navigation.
+ * Handles browser-level (refresh/close).
  *
  * @param {boolean} isDirty - Whether the form has unsaved changes.
  * @param {string} message - Optional message for the browser's native dialog.
@@ -26,15 +25,5 @@ export default function useUnsavedChanges(
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty, message]);
 
-  // 2. React Router internal navigation warning
-  const blocker = useBlocker(
-    useCallback(
-      ({ currentLocation, nextLocation }) => {
-        return isDirty && currentLocation.pathname !== nextLocation.pathname;
-      },
-      [isDirty]
-    )
-  );
-
-  return blocker;
+  return null;
 }
