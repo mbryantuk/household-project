@@ -1,8 +1,20 @@
 const { users, households, userHouseholds } = require('./db/schema');
-const { eq, and, desc } = require('drizzle-orm');
+const { eq, and, desc, sql } = require('drizzle-orm');
 
 async function bootstrap(db) {
   try {
+    // Ensure Materialized View exists
+    await db.execute(sql`
+      CREATE MATERIALIZED VIEW IF NOT EXISTS audit_log_stats AS
+      SELECT 
+        household_id, 
+        action, 
+        COUNT(*) as action_count,
+        MAX(created_at) as last_action_at
+      FROM audit_logs
+      GROUP BY household_id, action
+    `);
+
     const adminEmail = 'mbryantuk@gmail.com';
 
     // 1. Find User

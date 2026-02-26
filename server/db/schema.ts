@@ -37,7 +37,21 @@ export const users = pgTable(
     mfaEnabled: boolean('mfa_enabled').default(false),
     mfaSecret: text('mfa_secret'),
     currentChallenge: text('current_challenge'),
+    resetToken: text('reset_token'),
+    resetTokenExpires: timestamp('reset_token_expires'),
     version: integer('version').default(1).notNull(),
+
+    // LEGACY COLUMNS (Moved to user_profiles, but kept here to avoid blocking db:push)
+    firstName: text('first_name'),
+    lastName: text('last_name'),
+    avatar: text('avatar'),
+    dashboardLayout: text('dashboard_layout'),
+    stickyNote: text('sticky_note'),
+    budgetSettings: text('budget_settings'),
+    theme: text('theme'),
+    customTheme: text('custom_theme'),
+    mode: text('mode'),
+
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
     deletedAt: timestamp('deleted_at'),
@@ -217,14 +231,3 @@ export const featureFlags = pgTable('feature_flags', {
   updatedAt: timestamp('updated_at').defaultNow(),
   createdAt: timestamp('created_at').defaultNow(),
 });
-
-export const auditLogStats = sql`
-  CREATE MATERIALIZED VIEW IF NOT EXISTS audit_log_stats AS
-  SELECT 
-    household_id, 
-    action, 
-    COUNT(*) as action_count,
-    MAX(created_at) as last_action_at
-  FROM audit_logs
-  GROUP BY household_id, action;
-`;

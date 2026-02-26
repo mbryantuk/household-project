@@ -82,6 +82,31 @@ function initWorker() {
             // Future: Move DB persistence of audit logs here if Postgres is slow
             break;
 
+          case 'SEND_EMAIL': {
+            const { subject, text, to, userId, householdId } = job.data;
+            let targetEmail = to;
+
+            if (!targetEmail && userId) {
+              const { db } = require('../db/index');
+              const { users } = require('../db/schema');
+              const { eq } = require('drizzle-orm');
+              const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+              if (user) targetEmail = user.email;
+            }
+
+            if (!targetEmail) {
+              logger.error(`[WORKER] Cannot send email ${job.id}: No target email or userId`);
+              break;
+            }
+
+            logger.info(`📧 [EMAIL] To: ${targetEmail} | Subject: ${subject}`);
+            logger.debug(`[EMAIL] Body: ${text}`);
+
+            // Real implementation would use nodemailer or an API (SendGrid, Postmark)
+            // For now, we simulate success
+            break;
+          }
+
           default:
             logger.warn(`[WORKER] Unknown job type: ${job.name}`);
         }

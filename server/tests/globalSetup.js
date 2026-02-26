@@ -28,9 +28,9 @@ module.exports = async () => {
   process.env.DATABASE_URL = uri;
   global.__PG_CONTAINER__ = container;
 
-  // Run Drizzle Migrations against the ephemeral container
+  // Run Drizzle Schema Push against the ephemeral container
   console.log(`Pushing schema to test DB: ${uri}`);
-  execSync('npx drizzle-kit push', {
+  execSync('npm run db:push', {
     env: { ...process.env, DATABASE_URL: uri },
     stdio: 'inherit',
   });

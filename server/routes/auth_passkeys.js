@@ -6,18 +6,21 @@ const {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } = require('@simplewebauthn/server');
-const { globalDb, dbRun, dbGet, dbAll } = require('../db');
-const jwt = require('jsonwebtoken');
-const { SECRET_KEY, authenticateToken } = require('../middleware/auth');
+const { db } = require('../db/index');
+const { users, passkeys } = require('../db/schema');
+const { eq, and } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/auth');
 const base64url = require('base64url');
 const { finalizeLogin } = require('../services/auth');
+const redis = require('../services/redis');
+const logger = require('../utils/logger');
+const response = require('../utils/response');
 
-const RP_NAME = 'Hearth Household';
+const RP_NAME = 'Hearthstone';
 
 // Helper to determine RP_ID and Origin dynamically
 const getRpConfig = (req) => {
   const rpID = process.env.RP_ID || req.hostname;
-  // Try to get Origin, if not found, use Referer, otherwise fallback to hostname
   let origin = req.get('Origin') || req.get('Referer');
   if (origin) {
     try {
@@ -36,26 +39,18 @@ const getRpConfig = (req) => {
   return { rpID, origin };
 };
 
-// --- CHALLENGE STORAGE (Multi-instance safe) ---
+// --- CHALLENGE STORAGE (Using Redis) ---
 
 const saveChallenge = async ({ challenge, userId = null, email = null }) => {
-  await dbRun(
-    globalDb,
-    `INSERT INTO user_challenges (challenge, user_id, email, expires_at) 
-         VALUES (?, ?, ?, datetime('now', '+10 minutes'))`,
-    [challenge, userId, email]
-  );
+  const key = userId ? `webauthn:challenge:user:${userId}` : `webauthn:challenge:email:${email}`;
+  await redis.set(key, challenge, 'EX', 600); // 10 mins
 };
 
 const verifyAndConsumeChallenge = async ({ challenge, userId = null, email = null }) => {
-  const sql = userId
-    ? `SELECT * FROM user_challenges WHERE challenge = ? AND user_id = ? AND expires_at > datetime('now')`
-    : `SELECT * FROM user_challenges WHERE challenge = ? AND email = ? AND expires_at > datetime('now')`;
-  const params = userId ? [challenge, userId] : [challenge, email];
-
-  const row = await dbGet(globalDb, sql, params);
-  if (row) {
-    await dbRun(globalDb, `DELETE FROM user_challenges WHERE challenge = ?`, [challenge]);
+  const key = userId ? `webauthn:challenge:user:${userId}` : `webauthn:challenge:email:${email}`;
+  const saved = await redis.get(key);
+  if (saved === challenge) {
+    await redis.del(key);
     return true;
   }
   return false;
@@ -65,63 +60,29 @@ const verifyAndConsumeChallenge = async ({ challenge, userId = null, email = nul
 const extractChallenge = (payload) => {
   try {
     if (!payload || !payload.response || !payload.response.clientDataJSON) {
-      console.error(
-        '❌ [AUTH_PASSKEYS] Missing clientDataJSON in payload:',
-        JSON.stringify(payload)
-      );
       return null;
     }
     const clientDataJSON = payload.response.clientDataJSON;
     const decoded = JSON.parse(base64url.decode(clientDataJSON));
     return decoded.challenge;
   } catch (err) {
-    console.error('❌ [AUTH_PASSKEYS] Challenge extraction error:', err.message);
+    logger.error('❌ [AUTH_PASSKEYS] Challenge extraction error:', err.message);
     return null;
   }
 };
 
-// Helper to get user by ID
-const getUser = (id) => dbGet(globalDb, 'SELECT * FROM users WHERE id = ?', [id]);
-
-// Helper to get user by Email
-const getUserByEmail = (email) => dbGet(globalDb, 'SELECT * FROM users WHERE email = ?', [email]);
-
-// Helper to get user passkeys
-const getUserPasskeys = (userId) =>
-  dbAll(globalDb, 'SELECT * FROM passkeys WHERE user_id = ?', [userId]);
-
-// Helper to save passkey
-const savePasskey = (passkey) => {
-  const sql = `INSERT INTO passkeys (id, user_id, webauthn_user_id, public_key, counter, device_type, backed_up, transports) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-  const params = [
-    passkey.id,
-    passkey.userID,
-    passkey.webAuthnUserID,
-    passkey.publicKey,
-    passkey.counter,
-    passkey.deviceType,
-    passkey.backedUp ? 1 : 0,
-    JSON.stringify(passkey.transports),
-  ];
-  return dbRun(globalDb, sql, params);
-};
-
-// Helper to update passkey counter
-const updatePasskeyCounter = (id, counter) => {
-  return dbRun(
-    globalDb,
-    'UPDATE passkeys SET counter = ?, last_used_at = CURRENT_TIMESTAMP WHERE id = ?',
-    [counter, id]
-  );
-};
-
 // --- REGISTRATION ---
 
-router.get('/register/options', authenticateToken, async (req, res) => {
+/**
+ * GET /api/passkeys/register/options
+ * Generates options for creating a new passkey.
+ */
+router.get('/register/options', authenticateToken, async (req, res, next) => {
   try {
-    const user = await getUser(req.user.id);
-    const userPasskeys = await getUserPasskeys(user.id);
+    const [user] = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.userId, user.id));
     const { rpID } = getRpConfig(req);
 
     const options = await generateRegistrationOptions({
@@ -137,24 +98,25 @@ router.get('/register/options', authenticateToken, async (req, res) => {
       authenticatorSelection: {
         residentKey: 'preferred',
         userVerification: 'preferred',
-        // authenticatorAttachment: 'platform', // Allow cross-platform (roaming) authenticators
       },
     });
 
     await saveChallenge({ challenge: options.challenge, userId: user.id });
     res.json(options);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-router.post('/register/verify', authenticateToken, async (req, res) => {
+/**
+ * POST /api/passkeys/register/verify
+ * Verifies the response from the authenticator and saves the new passkey.
+ */
+router.post('/register/verify', authenticateToken, async (req, res, next) => {
   try {
-    const user = await getUser(req.user.id);
     const challenge = extractChallenge(req.body);
 
-    if (!challenge || !(await verifyAndConsumeChallenge({ challenge, userId: user.id }))) {
+    if (!challenge || !(await verifyAndConsumeChallenge({ challenge, userId: req.user.id }))) {
       return res.status(400).json({ verified: false, error: 'Challenge expired or invalid' });
     }
 
@@ -179,38 +141,41 @@ router.post('/register/verify', authenticateToken, async (req, res) => {
         verification.registrationInfo;
       const { publicKey, id, counter } = credential;
 
-      await savePasskey({
-        id, // SimpleWebAuthn v13 returns base64url string
-        userID: user.id,
-        webAuthnUserID: user.id,
+      await db.insert(passkeys).values({
+        id,
+        userId: req.user.id,
+        webauthnUserId: String(req.user.id),
         publicKey: Buffer.from(publicKey).toString('base64'),
         counter,
         deviceType: credentialDeviceType,
         backedUp: credentialBackedUp,
-        transports: req.body.response.transports,
+        transports: JSON.stringify(req.body.response.transports || []),
       });
 
-      res.json({ verified: true });
+      response.success(res, { verified: true });
     } else {
       res.status(400).json({ verified: false, error: 'Verification failed' });
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // --- AUTHENTICATION ---
 
-router.get('/login/options', async (req, res) => {
+/**
+ * GET /api/passkeys/login/options
+ * Generates options for logging in with a passkey.
+ */
+router.get('/login/options', async (req, res, next) => {
   try {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: 'Email required' });
 
-    const user = await getUserByEmail(email);
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const userPasskeys = await getUserPasskeys(user.id);
+    const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.userId, user.id));
     if (userPasskeys.length === 0)
       return res.status(400).json({ error: 'No passkeys found for this user' });
 
@@ -228,29 +193,32 @@ router.get('/login/options', async (req, res) => {
     await saveChallenge({ challenge: options.challenge, email: user.email });
     res.json(options);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-router.post('/login/verify', async (req, res) => {
+/**
+ * POST /api/passkeys/login/verify
+ * Verifies the passkey login response.
+ */
+router.post('/login/verify', async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await getUserByEmail(email);
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const challenge = extractChallenge(req.body);
     if (!challenge || !(await verifyAndConsumeChallenge({ challenge, email: user.email }))) {
-      console.error(
-        `❌ [PASSKEY LOGIN] Challenge verification failed for ${user.email}. Challenge: ${challenge}`
-      );
       return res.status(400).json({ verified: false, error: 'Challenge expired or invalid' });
     }
 
-    const userPasskeys = await getUserPasskeys(user.id);
-    const passkey = userPasskeys.find((pk) => pk.id === req.body.id);
+    const [passkey] = await db
+      .select()
+      .from(passkeys)
+      .where(and(eq(passkeys.id, req.body.id), eq(passkeys.userId, user.id)))
+      .limit(1);
+
     if (!passkey) {
-      console.error(`❌ [PASSKEY LOGIN] Passkey not found for user ${user.id}. ID: ${req.body.id}`);
       return res.status(400).json({ error: 'Passkey not matched' });
     }
 
@@ -270,7 +238,7 @@ router.post('/login/verify', async (req, res) => {
       expectedRPID: rpID,
       credential: {
         id: passkey.id,
-        publicKey: Buffer.from(passkey.public_key, 'base64'),
+        publicKey: Buffer.from(passkey.publicKey, 'base64'),
         counter: passkey.counter,
         transports: passkey.transports ? JSON.parse(passkey.transports) : undefined,
       },
@@ -278,55 +246,56 @@ router.post('/login/verify', async (req, res) => {
 
     if (verification.verified) {
       const { newCounter } = verification.authenticationInfo;
-      await updatePasskeyCounter(passkey.id, newCounter);
+      await db
+        .update(passkeys)
+        .set({ counter: newCounter, lastUsedAt: new Date() })
+        .where(eq(passkeys.id, passkey.id));
 
-      // Use shared login finalization logic
       await finalizeLogin(user, req, res, req.body.rememberMe || false);
     } else {
-      console.error(
-        `❌ [PASSKEY LOGIN] Verification failed for ${user.email}. Info:`,
-        JSON.stringify(verification)
-      );
       res.status(400).json({ verified: false, error: 'Verification failed' });
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-// List passkeys
-router.get('/', authenticateToken, async (req, res) => {
+/**
+ * GET /api/passkeys
+ * Lists all passkeys for the current user.
+ */
+router.get('/', authenticateToken, async (req, res, next) => {
   try {
-    const passkeys = await getUserPasskeys(req.user.id);
-    res.json(
-      passkeys.map((pk) => ({
+    const results = await db.select().from(passkeys).where(eq(passkeys.userId, req.user.id));
+    response.success(
+      res,
+      results.map((pk) => ({
         id: pk.id,
-        created_at: pk.created_at,
-        last_used_at: pk.last_used_at,
-        device_type: pk.device_type,
+        createdAt: pk.createdAt,
+        lastUsedAt: pk.lastUsedAt,
+        deviceType: pk.deviceType,
       }))
     );
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-// Delete passkey
-router.delete('/:id', authenticateToken, async (req, res) => {
+/**
+ * DELETE /api/passkeys/:id
+ * Deletes a passkey.
+ */
+router.delete('/:id', authenticateToken, async (req, res, next) => {
   try {
     const { id } = req.params;
-    globalDb.run(
-      'DELETE FROM passkeys WHERE id = ? AND user_id = ?',
-      [id, req.user.id],
-      function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: 'Passkey not found' });
-        res.json({ success: true });
-      }
-    );
+    const result = await db
+      .delete(passkeys)
+      .where(and(eq(passkeys.id, id), eq(passkeys.userId, req.user.id)));
+
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Passkey not found' });
+    response.success(res, { success: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

@@ -100,6 +100,25 @@ export const AuthProvider = ({ children, initialUser, handleLoginSuccess, onLogo
     [handleLoginSuccess]
   );
 
+  const passkeyLogin = useCallback(
+    async (email, assertion) => {
+      const res = await axios.post(
+        `${window.location.origin}/api/passkeys/login/verify`,
+        {
+          ...assertion,
+          email,
+          rememberMe: true,
+        },
+        { withCredentials: true }
+      );
+
+      const data = res.data.success ? res.data.data : res.data;
+      if (data.token) setToken(data.token);
+      handleLoginSuccess(data, true);
+    },
+    [handleLoginSuccess]
+  );
+
   const logout = useCallback(async () => {
     try {
       await axios.post(`${window.location.origin}/api/auth/logout`, {}, { withCredentials: true });
@@ -118,6 +137,7 @@ export const AuthProvider = ({ children, initialUser, handleLoginSuccess, onLogo
     setUser,
     api,
     login,
+    passkeyLogin,
     logout,
     isAuthenticated: !!user,
     isInitializing,

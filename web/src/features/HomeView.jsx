@@ -28,6 +28,7 @@ import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
 import { getRelativeTime } from '../utils/date';
+import { prefetchComponent } from '../utils/prefetch';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -312,6 +313,7 @@ export default function HomeView() {
             color="primary"
             startDecorator={<Add />}
             onClick={() => navigate('../shopping')}
+            onMouseEnter={() => prefetchComponent(() => import('../features/ShoppingListView'))}
           >
             Add Item
           </Button>
@@ -320,6 +322,7 @@ export default function HomeView() {
             color="primary"
             startDecorator={<Payments />}
             onClick={() => navigate('../finance')}
+            onMouseEnter={() => prefetchComponent(() => import('../features/FinanceView'))}
           >
             Log Expense
           </Button>

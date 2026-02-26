@@ -57,6 +57,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import EmojiPicker from './EmojiPicker';
 import { ToggleButtonGroup, Badge } from '@mui/joy';
+import { prefetchComponent } from '../utils/prefetch';
 
 const RAIL_WIDTH = 72;
 const PANEL_WIDTH = 280;
@@ -86,7 +87,15 @@ const RailIcon = ({
   };
 
   const handleMouseEnter = () => {
-    if (!isMobile) onHover(category);
+    if (!isMobile) {
+      onHover(category);
+      // Item 185: Prefetch chunk on hover
+      if (category === 'finance') prefetchComponent(() => import('../features/FinanceView'));
+      if (category === 'shopping') prefetchComponent(() => import('../features/ShoppingListView'));
+      if (category === 'chores') prefetchComponent(() => import('../features/ChoresView'));
+      if (category === 'meals') prefetchComponent(() => import('../features/MealPlannerView'));
+      if (category === 'household') prefetchComponent(() => import('../features/HouseView'));
+    }
   };
 
   if (isMobile) {
@@ -252,7 +261,7 @@ export default function NavSidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const { household, members = [], vehicles = [], api } = useHousehold();
   const { user, logout: onLogout } = useAuth();
   const { confirmAction } = useUI();

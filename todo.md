@@ -268,13 +268,13 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 - [x] **Item 182:** Add a subtle pulsing animation to "Optimistic UI" elements while they wait for the background server sync to complete.
 - [x] **Item 183:** Disable "Submit" buttons instantly when clicked and show a loading spinner inline to prevent double-clicks.
 - [x] **Item 184:** Add a non-blocking "Slow Connection" toast hint if a critical API request takes longer than 3 seconds to resolve.
-- [ ] **Item 185:** Pre-load the Javascript/CSS chunks for adjacent pages (e.g., pre-fetch Finance module when hovering its sidebar link).
+- [x] **Item 185:** Pre-load the Javascript/CSS chunks for adjacent pages (e.g., pre-fetch Finance module when hovering its sidebar link).
 
 ### Chunk 38: Smart Defaults & Assistance
 
 - [x] **Item 186:** Implement "Smart Defaults" for date pickers (e.g., defaulting to the nearest upcoming weekend for chore scheduling).
 - [x] **Item 187:** Group related form fields into visual "Sections" with subtle divider lines and clear subheaders. (Implemented for Chores)
-- [ ] **Item 188:** Auto-fill common fields based on context (e.g., automatically setting the "Provider" dropdown based on the uploaded receipt logo).
+- [x] **Item 188:** Auto-fill common fields based on context (e.g., automatically setting the "Provider" dropdown based on the uploaded receipt logo).
 - [x] **Item 189:** Provide "Select All" / "Deselect All" master toggles for bulk operations on long lists.
 - [x] **Item 190:** Add +/- stepper controls to quantity inputs on mobile, minimizing the need to open the numeric keyboard.
 
@@ -307,6 +307,6 @@ _Goal: Remove the dependency on the third-party Clerk identity provider and impl
 
 - [x] **Item 206:** Build custom Registration and Login views matching the Hearthstone Joy UI design system, replacing the Clerk hosted modals.
 - [x] **Item 207:** Implement secure, short-lived JWT generation and a silent refresh token mechanism via HTTP-only cookies.
-- [ ] **Item 208:** Reactivate and polish the native WebAuthn (Passkeys) flow in `server/routes/auth_passkeys.js` to provide seamless passwordless login.
-- [ ] **Item 209:** Build a complete "Forgot Password" / Password Reset flow generating secure, expiring email tokens.
-- [ ] **Item 210:** Create a "Security Profile" settings page for users to manage their own passwords, revoke active sessions, and manage their passkeys directly within the app.
+- [x] **Item 208:** Reactivate and polish the native WebAuthn (Passkeys) flow in `server/routes/auth_passkeys.js` to provide seamless passwordless login.
+- [x] **Item 209:** Build a complete "Forgot Password" / Password Reset flow generating secure, expiring email tokens.
+- [x] **Item 210:** Create a "Security Profile" settings page for users to manage their own passwords, revoke active sessions, and manage their passkeys directly within the app.

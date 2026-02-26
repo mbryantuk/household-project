@@ -35,6 +35,29 @@ export default function ReceiptImporter({
   const [pasteText, setPasteText] = useState('');
   const [items, setItems] = useState([]);
   const [selectedItems, setSelectedSuggestions] = useState([]);
+  const [provider, setProvider] = useState('general');
+
+  const STORES = [
+    { id: 'general', name: 'General / Unknown', keywords: [] },
+    { id: 'tesco', name: 'Tesco', keywords: ['tesco', 'clubcard'] },
+    { id: 'sainsburys', name: "Sainsbury's", keywords: ['sainsbury', 'nectar'] },
+    { id: 'asda', name: 'Asda', keywords: ['asda', 'walmart'] },
+    { id: 'aldi', name: 'Aldi', keywords: ['aldi'] },
+    { id: 'lidl', name: 'Lidl', keywords: ['lidl'] },
+    { id: 'waitrose', name: 'Waitrose', keywords: ['waitrose', 'john lewis'] },
+    { id: 'morrisons', name: 'Morrisons', keywords: ['morrisons'] },
+    { id: 'amazon', name: 'Amazon', keywords: ['amazon', 'whole foods'] },
+  ];
+
+  const detectProvider = (text = '') => {
+    const lower = text.toLowerCase();
+    for (const store of STORES) {
+      if (store.keywords.some((k) => lower.includes(k))) {
+        return store.id;
+      }
+    }
+    return 'general';
+  };
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -54,6 +77,10 @@ export default function ReceiptImporter({
       );
       setItems(res.data.items || []);
       setSelectedSuggestions((res.data.items || []).map((_, i) => i));
+
+      // Item 188: Auto-detect provider from OCR results if available
+      const fullText = (res.data.items || []).map((i) => i.name).join(' ');
+      setProvider(detectProvider(fullText));
     } catch {
       showNotification('Failed to analyze receipt. Try pasting the text instead.', 'danger');
     } finally {
@@ -72,6 +99,7 @@ export default function ReceiptImporter({
       );
       setItems(res.data.items || []);
       setSelectedSuggestions((res.data.items || []).map((_, i) => i));
+      setProvider(detectProvider(pasteText));
     } catch {
       showNotification('Failed to parse text.', 'danger');
     } finally {
@@ -84,7 +112,13 @@ export default function ReceiptImporter({
     setLoading(true);
     try {
       await Promise.all(
-        toSave.map((item) => api.post(`/households/${householdId}/shopping-list`, item))
+        toSave.map((item) =>
+          api.post(`/households/${householdId}/shopping-list`, {
+            ...item,
+            category: item.category || 'general',
+            metadata: { ...item.metadata, store: provider },
+          })
+        )
       );
       showNotification(`Imported ${toSave.length} items to your list.`, 'success');
       onImportComplete();
@@ -189,6 +223,21 @@ export default function ReceiptImporter({
             </Stack>
           ) : (
             <Box>
+              <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                <Typography level="title-sm">Detected Store:</Typography>
+                <Select
+                  size="sm"
+                  value={provider}
+                  onChange={(_, v) => setProvider(v)}
+                  sx={{ minWidth: 200 }}
+                >
+                  {STORES.map((s) => (
+                    <Option key={s.id} value={s.id}>
+                      {s.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Stack>
               <Table stickyHeader variant="soft" sx={{ '--TableCell-paddingX': '8px' }}>
                 <thead>
                   <tr>

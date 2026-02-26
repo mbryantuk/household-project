@@ -92,6 +92,8 @@ import { getEmojiColor } from '../../utils/colors';
 import AppSelect from '../../components/ui/AppSelect';
 import EmojiPicker from '../../components/EmojiPicker';
 import MetadataFormFields from '../../components/ui/MetadataFormFields';
+import useUnsavedChanges from '../../hooks/useUnsavedChanges';
+import UnsavedChangesDialog from '../../components/ui/UnsavedChangesDialog';
 
 const formatCurrency = (val) => {
   const num = parseFloat(val) || 0;
@@ -496,6 +498,9 @@ export default function BudgetView({ financialProfileId }) {
   const [actualPay, setActualPay] = useState('');
   const [currentBalance, setCurrentBalance] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState(null);
+
+  // Item 161: Unsaved Changes
+  const blocker = useUnsavedChanges(quickAddOpen || adhocIncomeOpen || recurringAddOpen);
 
   const fetchData = useCallback(
     async (silent = false) => {
@@ -1583,6 +1588,15 @@ export default function BudgetView({ financialProfileId }) {
       emoji: selectedEmoji,
       metadata: recurringMetadata,
     };
+
+    // Item 164: Duplicate Detection
+    const existing = liabilities.recurring_costs.find(
+      (r) => r.name.toLowerCase() === payload.name.trim().toLowerCase()
+    );
+    if (existing) {
+      showNotification(`A recurring expense named "${payload.name}" already exists.`, 'warning');
+      return;
+    }
 
     try {
       await api.post(`/households/${householdId}/finance/recurring-costs`, payload);
@@ -3201,6 +3215,7 @@ export default function BudgetView({ financialProfileId }) {
         onEmojiSelect={handleEmojiSelect}
         isDark={isDark}
       />
+      <UnsavedChangesDialog blocker={blocker} />
     </Box>
   );
 }

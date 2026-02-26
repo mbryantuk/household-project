@@ -24,6 +24,8 @@ import RootLayout from './layouts/RootLayout';
 import HouseholdLayout from './layouts/HouseholdLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import HouseholdSelector from './pages/HouseholdSelector';
 import OfflineOverlay from './components/ui/OfflineOverlay';
 
@@ -63,8 +65,17 @@ const PageLoader = () => (
 );
 
 export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
-  const { setToken, user, setUser, api, logout, login, isAuthenticated, isInitializing } =
-    useAuth();
+  const {
+    setToken,
+    user,
+    setUser,
+    api,
+    logout,
+    login,
+    passkeyLogin,
+    isAuthenticated,
+    isInitializing,
+  } = useAuth();
   const { household, setHousehold, members, dates, vehicles, updateSettings, householdId } =
     useHousehold();
   const { showNotification, confirmAction, confirmDialog, closeConfirm } = useUI();
@@ -134,9 +145,17 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
         <Routes>
           <Route
             path="/login"
-            element={!isAuthenticated ? <Login onLogin={login} /> : <Navigate to="/" />}
+            element={
+              !isAuthenticated ? (
+                <Login onLogin={login} onPasskeyLogin={passkeyLogin} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
           />
           <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route
             element={

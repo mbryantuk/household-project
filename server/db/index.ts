@@ -35,7 +35,7 @@ const SLOW_QUERY_THRESHOLD_MS = 100;
  * Log queries that exceed the threshold
  */
 const originalQuery = pool.query.bind(pool);
-pool.query = async (...args: any[]) => {
+pool.query = async (...args: Parameters<typeof pool.query>) => {
   const start = Date.now();
   try {
     const result = await originalQuery(...args);
@@ -48,7 +48,15 @@ pool.query = async (...args: any[]) => {
       });
     }
     return result;
-  } catch (err) {
+  } catch (err: unknown) {
+    const error = err as { message: string; detail?: string; stack?: string };
+    logger.error({
+      msg: '❌ [DB] Query Failed',
+      err: error.message,
+      detail: error.detail,
+      query: typeof args[0] === 'string' ? args[0].substring(0, 200) : 'Complex Query',
+      stack: error.stack,
+    });
     throw err;
   }
 };

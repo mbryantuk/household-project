@@ -50,6 +50,11 @@ export default function SecuritySettings() {
   const [disableModalOpen, setDisableModalOpen] = useState(false);
   const [password, setPassword] = useState('');
 
+  // Change Password state
+  const [pwModalOpen, setPwModalOpen] = useState(false);
+  const [pwData, setPwData] = useState({ current: '', new: '', confirm: '' });
+  const [changingPw, setChangingPw] = useState(false);
+
   const fetchSessions = useCallback(async () => {
     try {
       const res = await api.get('/auth/sessions');
@@ -132,12 +137,51 @@ export default function SecuritySettings() {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwData.new !== pwData.confirm) {
+      showNotification('New passwords do not match.', 'warning');
+      return;
+    }
+    setChangingPw(true);
+    try {
+      await api.put('/auth/profile', {
+        currentPassword: pwData.current,
+        password: pwData.new,
+      });
+      showNotification('Password updated successfully!', 'success');
+      setPwModalOpen(false);
+      setPwData({ current: '', new: '', confirm: '' });
+    } catch (err) {
+      showNotification(err.response?.data?.error || 'Failed to update password.', 'danger');
+    } finally {
+      setChangingPw(false);
+    }
+  };
+
   return (
     <Stack spacing={4} sx={{ maxWidth: 800 }}>
       <Box>
         <Typography level="h4">Security Center</Typography>
         <Typography level="body-sm">Manage your account security and active sessions.</Typography>
       </Box>
+
+      {/* 0. Password Section */}
+      <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography level="title-md" startDecorator={<Lock color="primary" />}>
+              Account Password
+            </Typography>
+            <Typography level="body-xs" color="neutral" sx={{ mt: 0.5 }}>
+              Change your password regularly to keep your account secure.
+            </Typography>
+          </Box>
+          <Button variant="outlined" color="neutral" onClick={() => setPwModalOpen(true)}>
+            Change Password
+          </Button>
+        </Stack>
+      </Sheet>
 
       {/* 1. MFA Section */}
       <Sheet variant="outlined" sx={{ p: 3, borderRadius: 'md', bgcolor: 'background.level1' }}>
@@ -334,6 +378,53 @@ export default function SecuritySettings() {
               Cancel
             </Button>
           </DialogActions>
+        </ModalDialog>
+      </Modal>
+
+      {/* CHANGE PASSWORD MODAL */}
+      <Modal open={pwModalOpen} onClose={() => setPwModalOpen(false)}>
+        <ModalDialog sx={{ width: 400 }}>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogContent>
+            <form onSubmit={handleChangePassword}>
+              <Stack spacing={2} sx={{ mt: 1 }}>
+                <FormControl required>
+                  <FormLabel>Current Password</FormLabel>
+                  <Input
+                    type="password"
+                    value={pwData.current}
+                    onChange={(e) => setPwData({ ...pwData, current: e.target.value })}
+                    autoFocus
+                  />
+                </FormControl>
+                <Divider />
+                <FormControl required>
+                  <FormLabel>New Password</FormLabel>
+                  <Input
+                    type="password"
+                    value={pwData.new}
+                    onChange={(e) => setPwData({ ...pwData, new: e.target.value })}
+                  />
+                </FormControl>
+                <FormControl required>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <Input
+                    type="password"
+                    value={pwData.confirm}
+                    onChange={(e) => setPwData({ ...pwData, confirm: e.target.value })}
+                  />
+                </FormControl>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                  <Button variant="plain" color="neutral" onClick={() => setPwModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" loading={changingPw}>
+                    Update Password
+                  </Button>
+                </Box>
+              </Stack>
+            </form>
+          </DialogContent>
         </ModalDialog>
       </Modal>
     </Stack>
