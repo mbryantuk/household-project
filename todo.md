@@ -234,7 +234,7 @@ _Goal: Reduce cognitive load, improve form ergonomics, and ensure accessibility 
 
 - [x] **Item 161:** Add a system-wide "Unsaved Changes" browser warning when navigating away from partially filled forms. (Applied to Chores)
 - [x] **Item 162:** Implement a floating "Undo" toast for destructive actions (Delete item/Clear list) that delays the DB commit by 5 seconds.
-- [x] **Item 163:** Add strict inline validation for currency inputs to visually block negative values where inappropriate.
+- [x] **Item 163:** Add <strict inline validation for currency inputs to visually block negative values where inappropriate.
 - [x] **Item 164:** Implement "Duplicate Detection" warnings when adding an item that already exists (e.g., Shopping list item or recurring cost name).
 - [x] **Item 165:** Show a "Network Offline" banner immediately when connectivity is lost (beyond the full-page offline overlay).
 
@@ -315,10 +315,10 @@ _Goal: Remove the dependency on the third-party Clerk identity provider and impl
 
 _Goal: Formalize the tracking of household utilities (Energy, Water, Waste) and Council Tax with dedicated data structures and integrated views._
 
-- [ ] **Item 211:** Implement dedicated SQLite tables for Energy, Water, Waste, and Council Tax in the tenant schema.
-- [ ] **Item 212:** Create structured backend routes for each utility type with full CRUD support and audit logging.
-- [ ] **Item 213:** Integrate Utility views into the main application routing and the side navigation "House" panel.
-- [ ] **Item 214:** Hook up the existing (but disconnected) `EnergyView`, `WaterView`, `WasteView`, and `CouncilView` to the new backend endpoints.
-- [ ] **Item 215:** Add automated renewal and payment date synchronization from Utility accounts to the unified household calendar.
-- [ ] **Item 216:** Implement "Utility Health" dashboard widget showing upcoming contract expirations and monthly cost breakdowns.
-- [ ] **Item 217:** Update the automated smoke test suite to verify the accessibility and functionality of all Utility modules.
+- [x] **Item 211:** Implement dedicated SQLite tables for Energy, Water, Waste, and Council Tax in the tenant schema.
+- [x] **Item 212:** Create structured backend routes for each utility type with full CRUD support and audit logging.
+- [x] **Item 213:** Integrate Utility views into the main application routing and the side navigation "House" panel.
+- [x] **Item 214:** Hook up the existing (but disconnected) `EnergyView`, `WaterView`, `WasteView`, and `CouncilView` to the new backend endpoints.
+- [x] **Item 215:** Add automated renewal and payment date synchronization from Utility accounts to the unified household calendar.
+- [x] **Item 216:** Implement "Utility Health" dashboard widget showing upcoming contract expirations and monthly cost breakdowns.
+- [x] **Item 217:** Update the automated smoke test suite to verify the accessibility and functionality of all Utility modules.
