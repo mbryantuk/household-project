@@ -135,6 +135,14 @@ export default function App() {
             width: '100vw',
           },
           '#root': { height: '100dvh', width: '100vw', overflow: 'hidden' },
+          '@media (prefers-reduced-motion: reduce)': {
+            '*, ::before, ::after': {
+              animationDuration: '0.01ms !important',
+              animationIterationCount: '1 !important',
+              transitionDuration: '0.01ms !important',
+              scrollBehavior: 'auto !important',
+            },
+          },
         }}
       />
       {CLERK_PUBLISHABLE_KEY && !isSmokeTest ? (

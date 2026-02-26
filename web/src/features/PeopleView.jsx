@@ -3,6 +3,7 @@ import { useOutletContext, useParams, useNavigate, useLocation } from 'react-rou
 import { Box, Typography, CircularProgress } from '@mui/joy';
 import EntityGrid from '../components/ui/EntityGrid';
 import GenericObjectView from '../components/objects/GenericObjectView';
+import ModuleHeader from '../components/ui/ModuleHeader';
 
 export default function PeopleView() {
   const {
@@ -12,6 +13,7 @@ export default function PeopleView() {
     members = [],
     fetchHhMembers,
     user: currentUser,
+    isDark,
     showNotification,
     confirmAction,
   } = useOutletContext();
@@ -88,18 +90,13 @@ export default function PeopleView() {
 
     return (
       <Box data-testid="people-view">
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            level="h2"
-            data-testid="people-heading"
-            sx={{ fontWeight: 'lg', mb: 0.5, fontSize: '1.5rem' }}
-          >
-            People & Residents
-          </Typography>
-          <Typography level="body-md" color="neutral">
-            Select a resident to manage their details.
-          </Typography>
-        </Box>
+        <ModuleHeader
+          title="People & Residents"
+          titleTestId="people-heading"
+          description="Select a resident to manage their details."
+          emoji="👥"
+          isDark={isDark}
+        />
 
         <EntityGrid
           sections={sections}

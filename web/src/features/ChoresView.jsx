@@ -267,6 +267,7 @@ export default function ChoresView() {
                       <IconButton
                         variant="plain"
                         color="neutral"
+                        aria-label="Complete Task"
                         onClick={() => handleComplete(chore)}
                         sx={{ '&:hover': { color: 'success.500' } }}
                       >
@@ -275,7 +276,7 @@ export default function ChoresView() {
                     </td>
                     <td>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Avatar size="sm" variant="soft">
+                        <Avatar size="sm" variant="soft" role="img" aria-hidden="true">
                           {chore.emoji}
                         </Avatar>
                         <Box>
@@ -292,7 +293,11 @@ export default function ChoresView() {
                           size="sm"
                           variant="soft"
                           color="neutral"
-                          startDecorator={assignee.emoji}
+                          startDecorator={
+                            <span role="img" aria-hidden="true">
+                              {assignee.emoji}
+                            </span>
+                          }
                         >
                           {assignee.name}
                         </Chip>
@@ -332,13 +337,19 @@ export default function ChoresView() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                        <IconButton size="sm" variant="plain" onClick={() => handleOpenEdit(chore)}>
+                        <IconButton
+                          size="sm"
+                          variant="plain"
+                          aria-label="Edit Chore"
+                          onClick={() => handleOpenEdit(chore)}
+                        >
                           <Edit fontSize="small" />
                         </IconButton>
                         <IconButton
                           size="sm"
                           variant="plain"
                           color="danger"
+                          aria-label="Delete Chore"
                           onClick={() => handleDelete(chore.id)}
                         >
                           <Delete fontSize="small" />

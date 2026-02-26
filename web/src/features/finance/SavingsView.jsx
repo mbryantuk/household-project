@@ -25,6 +25,7 @@ import {
   AccordionDetails,
   Table,
   Card,
+  Tooltip,
 } from '@mui/joy';
 import { Edit, Delete, Add, ExpandMore, Savings, TrendingUp, Remove } from '@mui/icons-material';
 import { getEmojiColor } from '../../utils/colors';
@@ -441,7 +442,16 @@ export default function SavingsView({ financialProfileId }) {
                 isDark={isDark}
                 balance={acc.current_balance}
                 balanceColor="success"
-                subValue={`${formatPercent(acc.interest_rate)} AER`}
+                subValue={
+                  <Tooltip
+                    title="Annual Equivalent Rate: illustrates what the interest rate would be if interest was paid and compounded once each year."
+                    variant="soft"
+                  >
+                    <Typography level="body-xs" sx={{ cursor: 'help', borderBottom: '1px dotted' }}>
+                      {formatPercent(acc.interest_rate)} AER
+                    </Typography>
+                  </Tooltip>
+                }
                 assignees={getAssignees(acc.id)}
                 onAssign={() => setAssignItem(acc)}
                 onEdit={() => setAccountId(acc.id)}

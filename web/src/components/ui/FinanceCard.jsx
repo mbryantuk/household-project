@@ -43,7 +43,12 @@ export default function FinanceCard({
       sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
     >
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-        <Avatar size="lg" sx={{ bgcolor: getEmojiColor(emoji, isDark) }}>
+        <Avatar
+          size="lg"
+          role="img"
+          aria-hidden="true"
+          sx={{ bgcolor: getEmojiColor(emoji, isDark) }}
+        >
           {emoji}
         </Avatar>
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>

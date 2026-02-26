@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Box, Typography, Chip, Stack, Card, Tooltip } from '@mui/joy';
 import { Security, History } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { getRelativeTime } from '../utils/date';
 import AppTable from '../components/ui/AppTable';
 import ModuleContainer from '../components/ui/ModuleContainer';
 import EmojiAvatar from '../components/ui/EmojiAvatar';
@@ -70,9 +70,7 @@ export default function SecurityAuditView({ api, householdId }) {
         width: 200,
         renderCell: (params) => (
           <Tooltip title={new Date(params.value).toLocaleString()} variant="soft">
-            <Typography level="body-xs">
-              {formatDistanceToNow(parseISO(params.value), { addSuffix: true })}
-            </Typography>
+            <Typography level="body-xs">{getRelativeTime(params.value)}</Typography>
           </Tooltip>
         ),
       },

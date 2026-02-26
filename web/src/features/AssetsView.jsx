@@ -14,6 +14,7 @@ import {
   Button,
   CircularProgress,
   Stack,
+  Tooltip,
 } from '@mui/joy';
 import { Edit, Add, Search, Clear } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ import { getEmojiColor } from '../utils/colors';
 import GenericObjectView from '../components/objects/GenericObjectView';
 import ModuleHeader from '../components/ui/ModuleHeader';
 import { useAssets } from '../hooks/useHouseholdData';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcuts';
 
 export default function AssetsView() {
   const {
@@ -36,6 +38,8 @@ export default function AssetsView() {
   const queryClient = useQueryClient();
 
   const { data: assets = [], isLoading: loading } = useAssets(api, householdId);
+
+  useKeyboardShortcut('n', () => navigate('new'));
 
   // Sorting & Filtering State
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
@@ -126,8 +130,8 @@ export default function AssetsView() {
     },
 
     { name: 'location', label: 'Location', gridSpan: { md: 6 } },
-    { name: 'manufacturer', label: 'Manufacturer', gridSpan: { md: 6 } },
-    { name: 'model_number', label: 'Model Number', gridSpan: { md: 6 } },
+    { name: 'manufacturer', label: 'Manufacturer', gridSpan: { md: 6 }, isAdvanced: true },
+    { name: 'model_number', label: 'Model Number', gridSpan: { md: 6 }, isAdvanced: true },
 
     { type: 'header', label: 'Financials' },
     {
@@ -144,7 +148,7 @@ export default function AssetsView() {
       step: '0.01',
       gridSpan: { xs: 6, md: 3 },
     },
-    { name: 'notes', label: 'Notes', gridSpan: { md: 6 } },
+    { name: 'notes', label: 'Notes', gridSpan: { md: 6 }, isAdvanced: true },
   ];
 
   const COST_SEGMENTS = [
@@ -226,9 +230,11 @@ export default function AssetsView() {
               sx={{ width: { xs: '100%', sm: 200 } }}
             />
             {isAdmin && (
-              <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>
-                Add Asset
-              </Button>
+              <Tooltip title="Press 'N' to add new" variant="soft">
+                <Button variant="solid" startDecorator={<Add />} onClick={() => navigate('new')}>
+                  Add Asset
+                </Button>
+              </Tooltip>
             )}
           </Stack>
         }

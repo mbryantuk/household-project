@@ -8,6 +8,7 @@ import {
   KBarSearch,
   useMatches,
   KBarResults,
+  useKBar,
 } from 'kbar';
 import { Box, Typography, Sheet, Stack, GlobalStyles } from '@mui/joy';
 import {
@@ -20,9 +21,11 @@ import {
   Settings,
   Security,
 } from '@mui/icons-material';
+import { TextHighlighter } from '../utils/text';
 
 const RenderResults = () => {
   const { results } = useMatches();
+  const { search } = useKBar((state) => ({ search: state.searchQuery }));
 
   return (
     <KBarResults
@@ -52,8 +55,14 @@ const RenderResults = () => {
             <Stack direction="row" spacing={2} alignItems="center">
               {item.icon}
               <Stack spacing={0}>
-                <Typography level="title-sm">{item.name}</Typography>
-                {item.subtitle && <Typography level="body-xs">{item.subtitle}</Typography>}
+                <Typography level="title-sm">
+                  <TextHighlighter text={item.name} query={search} />
+                </Typography>
+                {item.subtitle && (
+                  <Typography level="body-xs">
+                    <TextHighlighter text={item.subtitle} query={search} />
+                  </Typography>
+                )}
               </Stack>
             </Stack>
             {item.shortcut?.length > 0 && (

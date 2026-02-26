@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6348,
+                      "duration": 7027,
                       "errors": [],
                       "stdout": [
                         {
@@ -110,15 +110,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:03:50.359Z",
+                      "startTime": "2026-02-26T11:02:25.304Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -147,7 +147,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5223,
+                      "duration": 5824,
                       "errors": [],
                       "stdout": [
                         {
@@ -169,15 +169,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:03:56.885Z",
+                      "startTime": "2026-02-26T11:02:32.947Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -206,7 +206,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5105,
+                      "duration": 5916,
                       "errors": [],
                       "stdout": [
                         {
@@ -228,15 +228,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:02.135Z",
+                      "startTime": "2026-02-26T11:02:38.792Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -265,7 +265,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5091,
+                      "duration": 5713,
                       "errors": [],
                       "stdout": [
                         {
@@ -287,15 +287,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:07.263Z",
+                      "startTime": "2026-02-26T11:02:44.734Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -324,7 +324,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5176,
+                      "duration": 5734,
                       "errors": [],
                       "stdout": [
                         {
@@ -346,15 +346,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:12.379Z",
+                      "startTime": "2026-02-26T11:02:50.469Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -383,7 +383,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5592,
+                      "duration": 5834,
                       "errors": [],
                       "stdout": [
                         {
@@ -405,15 +405,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:17.575Z",
+                      "startTime": "2026-02-26T11:02:56.221Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -442,7 +442,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5186,
+                      "duration": 5781,
                       "errors": [],
                       "stdout": [
                         {
@@ -464,15 +464,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:23.187Z",
+                      "startTime": "2026-02-26T11:03:02.076Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -501,7 +501,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5146,
+                      "duration": 5469,
                       "errors": [],
                       "stdout": [
                         {
@@ -523,15 +523,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:28.393Z",
+                      "startTime": "2026-02-26T11:03:07.876Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -560,7 +560,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5411,
+                      "duration": 5664,
                       "errors": [],
                       "stdout": [
                         {
@@ -582,15 +582,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:33.559Z",
+                      "startTime": "2026-02-26T11:03:13.372Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -619,7 +619,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5199,
+                      "duration": 5214,
                       "errors": [],
                       "stdout": [
                         {
@@ -641,15 +641,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:38.991Z",
+                      "startTime": "2026-02-26T11:03:19.059Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -678,7 +678,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5460,
+                      "duration": 5860,
                       "errors": [],
                       "stdout": [
                         {
@@ -700,15 +700,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:44.215Z",
+                      "startTime": "2026-02-26T11:03:24.291Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -737,7 +737,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5111,
+                      "duration": 4311,
                       "errors": [],
                       "stdout": [
                         {
@@ -759,15 +759,15 @@
                           "text": "Waiting for dashboard view...\n"
                         },
                         {
-                          "text": "Final URL reached: http://localhost:4001/household/2074/dashboard\n"
+                          "text": "Final URL reached: http://localhost:4001/household/2103/dashboard\n"
                         },
                         {
-                          "text": "Smoke Test Household ID Locked: 2074\n"
+                          "text": "Smoke Test Household ID Locked: 2103\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-26T10:04:49.697Z",
+                      "startTime": "2026-02-26T11:03:30.171Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -787,8 +787,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-26T10:03:48.245Z",
-    "duration": 66671.485,
+    "startTime": "2026-02-26T11:02:23.343Z",
+    "duration": 71240.752,
     "expected": 12,
     "skipped": 0,
     "unexpected": 0,

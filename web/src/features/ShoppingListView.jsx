@@ -24,6 +24,7 @@ import {
   ArrowBack,
   ArrowForward,
   ContentCopy,
+  Remove,
 } from '@mui/icons-material';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
@@ -47,7 +48,8 @@ const formatDate = (date) => format(date, 'yyyy-MM-dd');
 
 export default function ShoppingListView() {
   const { t } = useTranslation();
-  const { api, household, showNotification, confirmAction } = useOutletContext();
+  const { api, household, showNotification, confirmAction, showUndoableNotification } =
+    useOutletContext();
   const householdId = household?.id;
   const queryClient = useQueryClient();
 
@@ -60,6 +62,7 @@ export default function ShoppingListView() {
   const [newItemQty, setNewItemQty] = useState('1');
   const [newItemCat, setNewItemCat] = useState('general');
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [lastAddedId, setLastAddedId] = useState(null);
 
   // Budget State
   const budgetLimit = useMemo(() => {
@@ -77,6 +80,14 @@ export default function ShoppingListView() {
     e.preventDefault();
     if (!newItemName.trim()) return;
 
+    const exists = items.find(
+      (i) => i.name.toLowerCase() === newItemName.trim().toLowerCase() && !i.is_checked
+    );
+    if (exists) {
+      showNotification(`"${newItemName}" is already on your list.`, 'warning');
+      return;
+    }
+
     mutations.addItem.mutate(
       {
         name: newItemName,
@@ -85,10 +96,15 @@ export default function ShoppingListView() {
         category: newItemCat,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setNewItemName('');
           setNewItemCost('');
           setNewItemQty('1');
+          const newItemId = data.data?.id || data.id;
+          if (newItemId) {
+            setLastAddedId(newItemId);
+            setTimeout(() => setLastAddedId(null), 2000);
+          }
           showNotification('Item added', 'success');
         },
         onError: () => {
@@ -130,13 +146,42 @@ export default function ShoppingListView() {
   };
 
   const handleClearCompleted = () => {
-    confirmAction('Clear Completed', 'Remove checked items?', () => {
-      mutations.clearCompleted.mutate(null, {
-        onSuccess: () => {
-          triggerConfetti();
-          showNotification('Cleared completed items', 'success');
-        },
-      });
+    const itemsToClear = items.filter((i) => i.is_checked);
+    if (itemsToClear.length === 0) return;
+
+    // 1. Snapshot for rollback
+    const previousItems = queryClient.getQueryData([
+      'households',
+      householdId,
+      'shopping-list',
+      weekStr,
+    ]);
+
+    // 2. Optimistic hide
+    queryClient.setQueryData(['households', householdId, 'shopping-list', weekStr], (old) =>
+      old.filter((i) => !i.is_checked)
+    );
+
+    let undone = false;
+    const timer = setTimeout(() => {
+      if (!undone) {
+        mutations.clearCompleted.mutate(null, {
+          onSuccess: () => {
+            triggerConfetti();
+            showNotification('Cleared completed items', 'success');
+          },
+        });
+      }
+    }, 5000);
+
+    showUndoableNotification(`Cleared ${itemsToClear.length} items`, () => {
+      undone = true;
+      clearTimeout(timer);
+      queryClient.setQueryData(
+        ['households', householdId, 'shopping-list', weekStr],
+        previousItems
+      );
+      showNotification('Action undone', 'neutral');
     });
   };
 
@@ -224,13 +269,31 @@ export default function ShoppingListView() {
                   onChange={(e) => setNewItemName(e.target.value)}
                   sx={{ flexGrow: 1 }}
                 />
-                <Input
-                  placeholder="Qty"
-                  sx={{ width: 80 }}
-                  value={newItemQty}
-                  onChange={(e) => setNewItemQty(e.target.value)}
-                  slotProps={{ input: { inputMode: 'decimal' } }}
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <IconButton
+                    size="sm"
+                    variant="outlined"
+                    onClick={() =>
+                      setNewItemQty((q) => Math.max(1, (parseInt(q) || 1) - 1).toString())
+                    }
+                  >
+                    <Remove />
+                  </IconButton>
+                  <Input
+                    placeholder="Qty"
+                    sx={{ width: 50, '& input': { textAlign: 'center' } }}
+                    value={newItemQty}
+                    onChange={(e) => setNewItemQty(e.target.value)}
+                    slotProps={{ input: { inputMode: 'decimal' } }}
+                  />
+                  <IconButton
+                    size="sm"
+                    variant="outlined"
+                    onClick={() => setNewItemQty((q) => ((parseInt(q) || 1) + 1).toString())}
+                  >
+                    <Add />
+                  </IconButton>
+                </Box>
                 <Select
                   value={newItemCat}
                   onChange={(_e, v) => setNewItemCat(v)}
@@ -286,7 +349,14 @@ export default function ShoppingListView() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   opacity: item.is_checked ? 0.6 : 1,
-                  transition: 'background 0.2s',
+                  transition: 'all 0.2s',
+                  ...(lastAddedId === item.id && {
+                    animation: 'flash 2s ease-out',
+                    '@keyframes flash': {
+                      '0%': { bgcolor: 'primary.softBg' },
+                      '100%': { bgcolor: 'transparent' },
+                    },
+                  }),
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
@@ -311,7 +381,16 @@ export default function ShoppingListView() {
                           size="sm"
                           variant="soft"
                           color="warning"
-                          sx={{ ml: 1, fontSize: '10px' }}
+                          sx={{
+                            ml: 1,
+                            fontSize: '10px',
+                            animation: 'pulse 1.5s infinite ease-in-out',
+                            '@keyframes pulse': {
+                              '0%': { opacity: 0.6 },
+                              '50%': { opacity: 1 },
+                              '100%': { opacity: 0.6 },
+                            },
+                          }}
                         >
                           Saving...
                         </Chip>

@@ -39,6 +39,8 @@ export default function ModuleHeader({
         <Avatar
           size="lg"
           variant="soft"
+          role="img"
+          aria-hidden="true"
           sx={{
             width: 80,
             height: 80,

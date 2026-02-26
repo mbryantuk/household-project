@@ -42,7 +42,6 @@ const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
         bgcolor: 'background.level1',
         gap: 1,
         cursor: 'pointer',
-        transition: 'all 0.2s',
         '&:hover': {
           bgcolor: 'primary.softBg',
           transform: 'translateY(-2px)',
@@ -50,6 +49,7 @@ const MenuTile = ({ icon, label, to, onClick, sx = {} }) => {
         '&:active': {
           transform: 'scale(0.95)',
         },
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         ...sx,
       }}
     >

@@ -21,6 +21,7 @@ import {
   Chip,
   Breadcrumbs,
   Link,
+  Switch,
 } from '@mui/joy';
 import {
   Delete,
@@ -79,6 +80,7 @@ export default function GenericObjectView({
   const [data, setData] = useState(initialData || defaultValues);
   const [activeTab, setActiveTab] = useState(0);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Sync local data state with fetched data or initialData
   useEffect(() => {
@@ -138,18 +140,25 @@ export default function GenericObjectView({
   };
 
   // Group fields into sections
-  const formSections = useMemo(() => {
+  const { formSections, hasAdvancedFields } = useMemo(() => {
     const sections = [{ title: 'General Info', fields: [] }];
+    let advancedFound = false;
+
     fields.forEach((f) => {
       if (f.type === 'header') {
         sections.push({ title: f.label, fields: [] });
       } else if (f.type !== 'emoji') {
-        // Emoji is handled in Hero
-        sections[sections.length - 1].fields.push(f);
+        if (f.isAdvanced) advancedFound = true;
+        if (!f.isAdvanced || showAdvanced) {
+          sections[sections.length - 1].fields.push(f);
+        }
       }
     });
-    return sections.filter((s) => s.fields.length > 0);
-  }, [fields]);
+    return {
+      formSections: sections.filter((s) => s.fields.length > 0),
+      hasAdvancedFields: advancedFound,
+    };
+  }, [fields, showAdvanced]);
 
   const emojiField = fields.find((f) => f.type === 'emoji');
   const resolvedTitle =
@@ -182,17 +191,36 @@ export default function GenericObjectView({
   return (
     <Box data-testid="generic-object-view" sx={{ width: '100%', mx: 'auto', pb: 10 }}>
       {/* Breadcrumbs */}
-      <Breadcrumbs separator={<ChevronRight fontSize="sm" />} sx={{ px: 0, mb: 2 }}>
+      <Breadcrumbs
+        separator={<ChevronRight fontSize="sm" />}
+        sx={{
+          px: 0,
+          mb: 2,
+          '& .MuiBreadcrumbs-ol': {
+            flexWrap: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          },
+        }}
+      >
         <Link color="neutral" href={`/household/${householdId}/dashboard`}>
           <Home />
         </Link>
-        <Link color="neutral" href={`/household/${householdId}/house`} underline="hover">
+        <Link
+          color="neutral"
+          href={`/household/${householdId}/house`}
+          underline="hover"
+          sx={{ display: { xs: 'none', sm: 'inline' } }}
+        >
           House Hub
         </Link>
-        <Typography color="neutral" sx={{ textTransform: 'capitalize' }}>
+        <Typography
+          color="neutral"
+          sx={{ textTransform: 'capitalize', display: { xs: 'none', md: 'inline' } }}
+        >
           {type}s
         </Typography>
-        <Typography color="primary" fontWeight="lg">
+        <Typography color="primary" fontWeight="lg" noWrap>
           {resolvedTitle}
         </Typography>
       </Breadcrumbs>
@@ -336,10 +364,22 @@ export default function GenericObjectView({
           </Tabs>
         )}
 
-        <Box sx={{ p: { xs: 2, sm: 4 }, bgcolor: 'background.surface' }}>
+        <Box sx={{ p: { xs: 2, sm: 4 }, pb: { xs: 10, sm: 4 }, bgcolor: 'background.surface' }}>
           {(activeTab === 0 || isNew) && (
             <form onSubmit={handleSubmit}>
               <Stack spacing={3}>
+                {hasAdvancedFields && (
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <FormControl orientation="horizontal" sx={{ gap: 1 }}>
+                      <FormLabel sx={{ mb: 0 }}>Advanced Settings</FormLabel>
+                      <Switch
+                        size="sm"
+                        checked={showAdvanced}
+                        onChange={(e) => setShowAdvanced(e.target.checked)}
+                      />
+                    </FormControl>
+                  </Box>
+                )}
                 {formSections.map((section, sIdx) => (
                   <Card
                     key={sIdx}
@@ -391,13 +431,31 @@ export default function GenericObjectView({
                   </Card>
                 ))}
 
-                <Box sx={{ pt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Box
+                  sx={{
+                    pt: 2,
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 2,
+                    position: { xs: 'fixed', sm: 'static' },
+                    bottom: { xs: 0, sm: 'auto' },
+                    left: { xs: 0, sm: 'auto' },
+                    right: { xs: 0, sm: 'auto' },
+                    bgcolor: { xs: 'background.surface', sm: 'transparent' },
+                    p: { xs: 2, sm: 0 },
+                    borderTop: { xs: '1px solid', sm: 'none' },
+                    borderColor: 'divider',
+                    zIndex: 1000,
+                    boxShadow: { xs: '0 -4px 12px rgba(0,0,0,0.1)', sm: 'none' },
+                  }}
+                >
                   {onCancel && (
                     <Button
                       variant="plain"
                       color="neutral"
                       onClick={onCancel}
                       disabled={mutation.isPending}
+                      sx={{ flex: { xs: 1, sm: 'none' } }}
                     >
                       Cancel
                     </Button>
@@ -408,6 +466,7 @@ export default function GenericObjectView({
                     size="lg"
                     startDecorator={<Save />}
                     loading={mutation.isPending}
+                    sx={{ flex: { xs: 2, sm: 'none' } }}
                   >
                     {isNew ? `Create ${type}` : 'Save Changes'}
                   </Button>

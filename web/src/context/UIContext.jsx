@@ -32,6 +32,17 @@ export const UIProvider = ({ children }) => {
     }
   }, []);
 
+  const showUndoableNotification = useCallback((message, onUndo, duration = 5000) => {
+    haptics.warning();
+    toast(message, {
+      duration,
+      action: {
+        label: 'Undo',
+        onClick: onUndo,
+      },
+    });
+  }, []);
+
   const confirmAction = useCallback((title, message, onConfirm) => {
     haptics.selection();
     setConfirmDialog({ open: true, title, message, onConfirm });
@@ -43,6 +54,7 @@ export const UIProvider = ({ children }) => {
 
   const value = {
     showNotification,
+    showUndoableNotification,
     confirmAction,
     confirmDialog,
     closeConfirm,

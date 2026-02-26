@@ -29,10 +29,17 @@ export default function AppSelect({
         value={value}
         onChange={(e, newValue) => onChange && onChange(newValue)}
         placeholder={placeholder}
+        slotProps={{
+          listbox: {
+            sx: {
+              '--ListItem-minHeight': '44px',
+            },
+          },
+        }}
         {...props}
       >
         {options.map((opt) => (
-          <Option key={opt.value} value={opt.value}>
+          <Option key={opt.value} value={opt.value} sx={{ minHeight: '44px' }}>
             {opt.label}
           </Option>
         ))}

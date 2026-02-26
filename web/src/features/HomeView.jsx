@@ -27,8 +27,11 @@ import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 import DashboardWidget from '../components/DashboardWidget';
 import AnalyticsWidget from '../components/widgets/AnalyticsWidget';
 import { useFinanceSummary } from '../hooks/useFinanceData';
+import { getRelativeTime } from '../utils/date';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const yesterday = new Date(Date.now() - 86400000);
 
 const Sparkline = ({ color = '#22c55e', height = 40 }) => (
   <svg
@@ -51,7 +54,7 @@ const Sparkline = ({ color = '#22c55e', height = 40 }) => (
 export default function HomeView() {
   const navigate = useNavigate();
   const { household, user, members = [], vehicles = [], api, onUpdateProfile } = useOutletContext();
-  const { data: financeSummary } = useFinanceSummary(api, household?.id);
+  const { data: financeSummary, isLoading: financeLoading } = useFinanceSummary(api, household?.id);
 
   const initialLayouts = useMemo(() => {
     try {
@@ -84,7 +87,12 @@ export default function HomeView() {
 
   const widgets = {
     wealth: (
-      <DashboardWidget title="Wealth Tracking" icon={TrendingUp} color="success">
+      <DashboardWidget
+        title="Wealth Tracking"
+        icon={TrendingUp}
+        color="success"
+        loading={financeLoading}
+      >
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Box>
             <Typography level="h2">
@@ -106,7 +114,12 @@ export default function HomeView() {
       </DashboardWidget>
     ),
     budget: (
-      <DashboardWidget title="Budget Health" icon={AccountBalance} color="warning">
+      <DashboardWidget
+        title="Budget Health"
+        icon={AccountBalance}
+        color="warning"
+        loading={financeLoading}
+      >
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <Box>
@@ -187,7 +200,7 @@ export default function HomeView() {
             </Avatar>
             <Box sx={{ flexGrow: 1 }}>
               <Typography level="title-sm">Rent Paid</Typography>
-              <Typography level="body-xs">Finance • Yesterday</Typography>
+              <Typography level="body-xs">Finance • {getRelativeTime(yesterday)}</Typography>
             </Box>
             <Typography level="body-sm" fontWeight="bold">
               -{household?.currency}1,200

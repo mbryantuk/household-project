@@ -1,7 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import { Box, Link } from '@mui/joy';
+import NetworkStatusBanner from '../components/ui/NetworkStatusBanner';
+
+import { useUI } from '../context/UIContext';
 
 export default function RootLayout({ context }) {
+  const { showUndoableNotification } = useUI();
   return (
     <Box
       sx={{
@@ -11,6 +15,7 @@ export default function RootLayout({ context }) {
         bgcolor: 'background.body',
       }}
     >
+      <NetworkStatusBanner />
       <Link
         href="#main-content"
         sx={{
@@ -38,7 +43,7 @@ export default function RootLayout({ context }) {
         Skip to main content
       </Link>
       <Box id="main-content" component="main" sx={{ flexGrow: 1 }}>
-        <Outlet context={context} />
+        <Outlet context={{ ...context, showUndoableNotification }} />
       </Box>
     </Box>
   );

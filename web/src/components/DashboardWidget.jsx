@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Box, Stack } from '@mui/joy';
+import { Card, Typography, Box, Stack, Skeleton } from '@mui/joy';
 import { DragIndicator } from '@mui/icons-material';
 
 /**
@@ -11,6 +11,7 @@ export default function DashboardWidget({
   children,
   color = 'primary',
   action,
+  loading = false,
   sx = {},
 }) {
   return (
@@ -66,7 +67,9 @@ export default function DashboardWidget({
         {action}
       </Box>
 
-      <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>{children}</Box>
+      <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+        <Skeleton loading={loading}>{children}</Skeleton>
+      </Box>
     </Card>
   );
 }
