@@ -127,6 +127,57 @@ OBJECT_TABLES.forEach((table) => {
 });
 
 /**
+ * VEHICLE MILEAGE LOGS
+ * Item 261: Support for v2 Forecasting
+ */
+router.get(
+  '/vehicles/:id/mileage',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const rows = await dbAll(
+        req.tenantDb,
+        'SELECT * FROM mileage_logs WHERE vehicle_id = ? AND household_id = ? AND deleted_at IS NULL ORDER BY date DESC',
+        [req.params.id, req.hhId]
+      );
+      response.success(res, rows || []);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.post(
+  '/vehicles/:id/mileage',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const { mileage, date, notes } = req.body;
+      const { id: newId } = await dbRun(
+        req.tenantDb,
+        'INSERT INTO mileage_logs (household_id, vehicle_id, mileage, date, notes) VALUES (?, ?, ?, ?, ?)',
+        [req.hhId, req.params.id, mileage, date || new Date().toISOString().split('T')[0], notes]
+      );
+
+      // Also update the main vehicle current_mileage
+      await dbRun(
+        req.tenantDb,
+        'UPDATE vehicles SET current_mileage = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND household_id = ?',
+        [mileage, req.params.id, req.hhId]
+      );
+
+      response.success(res, { id: newId, mileage, date, notes }, null, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
  * GET /api/households/:hhId/vehicles/maintenance-forecast
  * Item 224: Prediction based on mileage
  */

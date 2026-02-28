@@ -5,11 +5,136 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { households, userHouseholds, users, userProfiles } = require('../db/schema');
-const { eq, ilike, and, sql } = require('drizzle-orm');
+const { eq, ilike, and, sql, gte } = require('drizzle-orm');
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { auditLog } = require('../services/audit');
+const { getActivityHeatmap } = require('../services/activity_analytics');
 const { NotFoundError, AppError, ConflictError } = require('@hearth/shared');
 const response = require('../utils/response');
+const QRCode = require('qrcode');
+const { invitations } = require('../db/schema');
+
+/**
+ * POST /api/households/:id/guest-token
+ * Item 292: Guest Access Token Generation
+ */
+router.post(
+  '/:id/guest-token',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const hhId = parseInt(req.params.id);
+      const token = crypto.randomBytes(24).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days default
+
+      await req.ctx.db
+        .update(households)
+        .set({ guestToken: token, guestTokenExpires: expiresAt })
+        .where(eq(households.id, hhId));
+
+      response.success(res, { token, expiresAt });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * GET /api/public/guest-details?token=...
+ */
+router.get('/public/guest-details', async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    if (!token) throw new AppError('Token required', 400);
+
+    const [hh] = await req.ctx.db
+      .select()
+      .from(households)
+      .where(and(eq(households.guestToken, token), gte(households.guestTokenExpires, new Date())))
+      .limit(1);
+
+    if (!hh) throw new AppError('Invalid or expired guest token', 403);
+
+    // Fetch essential details from tenant DB
+    const { getTenantDb } = require('../db/index');
+    const tenantDb = await getTenantDb(hh.id);
+    const { dbGet } = require('../db');
+    const { decryptData } = require('../middleware/encryption');
+
+    const rawDetails = await dbGet(
+      tenantDb,
+      'SELECT broadband_provider, wifi_password, emergency_contacts, notes FROM house_details WHERE household_id = ?',
+      [hh.id]
+    );
+    const details = rawDetails ? decryptData('house_details', rawDetails) : {};
+
+    response.success(res, {
+      name: hh.name,
+      wifi: {
+        ssid: details.broadband_provider || 'Hearthstone Network',
+        password: details.wifi_password || 'Not set',
+      },
+      emergency_contacts: details.emergency_contacts,
+      notes: details.notes,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/households/:id/share/invite
+ * Item 281: Invite QR Code Generation
+ */
+router.get(
+  '/:id/share/invite',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const hhId = parseInt(req.params.id);
+      const token = crypto.randomBytes(16).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // 24h expiry
+
+      await req.ctx.db.insert(invitations).values({
+        householdId: hhId,
+        email: 'qr-invite@hearthstone.local', // Placeholder for QR invites
+        token,
+        role: 'member',
+        invitedBy: req.user.id,
+        expiresAt,
+      });
+
+      const inviteUrl = `${req.protocol}://${req.get('host')}/register?invite=${token}`;
+      const qrDataUrl = await QRCode.toDataURL(inviteUrl);
+
+      response.success(res, { qrCode: qrDataUrl, inviteUrl });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * GET /api/households/:id/stats/activity
+ * Item 265: Activity Heatmap
+ */
+router.get(
+  '/:id/stats/activity',
+  authenticateToken,
+  requireHouseholdRole('admin'),
+  async (req, res, next) => {
+    try {
+      const stats = await getActivityHeatmap(req.ctx.db, parseInt(req.params.id));
+      response.success(res, stats);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * POST /api/households

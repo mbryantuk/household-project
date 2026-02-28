@@ -83,14 +83,28 @@ function calculateNextRun(frequency, dayOfWeek, dayOfMonth, currentRun) {
   return d.toISOString().split('T')[0];
 }
 
+let schedulerTask = null;
+let initialTimeout = null;
+
 // Run every night at midnight (or during dev, more frequently)
 function startShoppingScheduler() {
-  cron.schedule('0 0 * * *', () => {
+  schedulerTask = cron.schedule('0 0 * * *', () => {
     processSchedules();
   });
 
   // Immediate run on start
-  setTimeout(processSchedules, 5000);
+  initialTimeout = setTimeout(processSchedules, 5000);
 }
 
-module.exports = { startShoppingScheduler, processSchedules };
+function stopShoppingScheduler() {
+  if (schedulerTask) {
+    schedulerTask.stop();
+    schedulerTask = null;
+  }
+  if (initialTimeout) {
+    clearTimeout(initialTimeout);
+    initialTimeout = null;
+  }
+}
+
+module.exports = { startShoppingScheduler, processSchedules, stopShoppingScheduler };

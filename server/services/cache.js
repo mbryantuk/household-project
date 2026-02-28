@@ -1,108 +1,108 @@
-const Redis = require('ioredis');
+const IORedis = require('ioredis');
 const config = require('../config');
 const logger = require('../utils/logger');
 
+let redis;
+
+function getClient() {
+  if (!redis) {
+    redis = new IORedis(config.REDIS_URL);
+  }
+  return redis;
+}
+
 /**
- * CacheService (Item 111)
- * Standardized Redis caching layer with tenant isolation.
+ * CACHE SERVICE
+ * Item 248: Redis-backed Response Caching
  */
-class CacheService {
-  constructor() {
-    if (process.env.NODE_ENV === 'test' && !config.REDIS_URL.includes('localhost')) {
-      // In CI tests, we might want to mock or use a local redis
-    }
-    
-    try {
-      this.client = new Redis(config.REDIS_URL, {
-        maxRetriesPerRequest: 3,
-        connectTimeout: 5000,
-      });
-      
-      this.client.on('error', (err) => {
-        if (process.env.NODE_ENV !== 'test') {
-          logger.error('[REDIS] Connection Error:', err.message);
-        }
-      });
-    } catch (err) {
-      logger.error('[REDIS] Initialization Failed:', err.message);
-    }
-  }
 
-  /**
-   * Get tenant-scoped prefix
-   */
-  getPrefix(householdId) {
-    if (!householdId) throw new Error('householdId is required for caching');
-    return `hh:${householdId}:`;
-  }
-
-  /**
-   * Fetch from cache
-   */
-  async get(householdId, key) {
-    if (!this.client) return null;
-    try {
-      const data = await this.client.get(this.getPrefix(householdId) + key);
-      return data ? JSON.parse(data) : null;
-    } catch (err) {
-      logger.warn(`[CACHE] GET failed for ${key}:`, err.message);
-      return null;
-    }
-  }
-
-  /**
-   * Write to cache
-   */
-  async set(householdId, key, value, ttlSeconds = 3600) {
-    if (!this.client) return;
-    try {
-      await this.client.set(
-        this.getPrefix(householdId) + key,
-        JSON.stringify(value),
-        'EX',
-        ttlSeconds
-      );
-    } catch (err) {
-      logger.warn(`[CACHE] SET failed for ${key}:`, err.message);
-    }
-  }
-
-  /**
-   * Delete from cache
-   */
-  async del(householdId, key) {
-    if (!this.client) return;
-    try {
-      await this.client.del(this.getPrefix(householdId) + key);
-    } catch (err) {
-      logger.warn(`[CACHE] DEL failed for ${key}:`, err.message);
-    }
-  }
-
-  /**
-   * Invalidate all keys for a household
-   */
-  async invalidateHousehold(householdId) {
-    if (!this.client) return;
-    const prefix = this.getPrefix(householdId);
-    
-    try {
-      const stream = this.client.scanStream({
-        match: `${prefix}*`,
-        count: 100,
-      });
-
-      stream.on('data', async (keys) => {
-        if (keys.length) {
-          const pipeline = this.client.pipeline();
-          keys.forEach((key) => pipeline.del(key));
-          await pipeline.exec();
-        }
-      });
-    } catch (err) {
-      logger.error(`[CACHE] Invalidation failed for HH:${householdId}:`, err.message);
-    }
+async function get(key) {
+  try {
+    const val = await getClient().get(key);
+    return val ? JSON.parse(val) : null;
+  } catch (err) {
+    logger.error(`[CACHE] Get failed for ${key}:`, err.message);
+    return null;
   }
 }
 
-module.exports = new CacheService();
+async function set(key, value, ttlSeconds = 300) {
+  try {
+    await getClient().set(key, JSON.stringify(value), 'EX', ttlSeconds);
+  } catch (err) {
+    logger.error(`[CACHE] Set failed for ${key}:`, err.message);
+  }
+}
+
+async function invalidate(pattern) {
+  try {
+    const keys = await getClient().keys(pattern);
+    if (keys.length > 0) {
+      await getClient().del(...keys);
+      logger.info(`[CACHE] Invalidated ${keys.length} keys matching ${pattern}`);
+    }
+  } catch (err) {
+    logger.error(`[CACHE] Invalidate failed for ${pattern}:`, err.message);
+  }
+}
+
+/**
+ * Invalidate all cache for a specific user
+ */
+async function invalidateUserCache(userId) {
+  await invalidate(`cache:user:${userId}:*`);
+}
+
+/**
+ * Invalidate all cache for a specific household
+ */
+async function invalidateHouseholdCache(hhId) {
+  await invalidate(`cache:household:${hhId}:*`);
+}
+
+/**
+ * Middleware for caching GET requests
+ */
+function cacheMiddleware(ttl = 300) {
+  return async (req, res, next) => {
+    if (req.method !== 'GET') return next();
+
+    let keyPrefix = '';
+    if (req.hhId) {
+      keyPrefix = `cache:household:${req.hhId}`;
+    } else if (req.user?.id) {
+      keyPrefix = `cache:user:${req.user.id}`;
+    } else {
+      return next(); // Skip caching if neither is present
+    }
+
+    // Construct key based on Prefix and Original URL
+    const key = `${keyPrefix}:${req.originalUrl}`;
+    const cached = await get(key);
+
+    if (cached) {
+      logger.debug(`[CACHE] Hit: ${key}`);
+      return res.json({ success: true, data: cached, _cached: true });
+    }
+
+    // Intercept send
+    const originalSend = res.json;
+    res.json = function (body) {
+      if (res.statusCode === 200 && body && body.success) {
+        set(key, body.data, ttl);
+      }
+      return originalSend.call(this, body);
+    };
+
+    next();
+  };
+}
+
+module.exports = {
+  get,
+  set,
+  invalidate,
+  invalidateUserCache,
+  invalidateHouseholdCache,
+  cacheMiddleware,
+};

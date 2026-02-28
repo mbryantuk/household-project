@@ -33,11 +33,11 @@ import FinanceCard from '../../components/ui/FinanceCard';
 import CopyToClipboard from '../../components/ui/CopyToClipboard';
 import SensitiveField from '../../components/ui/SensitiveField';
 
-const formatCurrency = (val) => {
+const formatByCurrency = (val, currency = 'GBP') => {
   const num = parseFloat(val) || 0;
   return num.toLocaleString('en-GB', {
     style: 'currency',
-    currency: 'GBP',
+    currency: currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -265,7 +265,7 @@ export default function BankingView({ financialProfileId }) {
 
     try {
       const res = await api.post(
-        `/households/${householdId}/finance/import/analyze-statement`,
+        `/households/${householdId}/finance/import/process-statement`,
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -288,12 +288,58 @@ export default function BankingView({ financialProfileId }) {
     } catch (err) {
       console.error('Import error:', err);
       showNotification(
-        "Failed to analyze statement. Ensure it's a valid CSV with Date, Description, and Amount columns.",
+        "Failed to analyze statement. Ensure it's a valid CSV or PDF with detectable transactions.",
         'danger'
       );
     } finally {
       setImportLoading(false);
       e.target.value = ''; // Reset input
+    }
+  };
+
+  const handleScanReceipt = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    const formData = new FormData();
+    formData.append('receipt', file);
+
+    try {
+      const res = await api.post(
+        `/households/${householdId}/finance/import/analyze-receipt`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+
+      const enriched = (res.data.suggestions || []).map((s) => ({
+        ...s,
+        object_type: s.member_id ? 'member' : 'household',
+        object_id: s.member_id || null,
+        category_id: s.is_income ? 'income' : s.category_id || 'utility',
+        action: s.already_exists ? 'update' : 'create',
+      }));
+
+      setSuggestions(enriched);
+      setSelectedSuggestions(enriched.filter((s) => !s.already_exists).map((s) => s.normalized));
+      setImportVehicles(res.data.vehicles || []);
+      setImportCategories(res.data.categories || []);
+      setImportModalOpen(true);
+      showNotification(
+        `OCR Complete. Detected £${res.data.total?.toFixed(2)} total value.`,
+        'success'
+      );
+    } catch (err) {
+      console.error('OCR error:', err);
+      showNotification(
+        'Failed to scan receipt. Ensure the image is clear and contains readable text.',
+        'danger'
+      );
+    } finally {
+      setImportLoading(false);
+      e.target.value = '';
     }
   };
 
@@ -382,7 +428,24 @@ export default function BankingView({ financialProfileId }) {
                 disabled={importLoading}
               >
                 Import Statement
-                <input type="file" hidden accept=".csv" onChange={handleImportStatement} />
+                <input type="file" hidden accept=".csv,.pdf" onChange={handleImportStatement} />
+              </Button>
+              <Button
+                variant="outlined"
+                color="neutral"
+                startDecorator={importLoading ? <CircularProgress size="sm" /> : <span>📷</span>}
+                component="label"
+                sx={{ height: '44px' }}
+                disabled={importLoading}
+              >
+                Scan Receipt
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleScanReceipt}
+                />
               </Button>
               <Button
                 variant="solid"
@@ -407,7 +470,12 @@ export default function BankingView({ financialProfileId }) {
               isDark={isDark}
               balance={a.current_balance}
               balanceColor={a.current_balance < 0 ? 'danger' : 'success'}
-              subValue={a.overdraft_limit > 0 ? `OD: ${formatCurrency(a.overdraft_limit)}` : null}
+              currency={a.currency}
+              subValue={
+                a.overdraft_limit > 0
+                  ? `OD: ${formatByCurrency(a.overdraft_limit, a.currency)}`
+                  : null
+              }
               assignees={getAssignees(a.id)}
               onAssign={() => setAssignItem(a)}
               onEdit={() => setAccountId(a.id)}
@@ -498,6 +566,17 @@ export default function BankingView({ financialProfileId }) {
                       defaultValue={selectedAccount?.account_name}
                       placeholder="e.g. Joint Current"
                     />
+                  </FormControl>
+                </Grid>
+
+                <Grid xs={6}>
+                  <FormControl required>
+                    <FormLabel>Currency</FormLabel>
+                    <Select name="currency" defaultValue={selectedAccount?.currency || 'GBP'}>
+                      <Option value="GBP">GBP (£)</Option>
+                      <Option value="USD">USD ($)</Option>
+                      <Option value="EUR">EUR (€)</Option>
+                    </Select>
                   </FormControl>
                 </Grid>
 

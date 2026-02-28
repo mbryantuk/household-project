@@ -27,7 +27,7 @@ async function startServer() {
     const server = http.createServer(app);
 
     // 4. Init Socket.io
-    initSocket(server);
+    await initSocket(server);
 
     // 5. Bootstrap and Start
     await bootstrap(db);
@@ -46,12 +46,15 @@ async function startServer() {
         // Item 221: Nightly Finance Checks (2 AM)
         cron.schedule('0 2 * * *', async () => {
           const { households: hhTable } = require('./db/schema');
+          const { sql } = require('drizzle-orm');
           const allHh = await db
             .select({ id: hhTable.id })
             .from(hhTable)
             .where(sql`deleted_at IS NULL`);
           for (const hh of allHh) {
             addJob('FINANCE_OVERDRAFT_CHECK', { householdId: hh.id });
+            addJob('SMART_REMINDERS', { householdId: hh.id });
+            addJob('MAINTENANCE_AUTO', { householdId: hh.id });
 
             // Item 225: Nightly S3 Backup
             if (process.env.STORAGE_DRIVER === 's3') {

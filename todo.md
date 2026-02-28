@@ -337,7 +337,7 @@ _Goal: Transition from a reactive management system to a proactive automation en
 ### Chunk 44: System Resilience & Backups
 
 - [x] **Item 225:** Implement "S3 Offsite Backups" for tenant databases, allowing admins to configure AWS/S3-compatible destinations for nightly snapshots.
-- [x] **6:** Add "Point-in-Time Recovery" (PITR) support for the PostgreSQL Global Registry to ensure zero data loss during system failures.
+- [x] **Item 226:** Add "Point-in-Time Recovery" (PITR) support for the PostgreSQL Global Registry to ensure zero data loss during system failures.
 - [x] **Item 227:** Implement "Heartbeat Monitoring" for the Node.js backend that triggers an external alert if the event loop latency exceeds 200ms for sustained periods.
 - [x] **Item 228:** Create a "System Health" Admin dashboard showing real-time Redis memory usage, BullMQ job success rates, and PostgreSQL connection pool status.
 
@@ -366,8 +366,68 @@ _Goal: Transition from a reactive management system to a proactive automation en
 
 _Goal: Enhance the multi-user experience with direct communication, improved onboarding, and systemic feedback loops._
 
-- [ ] **Item 241:** Implement a real "Invite via Email" flow that allows adding users who don't have an account yet, generating registration tokens.
-- [ ] **Item 242:** Create a central "Notification History" view allowing users to browse and search through past household alerts.
-- [ ] **Item 243:** Implement a "Household Message Board" widget for pinning important notes, WiFi passwords, or local emergency contacts.
-- [ ] **Item 244:** Add "Active Member" avatars to the header showing who is currently online in the household (via Socket.io).
-- [ ] **Item 245:** Implement "Comment Threads" on core entities (Assets, Vehicles, Chores) to allow members to discuss specific items.
+- [x] **Item 241:** Implement a real "Invite via Email" flow that allows adding users who don't have an account yet, generating registration tokens.
+- [x] **Item 242:** Create a central "Notification History" view allowing users to browse and search through past household alerts.
+- [x] **Item 243:** Implement a "Household Message Board" widget for pinning important notes, WiFi passwords, or local emergency contacts.
+- [x] **Item 244:** Add "Active Member" avatars to the header showing who is currently online in the household (via Socket.io).
+- [x] **Item 245:** Implement "Comment Threads" on core entities (Assets, Vehicles, Chores) to allow members to discuss specific items.
+
+## Phase 18: Performance & Scalability (The "Velocity" Update)
+
+_Goal: Optimize existing workflows for high-volume data and multi-instance environments._
+
+- [x] **Item 246:** Database Index Audit - Audit and add missing indexes for common filter combinations (e.g., `household_id` + `category_id` + `is_active`).
+- [x] **Item 247:** Image Transformation Pipeline - Implement automated image compression and resizing during upload to reduce S3 storage and frontend load times.
+- [x] **Item 248:** Redis-backed Response Caching - Implement cache-aside for heavy READ endpoints (like financial summaries) with automated invalidation on WRITE.
+- [x] **Item 249:** Frontend List Virtualization - Implement windowing for extremely long transaction ledgers or audit logs to maintain 60fps scrolling.
+- [x] **Item 250:** WebSocket Load Balancing readiness - Refactor `socket.js` to support Redis adapter for multi-instance scaling.
+
+## Phase 19: Intelligence & Insights (The "Oracle" Update)
+
+_Goal: Transition from manual tracking to proactive intelligence and automated recommendations._
+
+- [x] **Item 251:** Anomaly Detection - Highlight unusual transaction spikes (e.g., utility bill 2x higher than average).
+- [x] **Item 252:** Debt Payoff Strategy Optimizer - Recommend "Snowball" vs "Avalanche" payoff order based on APR and balance.
+- [x] **Item 253:** Smart Reminders - Push notifications for "Warranty Expiring" or "MOT Due" using the background job system.
+- [x] **Item 254:** Natural Language Command Parsing - Enhance Ctrl+K to support "Add £50 to groceries" or "Log 1000 miles for Tesla".
+- [x] **Item 255:** Automated Recurring Cost Matching - Suggest creating a `recurring_cost` when 3 similar transactions are detected in history.
+
+## Phase 20: Predictive Intelligence & Ecosystem Expansion
+
+_Goal: Leverage historical data for accurate forecasting and improve external interoperability._
+
+- [x] **Item 261:** Predictive Vehicle Maintenance (v2) - Enhanced forecasting using linear regression on mileage logs to predict service dates with 90% accuracy.
+- [x] **Item 262:** Advanced Energy Analytics - Visualise seasonal energy cost fluctuations and provide "Year-on-Year" comparison.
+- [x] **Item 263:** Smart Budget Adjustments - Proactively suggest increasing or decreasing budget limits based on a 3-month sliding window of actual spend.
+- [x] **Item 264:** Net Worth Projection - A 12-month "Wealth Horizon" chart predicting total net worth based on current savings rates and investment performance.
+- [x] **Item 265:** Household Activity Heatmap - Visualise member engagement levels across different modules to identify under-utilised features.
+
+## Phase 21: Financial Interoperability & Open Banking (Simulated)
+
+_Goal: Deepen financial data integration and provide automated ingestion pipelines._
+
+- [x] **Item 271:** Mock Plaid Integration - Create a sandbox environment to simulate linking real-world bank accounts and fetching live balances.
+- [x] **Item 272:** Automated Transaction Categorization - Implement a keyword-based auto-categorization engine for imported CSV/PDF data.
+- [x] **Item 273:** Multi-Currency Support - Support secondary currencies for accounts and assets with manual exchange rate overrides.
+- [x] **Item 274:** PDF Statement Scraping - Implement server-side extraction of transaction tables from uploaded bank PDF statements using `pdf-parse`.
+- [x] **Item 275:** Financial Goal Tracker - Advanced visualization for long-term savings goals with milestone tracking and "Time to Goal" projections.
+
+## Phase 22: Advanced Household Services & Interoperability
+
+_Goal: Extend system utility beyond basic tracking into proactive service management and better accessibility._
+
+- [x] **Item 281:** Dynamic QR Code Sharing - Generate QR codes for WiFi access and member invites directly in the UI for guest convenience.
+- [x] **Item 282:** Inventory Management (v2) - Support sub-locations and quantity tracking for consumables with low-stock alerts.
+- [x] **Item 283:** Automated Grocery Lists - Proactively suggest shopping items based on historical consumption and predicted expiry dates.
+- [x] **Item 284:** External Service Monitoring - Integrated local service status (Power, Water, Internet) using simulated external providers.
+- [x] **Item 285:** Voice Command Accessibility - Implement a "Voice Command" mode using the Web Speech API for hands-free system navigation and data entry.
+
+## Phase 23: Intelligent Maintenance & Hyper-Automation
+
+_Goal: Transition from a passive tracking tool to an active household autopilot._
+
+- [x] **Item 291:** Automated Maintenance Workflows - Proactively generate chores and calendar events when vehicle service or asset warranties are approaching.
+- [x] **Item 292:** Guest Access Portal - A locked-down, QR-accessible dashboard for house guests showing WiFi, emergency contacts, and home manuals.
+- [x] **Item 293:** Smart Home Unified View - Simulated integration with IoT ecosystems (Hue, Nest) to monitor home vitals (temp, light status).
+- [x] **Item 294:** Optical Character Recognition (OCR) - Extract items and prices from physical receipt photos using `Tesseract.js` for automated expense entry.
+- [x] **Item 295:** Household "Green Score" - A sustainability rating based on energy usage trends and waste recycling frequency.

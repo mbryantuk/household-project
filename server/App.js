@@ -174,6 +174,7 @@ const apiRouters = [
   { path: '/households/:hhId/transactions', router: transactionRoutes },
   { path: '/households/:hhId/webhooks', router: webhookConfigRoutes },
   { path: '/households/:hhId/comments', router: commentRoutes },
+  { path: '/households/:hhId/uploads', router: require('./routes/uploads') },
   { path: '/households/:hhId', router: assetsVehiclesRoutes },
   { path: '/households', router: householdRoutes },
   { path: '/webhooks', router: webhookRoutes },

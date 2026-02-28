@@ -66,6 +66,55 @@
     }
   ],
   "paths": {
+    "/households/{hhId}/finance/insights": {
+      "get": {
+        "tags": ["Finance"],
+        "summary": "Get financial insights (anomalies and recurring cost suggestions)",
+        "parameters": [
+          { "name": "hhId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
+    "/households/{hhId}/finance/debt-strategy": {
+      "get": {
+        "tags": ["Finance"],
+        "summary": "Get debt payoff strategy (Avalanche vs Snowball)",
+        "parameters": [
+          { "name": "hhId", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "financial_profile_id", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
+    "/households/{hhId}/uploads": {
+      "post": {
+        "tags": ["System"],
+        "summary": "Upload a file to household storage",
+        "parameters": [
+          { "name": "hhId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
         "tags": ["Auth"],

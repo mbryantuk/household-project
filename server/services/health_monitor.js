@@ -13,9 +13,11 @@ histogram.enable();
 let lastAlertTime = 0;
 const ALERT_THRESHOLD_MS = 200;
 const ALERT_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+let monitorInterval = null;
 
 function startHeartbeatMonitor() {
-  setInterval(() => {
+  if (monitorInterval) return;
+  monitorInterval = setInterval(() => {
     const lag = histogram.mean / 1e6; // Convert to ms
     histogram.reset();
 
@@ -39,4 +41,11 @@ function startHeartbeatMonitor() {
   }, 10000); // Check every 10 seconds
 }
 
-module.exports = { startHeartbeatMonitor };
+function stopHeartbeatMonitor() {
+  if (monitorInterval) {
+    clearInterval(monitorInterval);
+    monitorInterval = null;
+  }
+}
+
+module.exports = { startHeartbeatMonitor, stopHeartbeatMonitor };

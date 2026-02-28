@@ -36,6 +36,8 @@ import {
   Add,
   List as ListIcon,
   PictureAsPdf,
+  TrackChanges as Target,
+  Link as LinkIcon,
 } from '@mui/icons-material';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -54,11 +56,25 @@ import VehicleFinanceView from './finance/VehicleFinanceView';
 import BudgetView from './finance/BudgetView';
 import ChargesView from './finance/ChargesView';
 import TransactionLedger from './finance/TransactionLedger';
+import SavingsGoalsView from './finance/SavingsGoalsView';
+import PlaidSandbox from './finance/PlaidSandbox';
 
 import FinancialProfileSelector from '../components/ui/FinancialProfileSelector';
 import EmojiPicker from '../components/EmojiPicker';
 import { getEmojiColor } from '../utils/colors';
 import { useFinanceProfiles } from '../hooks/useFinanceData';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Alert } from '@mui/joy';
+import { Warning, Lightbulb, Timeline } from '@mui/icons-material';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as ChartTooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function FinanceView() {
   const location = useLocation();
@@ -72,6 +88,63 @@ export default function FinanceView() {
   const profileParam = queryParams.get('financial_profile_id');
 
   const { data: profiles = [], isLoading: loading } = useFinanceProfiles(api, householdId);
+  const { data: anomalies = [] } = useQuery({
+    queryKey: ['households', householdId, 'finance-insights'],
+    queryFn: () =>
+      api.get(`/households/${householdId}/finance/insights`).then((res) => res.data || []),
+    enabled: !!householdId && !tabParam,
+  });
+
+  const { data: projectionData } = useQuery({
+    queryKey: ['households', householdId, profileParam, 'wealth-projection'],
+    queryFn: () =>
+      api
+        .get(`/households/${householdId}/finance/projection?financial_profile_id=${profileParam}`)
+        .then((res) => res.data),
+    enabled: !!householdId && !tabParam && !!profileParam,
+  });
+
+  const { data: debtStrategy } = useQuery({
+    queryKey: ['households', householdId, profileParam, 'debt-strategy'],
+    queryFn: () =>
+      api
+        .get(
+          `/households/${householdId}/finance/debt-strategy?financial_profile_id=${profileParam}`
+        )
+        .then((res) => res.data),
+    enabled: !!householdId && !tabParam && !!profileParam,
+  });
+
+  const createRecurringMutation = useMutation({
+    mutationFn: (data) => api.post(`/households/${householdId}/finance/recurring-costs`, data),
+    onSuccess: () => {
+      showNotification('Recurring cost added to your budget!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'finance-insights'] });
+    },
+  });
+
+  const handleAcceptSuggestion = (s) => {
+    createRecurringMutation.mutate({
+      name: s.name,
+      amount: s.amount,
+      category: s.category || 'Subscription',
+      frequency: s.frequency,
+      payment_day: 1, // Default
+      financial_profile_id: profileParam,
+    });
+  };
+
+  const updateBudgetMutation = useMutation({
+    mutationFn: ({ id, limit }) =>
+      api.put(`/households/${householdId}/finance/budget-categories/${id}`, {
+        monthly_limit: limit,
+      }),
+    onSuccess: () => {
+      showNotification('Budget limit updated!', 'success');
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'finance-insights'] });
+      queryClient.invalidateQueries({ queryKey: ['households', householdId, 'finance-summary'] });
+    },
+  });
 
   // Create Profile State
   const [openCreate, setOpenCreate] = useState(false);
@@ -232,6 +305,16 @@ export default function FinanceView() {
         icon: DirectionsCar,
         desc: 'Track loans and leases for your fleet.',
       },
+      goals: {
+        label: 'Savings Goals',
+        icon: Target,
+        desc: 'Track and visualize long-term household savings targets.',
+      },
+      plaid: {
+        label: 'Bank Sync (Mock)',
+        icon: LinkIcon,
+        desc: 'Simulate linking real-world bank accounts via Plaid sandbox.',
+      },
     }),
     []
   );
@@ -370,6 +453,8 @@ export default function FinanceView() {
     if (activeTabKey === 'loans') return <LoansView {...props} />;
     if (activeTabKey === 'mortgage') return <MortgagesView {...props} />;
     if (activeTabKey === 'car') return <VehicleFinanceView {...props} />;
+    if (activeTabKey === 'goals') return <SavingsGoalsView {...props} />;
+    if (activeTabKey === 'plaid') return <PlaidSandbox {...props} />;
     return null;
   };
 
@@ -411,7 +496,151 @@ export default function FinanceView() {
           description="Select a domain to manage your household wealth and liabilities."
           endDecorator={profileSwitcher}
         />
+
+        {anomalies && anomalies.anomalies?.length > 0 && (
+          <Stack spacing={2} sx={{ mb: 3 }}>
+            {anomalies.anomalies.map((anomaly, idx) => (
+              <Alert key={idx} color="warning" startDecorator={<Warning />} variant="soft">
+                <Box>
+                  <Typography level="title-md">{anomaly.title}</Typography>
+                  <Typography level="body-sm">{anomaly.message}</Typography>
+                </Box>
+              </Alert>
+            ))}
+          </Stack>
+        )}
+
+        {anomalies && anomalies.suggestions?.length > 0 && (
+          <Stack spacing={2} sx={{ mb: 3 }}>
+            {anomalies.suggestions.map((s, idx) => (
+              <Alert
+                key={idx}
+                color="success"
+                startDecorator={<Lightbulb />}
+                variant="soft"
+                endDecorator={
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    color="success"
+                    onClick={() => handleAcceptSuggestion(s)}
+                    loading={createRecurringMutation.isPending}
+                  >
+                    Track as Recurring
+                  </Button>
+                }
+              >
+                <Box>
+                  <Typography level="title-md">Recurring Cost Suggestion</Typography>
+                  <Typography level="body-sm">{s.message}</Typography>
+                </Box>
+              </Alert>
+            ))}
+          </Stack>
+        )}
+
+        {anomalies && anomalies.budgetAdjustments?.length > 0 && (
+          <Stack spacing={2} sx={{ mb: 3 }}>
+            {anomalies.budgetAdjustments.map((adj, idx) => (
+              <Alert
+                key={idx}
+                color="info"
+                startDecorator={<Lightbulb />}
+                variant="soft"
+                endDecorator={
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    color="info"
+                    onClick={() =>
+                      updateBudgetMutation.mutate({ id: adj.categoryId, limit: adj.suggestedLimit })
+                    }
+                    loading={updateBudgetMutation.isPending}
+                  >
+                    Adjust to £{adj.suggestedLimit}
+                  </Button>
+                }
+              >
+                <Box>
+                  <Typography level="title-md">Budget Optimization</Typography>
+                  <Typography level="body-sm">{adj.message}</Typography>
+                </Box>
+              </Alert>
+            ))}
+          </Stack>
+        )}
+
+        {debtStrategy && debtStrategy.debts?.length > 0 && (
+          <Alert color="primary" startDecorator={<TrendingUp />} variant="soft" sx={{ mb: 3 }}>
+            <Box>
+              <Typography level="title-md">
+                Debt Payoff Strategy: {debtStrategy.recommendedStrategy}
+              </Typography>
+              <Typography level="body-sm">{debtStrategy.message}</Typography>
+              <Box sx={{ mt: 1 }}>
+                <Typography level="body-xs" fontWeight="bold">
+                  Recommended Order:
+                </Typography>
+                <Typography level="body-xs">
+                  {debtStrategy[`${debtStrategy.recommendedStrategy.toLowerCase()}Order`]
+                    ?.map((d, i) => `${i + 1}. ${d.name} (£${d.balance})`)
+                    .join(' ➔ ')}
+                </Typography>
+              </Box>
+            </Box>
+          </Alert>
+        )}
+
         <Grid container spacing={3}>
+          {projectionData && projectionData.projection?.length > 0 && (
+            <Grid xs={12}>
+              <Card variant="soft" sx={{ p: 3 }}>
+                <Typography level="title-lg" startDecorator={<Timeline />} sx={{ mb: 2 }}>
+                  Wealth Horizon (12-Month Projection)
+                </Typography>
+                <Box sx={{ height: 250, width: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={projectionData.projection}>
+                      <defs>
+                        <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
+                          <stop
+                            offset="5%"
+                            stopColor="var(--joy-palette-primary-solidBg)"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="var(--joy-palette-primary-solidBg)"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="month" fontSize={12} />
+                      <YAxis
+                        fontSize={12}
+                        tickFormatter={(val) => `£${(val / 1000).toFixed(0)}k`}
+                      />
+                      <ChartTooltip formatter={(val) => `£${val.toLocaleString()}`} />
+                      <Area
+                        type="monotone"
+                        dataKey="netWorth"
+                        stroke="var(--joy-palette-primary-solidBg)"
+                        fillOpacity={1}
+                        fill="url(#colorNetWorth)"
+                        strokeWidth={3}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Box>
+                <Typography level="body-xs" textAlign="center" sx={{ mt: 1, opacity: 0.7 }}>
+                  * Projection based on current income, recurring costs, and estimated monthly
+                  growth of £{projectionData.estimatedMonthlyGrowth?.toLocaleString()}.
+                </Typography>
+              </Card>
+            </Grid>
+          )}
+
           {Object.entries(viewMap).map(([key, config]) => (
             <Grid xs={12} sm={6} md={4} lg={3} key={key}>
               <Card

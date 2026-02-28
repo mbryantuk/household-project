@@ -130,6 +130,22 @@ export default function AssetsView() {
     },
 
     { name: 'location', label: 'Location', gridSpan: { md: 6 } },
+    {
+      name: 'sub_location',
+      label: 'Sub-location',
+      placeholder: 'e.g. Top Drawer, Shelf 2',
+      gridSpan: { md: 6 },
+    },
+
+    { type: 'header', label: 'Inventory (Item 282)' },
+    { name: 'quantity', label: 'In Stock', type: 'number', gridSpan: { xs: 6, md: 3 } },
+    {
+      name: 'low_stock_threshold',
+      label: 'Low Stock Alert At',
+      type: 'number',
+      gridSpan: { xs: 6, md: 3 },
+    },
+
     { name: 'manufacturer', label: 'Manufacturer', gridSpan: { md: 6 }, isAdvanced: true },
     { name: 'model_number', label: 'Model Number', gridSpan: { md: 6 }, isAdvanced: true },
 
@@ -249,6 +265,7 @@ export default function AssetsView() {
                 {renderSortableHeader('Asset Name', 'name')}
                 {renderSortableHeader('Category', 'category', 150)}
                 {renderSortableHeader('Location', 'location', 150)}
+                {renderSortableHeader('In Stock', 'quantity', 100)}
                 {renderSortableHeader('Value', 'purchase_value', 120)}
                 {renderSortableHeader('Insurance', 'insurance_status', 140)}
                 {isAdmin && <th style={{ textAlign: 'right' }}>Actions</th>}
@@ -278,7 +295,24 @@ export default function AssetsView() {
                     </Typography>
                   </td>
                   <td>{row.category}</td>
-                  <td>{row.location}</td>
+                  <td>
+                    {row.location}
+                    {row.sub_location && (
+                      <Typography level="body-xs" sx={{ opacity: 0.6 }}>
+                        {row.sub_location}
+                      </Typography>
+                    )}
+                  </td>
+                  <td>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {row.quantity}
+                      {row.quantity <= row.low_stock_threshold && row.low_stock_threshold > 0 && (
+                        <Chip size="sm" color="danger" variant="solid">
+                          LOW
+                        </Chip>
+                      )}
+                    </Stack>
+                  </td>
                   <td>£{row.purchase_value}</td>
                   <td>
                     <Chip

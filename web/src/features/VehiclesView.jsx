@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Sheet, Grid, Button, Chip, Alert } from '@mui/joy';
-import { Build, Warning } from '@mui/icons-material';
+import { useMemo, useEffect } from 'react';
+import { useOutletContext, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Box, Typography, Sheet, Grid, Button, Chip, Alert, Input } from '@mui/joy';
+import { Build, Warning, Speed, History } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import GenericObjectView from '../components/objects/GenericObjectView';
+import MileageLogTab from '../components/objects/MileageLogTab';
 
 const VEHICLE_TYPES = [
   { value: 'Car', label: 'Car' },
@@ -17,6 +18,7 @@ const VEHICLE_TYPES = [
 
 export default function VehiclesView() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     api,
     id: householdId,
@@ -28,6 +30,25 @@ export default function VehiclesView() {
   } = useOutletContext();
   const { vehicleId } = useParams();
   const isAdmin = currentUser?.role === 'admin';
+
+  const queryParams = new URLSearchParams(location.search);
+  const searchName = queryParams.get('search');
+  const logMileage = queryParams.get('mileage');
+
+  // Auto-navigate to vehicle matching search (Command Bar support)
+  useEffect(() => {
+    if (searchName && !vehicleId && vehicles.length > 0) {
+      const match = vehicles.find(
+        (v) =>
+          v.make?.toLowerCase().includes(searchName.toLowerCase()) ||
+          v.model?.toLowerCase().includes(searchName.toLowerCase()) ||
+          v.registration?.toLowerCase().includes(searchName.toLowerCase())
+      );
+      if (match) {
+        navigate(`${match.id}${location.search}`, { replace: true });
+      }
+    }
+  }, [searchName, vehicleId, vehicles, navigate, location.search]);
 
   // Fetch Maintenance Forecast (Item 224)
   const { data: forecasts = [] } = useQuery({
@@ -130,6 +151,20 @@ export default function VehiclesView() {
     { id: 'vehicle_breakdown', label: 'Breakdown' },
     { id: 'other', label: 'Other' },
   ];
+
+  const handleQuickMileageUpdate = async () => {
+    try {
+      await api.put(`/households/${householdId}/vehicles/${vehicleId}`, {
+        ...selectedVehicle,
+        current_mileage: parseInt(logMileage),
+      });
+      showNotification('Mileage updated successfully!', 'success');
+      refreshSidebar();
+      navigate('.', { replace: true });
+    } catch {
+      showNotification('Failed to update mileage.', 'danger');
+    }
+  };
 
   if (!vehicleId) {
     return (
@@ -247,6 +282,32 @@ export default function VehiclesView() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      {logMileage && selectedVehicle && (
+        <Alert
+          variant="solid"
+          color="primary"
+          startDecorator={<Speed />}
+          endDecorator={
+            <Button size="sm" variant="solid" color="primary" onClick={handleQuickMileageUpdate}>
+              Update to {logMileage}
+            </Button>
+          }
+        >
+          <Box>
+            <Typography level="title-sm" color="inherit">
+              Log New Mileage
+            </Typography>
+            <Typography level="body-sm" color="inherit">
+              Would you like to update{' '}
+              <b>
+                {selectedVehicle.make} {selectedVehicle.model}
+              </b>{' '}
+              to <b>{parseInt(logMileage).toLocaleString()}</b> miles?
+            </Typography>
+          </Box>
+        </Alert>
+      )}
+
       {selectedForecast && (
         <Alert
           variant="soft"
@@ -261,8 +322,13 @@ export default function VehiclesView() {
                 : 'Upcoming Maintenance Prediction'}
             </Typography>
             <Typography level="body-sm" sx={{ mt: 0.5 }}>
-              Based on your average mileage, this vehicle will reach its service interval around{' '}
+              Based on your average mileage <b>({selectedForecast.dailyRate} miles/day)</b>, this
+              vehicle will reach its service interval around{' '}
               <b>{new Date(selectedForecast.predictedServiceDate).toLocaleDateString()}</b>.
+            </Typography>
+            <Typography level="body-xs" sx={{ mt: 1, opacity: 0.8 }}>
+              Prediction Confidence: <b>{selectedForecast.confidence.toUpperCase()}</b>
+              {selectedForecast.confidence === 'low' && ' (Log more miles to improve accuracy)'}
             </Typography>
           </Box>
         </Alert>
@@ -279,6 +345,16 @@ export default function VehiclesView() {
         defaultValues={{ emoji: '🚗', type: 'Car', make: '', model: '' }}
         fields={FIELDS}
         costSegments={COST_SEGMENTS}
+        extraTabs={[
+          {
+            id: 'mileage',
+            label: 'Mileage',
+            icon: History,
+            content: () => (
+              <MileageLogTab api={api} householdId={householdId} vehicleId={vehicleId} />
+            ),
+          },
+        ]}
         onSave={() => refreshSidebar()}
         onDelete={() => {
           refreshSidebar();

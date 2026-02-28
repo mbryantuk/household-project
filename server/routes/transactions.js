@@ -3,6 +3,7 @@ const router = express.Router({ mergeParams: true });
 const { authenticateToken, requireHouseholdRole } = require('../middleware/auth');
 const { useTenantDb } = require('../middleware/tenant');
 const { auditLog } = require('../services/audit');
+const { cacheMiddleware, invalidateHouseholdCache } = require('../services/cache');
 const { dbAll, dbGet, dbRun } = require('../db');
 const { NotFoundError, AppError } = require('@hearth/shared');
 const response = require('../utils/response');
@@ -18,6 +19,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   async (req, res, next) => {
     try {
       const rows = await dbAll(
@@ -62,6 +64,7 @@ router.post(
         { count: items.length },
         req
       );
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, Array.isArray(req.body) ? results : results[0], null, 201);
     } catch (err) {
       next(err);
@@ -97,6 +100,7 @@ router.patch(
         { ids, updates: Object.keys(updates) },
         req
       );
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, { message: 'Batch update successful' });
     } catch (err) {
       next(err);
@@ -124,6 +128,7 @@ router.put(
       );
 
       if (result.changes === 0) throw new NotFoundError('Transaction not found');
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, { message: 'Updated' });
     } catch (err) {
       next(err);

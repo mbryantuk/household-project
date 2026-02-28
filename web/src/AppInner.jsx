@@ -53,6 +53,7 @@ const WaterView = lazy(() => import('./features/WaterView'));
 const WasteView = lazy(() => import('./features/WasteView'));
 const CouncilView = lazy(() => import('./features/CouncilView'));
 const NotificationHistoryView = lazy(() => import('./features/NotificationHistoryView'));
+const GuestPortal = lazy(() => import('./pages/GuestPortal'));
 const OnboardingWizard = lazy(() => import('./pages/OnboardingWizard'));
 
 const IDLE_WARNING_MS = 60 * 60 * 1000;
@@ -149,7 +150,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
   if (isInitializing) return <PageLoader />;
 
   return (
-    <CommandBar householdId={householdId}>
+    <CommandBar householdId={householdId} api={api}>
       <OfflineOverlay />
       {isLocked && <LockScreen />}
       <Suspense fallback={<PageLoader />}>
@@ -167,6 +168,7 @@ export default function AppInner({ themeId, setThemeId, onPreviewTheme }) {
           <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/guest/:token" element={<GuestPortal />} />
 
           <Route
             element={

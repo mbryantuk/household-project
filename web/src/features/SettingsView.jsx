@@ -18,6 +18,7 @@ import Palette from '@mui/icons-material/Palette';
 import Security from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Code from '@mui/icons-material/Code';
+import BarChart from '@mui/icons-material/BarChart';
 import OpenInNew from '@mui/icons-material/OpenInNew';
 
 import { useHousehold } from '../context/HouseholdContext';
@@ -26,6 +27,7 @@ import ThemeSettings from './settings/ThemeSettings';
 import AdminSettings from './settings/AdminSettings';
 import SecuritySettings from './settings/SecuritySettings';
 import DeveloperSettings from './settings/DeveloperSettings';
+import ActivityAnalytics from './settings/ActivityAnalytics';
 
 export default function SettingsView() {
   const location = useLocation();
@@ -159,6 +161,10 @@ export default function SettingsView() {
               </ListItemButton>
 
               <Tab variant="plain" color="neutral">
+                <BarChart sx={{ mr: 2 }} /> Engagement
+              </Tab>
+
+              <Tab variant="plain" color="neutral">
                 <Palette sx={{ mr: 2 }} /> Appearance
               </Tab>
 
@@ -213,12 +219,15 @@ export default function SettingsView() {
               <SecuritySettings />
             </TabPanel>
             <TabPanel value={2} sx={{ p: 0 }}>
-              <ThemeSettings />
+              <ActivityAnalytics />
             </TabPanel>
             <TabPanel value={3} sx={{ p: 0 }}>
-              <DeveloperSettings />
+              <ThemeSettings />
             </TabPanel>
             <TabPanel value={4} sx={{ p: 0 }}>
+              <DeveloperSettings />
+            </TabPanel>
+            <TabPanel value={5} sx={{ p: 0 }}>
               <AdminSettings />
             </TabPanel>
           </Box>

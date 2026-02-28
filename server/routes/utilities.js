@@ -162,4 +162,55 @@ UTILITY_TYPES.forEach((type) => {
   );
 });
 
+/**
+ * UTILITY READINGS (Meter Logs)
+ * Item 262: Advanced Usage Analytics
+ */
+router.get(
+  '/:type/readings',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const rows = await dbAll(
+        req.tenantDb,
+        'SELECT * FROM utility_readings WHERE utility_type = ? AND household_id = ? AND deleted_at IS NULL ORDER BY reading_date DESC',
+        [req.params.type, req.hhId]
+      );
+      response.success(res, rows || []);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.post(
+  '/:type/readings',
+  authenticateToken,
+  requireHouseholdRole('member'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const { account_id, reading_date, value, unit, notes } = req.body;
+      const { id: newId } = await dbRun(
+        req.tenantDb,
+        'INSERT INTO utility_readings (household_id, utility_type, account_id, reading_date, value, unit, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [
+          req.hhId,
+          req.params.type,
+          account_id,
+          reading_date || new Date().toISOString().split('T')[0],
+          value,
+          unit,
+          notes,
+        ]
+      );
+      response.success(res, { id: newId, ...req.body }, null, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 module.exports = router;

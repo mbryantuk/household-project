@@ -17,6 +17,7 @@ module.exports = {
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
   transformIgnorePatterns: ['/node_modules/(?!(@scure|otplib|qrcode|ua-parser-js)/)'],
   globalTeardown: '<rootDir>/tests/globalTeardown.js',
+  forceExit: true,
   reporters: ['default', '<rootDir>/tests/json-reporter.js'],
   coverageThreshold: {
     global: {

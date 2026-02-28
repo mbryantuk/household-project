@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('../config');
 const logger = require('../utils/logger');
+const sharp = require('sharp');
 
 let s3Client = null;
 
@@ -25,6 +26,7 @@ if (config.STORAGE_DRIVER === 's3') {
 
 /**
  * UPLOAD FILE
+ * Item 247: Image Transformation Pipeline (Resize & Compress)
  * @param {number} householdId
  * @param {string} fileName
  * @param {Buffer|Stream} body
@@ -32,13 +34,32 @@ if (config.STORAGE_DRIVER === 's3') {
  */
 async function uploadFile(householdId, fileName, body, contentType) {
   const key = `household-${householdId}/${fileName}`;
+  let finalBody = body;
+
+  // Item 247: Optimize Images
+  if (contentType.startsWith('image/') && !fileName.endsWith('.gif')) {
+    try {
+      finalBody = await sharp(body)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80, progressive: true })
+        .toBuffer();
+      logger.info(
+        `[STORAGE] Optimized image ${fileName} (${body.length} -> ${finalBody.length} bytes)`
+      );
+    } catch (err) {
+      logger.warn(
+        `[STORAGE] Image optimization failed for ${fileName}, uploading raw:`,
+        err.message
+      );
+    }
+  }
 
   if (config.STORAGE_DRIVER === 's3') {
     try {
       const command = new PutObjectCommand({
         Bucket: config.S3_BUCKET,
         Key: key,
-        Body: body,
+        Body: finalBody,
         ContentType: contentType,
       });
       await s3Client.send(command);
@@ -54,7 +75,7 @@ async function uploadFile(householdId, fileName, body, contentType) {
 
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-    fs.writeFileSync(fullPath, body);
+    fs.writeFileSync(fullPath, finalBody);
     return key;
   }
 }

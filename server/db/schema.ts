@@ -135,6 +135,9 @@ export const households = pgTable(
     isTest: integer('is_test').default(0),
     debugMode: integer('debug_mode').default(0),
     nightlyVersionFilter: text('nightly_version_filter'),
+    manualExchangeRates: text('manual_exchange_rates'),
+    guestToken: text('guest_token'),
+    guestTokenExpires: timestamp('guest_token_expires'),
     version: integer('version').default(1).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
@@ -175,64 +178,95 @@ export const userHouseholds = pgTable(
 /**
  * Item 241: Household Invitations
  */
-export const invitations = pgTable('invitations', {
-  id: serial('id').primaryKey(),
-  householdId: integer('household_id')
-    .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
-  email: text('email').notNull(),
-  role: userRoleEnum('role').default('member'),
-  token: text('token').notNull().unique(),
-  invitedBy: integer('invited_by').references(() => users.id, { onDelete: 'set null' }),
-  expiresAt: timestamp('expires_at').notNull(),
-  isAccepted: boolean('is_accepted').default(false),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const invitations = pgTable(
+  'invitations',
+  {
+    id: serial('id').primaryKey(),
+    householdId: integer('household_id')
+      .notNull()
+      .references(() => households.id, { onDelete: 'cascade' }),
+    email: text('email').notNull(),
+    role: userRoleEnum('role').default('member'),
+    token: text('token').notNull().unique(),
+    invitedBy: integer('invited_by').references(() => users.id, { onDelete: 'set null' }),
+    expiresAt: timestamp('expires_at').notNull(),
+    isAccepted: boolean('is_accepted').default(false),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    tokenIdx: index('invite_token_idx').on(table.token),
+    emailIdx: index('invite_email_idx').on(table.email),
+  })
+);
 
-export const auditLogs = pgTable('audit_logs', {
-  id: serial('id').primaryKey(),
-  householdId: integer('household_id')
-    .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
-  action: text('action').notNull(),
-  entityType: text('entity_type'),
-  entityId: integer('entity_id'),
-  metadata: jsonb('metadata'),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: serial('id').primaryKey(),
+    householdId: integer('household_id')
+      .notNull()
+      .references(() => households.id, { onDelete: 'cascade' }),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+    action: text('action').notNull(),
+    entityType: text('entity_type'),
+    entityId: integer('entity_id'),
+    metadata: jsonb('metadata'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    hhCreatedIdx: index('audit_hh_created_idx').on(table.householdId, table.createdAt),
+    actionIdx: index('audit_action_idx').on(table.action),
+  })
+);
 
-export const recurringCosts = pgTable('recurring_costs', {
-  id: serial('id').primaryKey(),
-  householdId: integer('household_id')
-    .notNull()
-    .references(() => households.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  amount: real('amount').notNull(),
-  frequency: text('frequency').default('monthly'),
-  categoryId: text('category_id'),
-  memberId: integer('member_id').references(() => users.id, { onDelete: 'set null' }),
-  startDate: timestamp('start_date').defaultNow(),
-  isActive: boolean('is_active').default(true),
-  version: integer('version').default(1).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+export const recurringCosts = pgTable(
+  'recurring_costs',
+  {
+    id: serial('id').primaryKey(),
+    householdId: integer('household_id')
+      .notNull()
+      .references(() => households.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    amount: real('amount').notNull(),
+    frequency: text('frequency').default('monthly'),
+    categoryId: text('category_id'),
+    memberId: integer('member_id').references(() => users.id, { onDelete: 'set null' }),
+    startDate: timestamp('start_date').defaultNow(),
+    isActive: boolean('is_active').default(true),
+    version: integer('version').default(1).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  (table) => ({
+    hhActiveIdx: index('rc_hh_active_idx').on(table.householdId, table.isActive),
+    hhCatActiveIdx: index('rc_hh_cat_active_idx').on(
+      table.householdId,
+      table.categoryId,
+      table.isActive
+    ),
+  })
+);
 
-export const testResults = pgTable('test_results', {
-  id: serial('id').primaryKey(),
-  testType: text('test_type'),
-  suiteName: text('suite_name'),
-  passes: integer('passes'),
-  fails: integer('fails'),
-  total: integer('total'),
-  duration: real('duration'),
-  reportJson: text('report_json'),
-  version: text('version'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const testResults = pgTable(
+  'test_results',
+  {
+    id: serial('id').primaryKey(),
+    testType: text('test_type'),
+    suiteName: text('suite_name'),
+    passes: integer('passes'),
+    fails: integer('fails'),
+    total: integer('total'),
+    duration: real('duration'),
+    reportJson: text('report_json'),
+    version: text('version'),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    createdIdx: index('test_results_created_idx').on(table.createdAt),
+  })
+);
 
 export const versionHistory = pgTable('version_history', {
   id: serial('id').primaryKey(),
@@ -251,17 +285,24 @@ export const featureFlags = pgTable('feature_flags', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-export const apiKeys = pgTable('api_keys', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  householdId: integer('household_id').references(() => households.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  keyHash: text('key_hash').notNull().unique(),
-  keyPrefix: text('key_prefix').notNull(), // first 8 chars
-  lastUsedAt: timestamp('last_used_at'),
-  expiresAt: timestamp('expires_at'),
-  isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const apiKeys = pgTable(
+  'api_keys',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    householdId: integer('household_id').references(() => households.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    keyHash: text('key_hash').notNull().unique(),
+    keyPrefix: text('key_prefix').notNull(), // first 8 chars
+    lastUsedAt: timestamp('last_used_at'),
+    expiresAt: timestamp('expires_at'),
+    isActive: boolean('is_active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    hashIdx: index('api_key_hash_idx').on(table.keyHash),
+    userHhIdx: index('api_key_user_hh_idx').on(table.userId, table.householdId),
+  })
+);

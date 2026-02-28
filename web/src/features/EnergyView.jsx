@@ -25,8 +25,9 @@ import {
   Textarea,
   Checkbox,
 } from '@mui/joy';
-import { Edit, Delete, ElectricBolt, Add, ReceiptLong } from '@mui/icons-material';
+import { Edit, Delete, ElectricBolt, Add, ReceiptLong, ShowChart } from '@mui/icons-material';
 import { getEmojiColor } from '../utils/colors';
+import UtilityUsageChart from '../components/ui/UtilityUsageChart';
 
 export default function EnergyView() {
   const {
@@ -44,6 +45,8 @@ export default function EnergyView() {
 
   const isAdmin = currentUser?.role === 'admin';
   const householdId = household?.id;
+
+  const [selectedAnalyticsId, setSelectedAnalyticsId] = useState(null);
 
   const fetchAccounts = useCallback(async () => {
     if (!householdId) return;
@@ -194,6 +197,16 @@ export default function EnergyView() {
                     <IconButton
                       size="sm"
                       variant="plain"
+                      color="primary"
+                      onClick={() =>
+                        setSelectedAnalyticsId(selectedAnalyticsId === a.id ? null : a.id)
+                      }
+                    >
+                      <ShowChart />
+                    </IconButton>
+                    <IconButton
+                      size="sm"
+                      variant="plain"
                       onClick={() => {
                         setEditAccount(a);
                         setIsNew(false);
@@ -212,6 +225,18 @@ export default function EnergyView() {
                   </Box>
                 )}
               </Box>
+              {selectedAnalyticsId === a.id && (
+                <Box sx={{ width: '100%', mt: 2 }}>
+                  <Divider />
+                  <UtilityUsageChart
+                    api={api}
+                    householdId={householdId}
+                    type="energy"
+                    accountId={a.id}
+                    unit={a.type.includes('Gas') ? 'm³' : 'kWh'}
+                  />
+                </Box>
+              )}
             </Card>
           </Grid>
         ))}

@@ -95,6 +95,18 @@ function initWorker() {
             break;
           }
 
+          case 'SMART_REMINDERS': {
+            const { checkSmartReminders } = require('./smart_reminders');
+            await checkSmartReminders(job.data.householdId);
+            break;
+          }
+
+          case 'MAINTENANCE_AUTO': {
+            const { generateMaintenanceWorkflows } = require('./maintenance_automation');
+            await generateMaintenanceWorkflows(job.data.householdId);
+            break;
+          }
+
           case 'S3_BACKUP': {
             const { backupToS3 } = require('./s3_backup');
             await backupToS3(job.data.householdId);

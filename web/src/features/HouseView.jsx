@@ -20,6 +20,7 @@ import {
   CircularProgress,
   Breadcrumbs,
   Link,
+  LinearProgress,
 } from '@mui/joy';
 import {
   Home,
@@ -47,8 +48,19 @@ import {
   ElectricBolt,
   DeleteSweep,
   AccountBalance,
+  Pulse,
+  CheckCircle,
+  Group as GuestIcon,
+  Thermostat,
+  Lightbulb,
+  Security as SecurityIcon,
+  Lock,
+  Nature as GreenIcon,
+  Warning,
 } from '@mui/icons-material';
 import { getEmojiColor } from '../utils/colors';
+import QRCodeGenerator from '../components/ui/QRCodeGenerator';
+import { useQuery } from '@tanstack/react-query';
 
 const formatCurrency = (val) =>
   (parseFloat(val) || 0).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
@@ -145,7 +157,14 @@ const ResidentGrid = ({ title, icon, members = [], isDark, navigate, onAdd }) =>
 };
 
 export default function HouseView() {
-  const { api, household, members = [], vehicles = [], isDark } = useOutletContext();
+  const {
+    api,
+    household,
+    members = [],
+    vehicles = [],
+    isDark,
+    showNotification,
+  } = useOutletContext();
   const navigate = useNavigate();
   const [houseDetails, setHouseDetails] = useState(null);
 
@@ -159,7 +178,6 @@ export default function HouseView() {
   }, [api, household.id]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchHouseData();
   }, [fetchHouseData]);
 
@@ -200,6 +218,41 @@ export default function HouseView() {
     { label: 'Waste & Recycling', to: 'waste', icon: <DeleteSweep />, color: 'success' },
     { label: 'Council Tax', to: 'council', icon: <AccountBalance />, color: 'neutral' },
   ];
+
+  const { data: serviceStatus = [] } = useQuery({
+    queryKey: ['households', household.id, 'service-status'],
+    queryFn: () => api.get(`/households/${household.id}/details/status`).then((res) => res.data),
+    enabled: !!household.id,
+  });
+
+  const { data: smartHomeDevices = [] } = useQuery({
+    queryKey: ['households', household.id, 'smart-home'],
+    queryFn: () =>
+      api.get(`/households/${household.id}/details/smart-home`).then((res) => res.data),
+    enabled: !!household.id,
+  });
+
+  const { data: greenScore = { score: 50, rating: 'Bronze', factors: [] } } = useQuery({
+    queryKey: ['households', household.id, 'green-score'],
+    queryFn: () =>
+      api.get(`/households/${household.id}/details/green-score`).then((res) => res.data),
+    enabled: !!household.id,
+  });
+
+  const [generatingGuest, setGeneratingGuest] = useState(false);
+  const handleGenerateGuestLink = async () => {
+    setGeneratingGuest(true);
+    try {
+      const res = await api.post(`/households/${household.id}/guest-token`);
+      const link = `${window.location.origin}/guest/${res.data.token}`;
+      navigator.clipboard.writeText(link);
+      showNotification('Guest link generated and copied to clipboard!', 'success');
+    } catch {
+      showNotification('Failed to generate guest link', 'danger');
+    } finally {
+      setGeneratingGuest(false);
+    }
+  };
 
   return (
     <Box data-testid="house-view" sx={{ width: '100%', mx: 'auto', pb: 8 }}>
@@ -245,6 +298,31 @@ export default function HouseView() {
           </Box>
         </Box>
         <Stack direction="row" spacing={1}>
+          <QRCodeGenerator
+            title="WiFi QR"
+            subtitle="Scan to connect to the household WiFi network instantly."
+            fetchUrl={`/households/${household?.id}/details/share/wifi`}
+            api={api}
+          />
+          {household?.user_role === 'admin' && (
+            <>
+              <Button
+                variant="soft"
+                color="neutral"
+                startDecorator={<GuestIcon />}
+                loading={generatingGuest}
+                onClick={handleGenerateGuestLink}
+              >
+                Guest Link
+              </Button>
+              <QRCodeGenerator
+                title="Invite QR"
+                subtitle="Valid for 24 hours. Scanning this will take the guest to the registration page."
+                fetchUrl={`/households/${household?.id}/share/invite`}
+                api={api}
+              />
+            </>
+          )}
           <Button
             variant="solid"
             color="primary"
@@ -554,6 +632,119 @@ export default function HouseView() {
                   </Button>
                 </Box>
               )}
+            </Card>
+
+            {/* Item 284: Service Status Widget */}
+            <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+              <Typography level="title-md" startDecorator={<Construction color="warning" />}>
+                Local Service Status
+              </Typography>
+              <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
+                {serviceStatus.map((s) => (
+                  <ListItem key={s.name}>
+                    <ListItemDecorator>
+                      {s.status === 'operational' ? (
+                        <CheckCircle color="success" sx={{ fontSize: '1rem' }} />
+                      ) : (
+                        <Warning color="warning" sx={{ fontSize: '1rem' }} />
+                      )}
+                    </ListItemDecorator>
+                    <ListItemContent>
+                      <Typography level="body-sm" fontWeight="bold">
+                        {s.name}
+                      </Typography>
+                      <Typography level="body-xs" noWrap>
+                        {s.message}
+                      </Typography>
+                    </ListItemContent>
+                    <Typography level="body-xs" sx={{ opacity: 0.5 }}>
+                      {s.provider}
+                    </Typography>
+                  </ListItem>
+                ))}
+              </List>
+            </Card>
+
+            {/* Item 293: Smart Home Vitals */}
+            <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+              <Typography level="title-md" startDecorator={<Lightbulb color="primary" />}>
+                Home Vitals (Simulated)
+              </Typography>
+              <List size="sm" sx={{ '--ListItem-paddingLeft': '0px' }}>
+                {smartHomeDevices.map((d) => (
+                  <ListItem key={d.name}>
+                    <ListItemDecorator>
+                      {d.type === 'thermostat' && <Thermostat color="warning" />}
+                      {d.type === 'light' && <Lightbulb color="primary" />}
+                      {d.type === 'security' && <SecurityIcon color="success" />}
+                      {d.type === 'lock' && <Lock color="neutral" />}
+                    </ListItemDecorator>
+                    <ListItemContent>
+                      <Typography level="body-sm" fontWeight="bold">
+                        {d.name}
+                      </Typography>
+                      <Typography level="body-xs">{d.status}</Typography>
+                    </ListItemContent>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography level="body-sm">{d.value}</Typography>
+                      <Typography level="body-xs" color="neutral">
+                        Bat: {d.battery}
+                      </Typography>
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            </Card>
+
+            {/* Item 295: Green Score Widget */}
+            <Card variant="outlined" sx={{ boxShadow: 'sm' }}>
+              <Typography level="title-md" startDecorator={<GreenIcon color="success" />}>
+                Household Green Score
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Typography level="h4" color="success">
+                    {greenScore.score}%
+                  </Typography>
+                  <Chip
+                    size="sm"
+                    variant="solid"
+                    color={
+                      greenScore.rating === 'Gold'
+                        ? 'warning'
+                        : greenScore.rating === 'Silver'
+                          ? 'neutral'
+                          : 'danger'
+                    }
+                  >
+                    {greenScore.rating} Status
+                  </Chip>
+                </Stack>
+                <LinearProgress
+                  determinate
+                  value={greenScore.score}
+                  color="success"
+                  sx={{ height: 8, borderRadius: 'sm' }}
+                />
+                <Stack spacing={0.5} sx={{ mt: 2 }}>
+                  {greenScore.factors.map((f, i) => (
+                    <Typography
+                      key={i}
+                      level="body-xs"
+                      startDecorator={
+                        <CheckCircle sx={{ fontSize: '0.8rem', color: 'success.500' }} />
+                      }
+                    >
+                      {f}
+                    </Typography>
+                  ))}
+                </Stack>
+              </Box>
             </Card>
           </Stack>
         </Grid>

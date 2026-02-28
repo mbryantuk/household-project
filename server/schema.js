@@ -82,14 +82,17 @@ const GLOBAL_SCHEMA = [
         currency TEXT DEFAULT 'GBP',
         decimals INTEGER DEFAULT 2,
         enabled_modules TEXT DEFAULT '["pets", "vehicles", "meals"]',
-        metadata_schema TEXT,
-        auto_backup INTEGER DEFAULT 1,
-        backup_retention INTEGER DEFAULT 7,
-        is_test INTEGER DEFAULT 0,
-        debug_mode INTEGER DEFAULT 0,
-        nightly_version_filter TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
+            metadata_schema TEXT,
+            auto_backup INTEGER DEFAULT 1,
+            backup_retention INTEGER DEFAULT 7,
+            is_test INTEGER DEFAULT 0,
+            debug_mode INTEGER DEFAULT 0,
+            nightly_version_filter TEXT,
+            manual_exchange_rates TEXT, -- JSON String
+            guest_token TEXT,
+            guest_token_expires DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
   `CREATE TABLE IF NOT EXISTS user_households (
         user_id INTEGER,
         household_id INTEGER,
@@ -109,6 +112,11 @@ const GLOBAL_SCHEMA = [
         is_accepted INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+  // Item 246: Global Indexes
+  `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
+  `CREATE INDEX IF NOT EXISTS idx_user_households_user ON user_households(user_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_user_households_hh ON user_households(household_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_test_results_created ON test_results(created_at)`,
 ];
 
 const TENANT_SCHEMA = [
@@ -173,10 +181,13 @@ const TENANT_SCHEMA = [
         purchase_value REAL,
         replacement_cost REAL,
         location TEXT,
+        sub_location TEXT,
         serial_number TEXT, -- Encrypted
         warranty_expiry DATE,
         insurance_status TEXT,
         monthly_maintenance_cost REAL DEFAULT 0,
+        quantity INTEGER DEFAULT 1,
+        low_stock_threshold INTEGER DEFAULT 0,
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -380,6 +391,7 @@ const TENANT_SCHEMA = [
         account_number TEXT, 
         interest_rate REAL,
         current_balance REAL,
+        currency TEXT DEFAULT 'GBP',
         emoji TEXT,
         notes TEXT,
         deposit_amount REAL DEFAULT 0,
@@ -404,6 +416,7 @@ const TENANT_SCHEMA = [
         sort_code TEXT, 
         overdraft_limit REAL DEFAULT 0,
         current_balance REAL DEFAULT 0,
+        currency TEXT DEFAULT 'GBP',
         emoji TEXT,
         notes TEXT
     )`,
@@ -417,6 +430,7 @@ const TENANT_SCHEMA = [
         current_balance REAL,
         apr REAL,
         payment_day INTEGER,
+        currency TEXT DEFAULT 'GBP',
         emoji TEXT,
         notes TEXT,
         nearest_working_day INTEGER DEFAULT 1,
@@ -432,6 +446,7 @@ const TENANT_SCHEMA = [
         type TEXT, 
         current_value REAL,
         monthly_contribution REAL,
+        currency TEXT DEFAULT 'GBP',
         emoji TEXT,
         notes TEXT,
         payment_day INTEGER,
@@ -454,6 +469,7 @@ const TENANT_SCHEMA = [
         units REAL,
         current_value REAL,
         total_invested REAL,
+        currency TEXT DEFAULT 'GBP',
         emoji TEXT,
         notes TEXT,
         monthly_contribution REAL DEFAULT 0,
@@ -575,6 +591,49 @@ const TENANT_SCHEMA = [
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         deleted_at DATETIME
     )`,
+  `CREATE TABLE IF NOT EXISTS mileage_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        vehicle_id INTEGER,
+        date DATE,
+        mileage INTEGER,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+    )`,
+  `CREATE TABLE IF NOT EXISTS utility_readings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        utility_type TEXT, -- energy, water
+        account_id INTEGER,
+        reading_date DATE,
+        value REAL,
+        unit TEXT, -- kWh, m3
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+  `CREATE TABLE IF NOT EXISTS finance_savings_goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        household_id INTEGER,
+        financial_profile_id INTEGER,
+        name TEXT NOT NULL,
+        target_amount REAL NOT NULL,
+        current_amount REAL DEFAULT 0,
+        target_date DATE,
+        currency TEXT DEFAULT 'GBP',
+        emoji TEXT DEFAULT '🎯',
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+  // Item 246: Tenant Indexes
+  `CREATE INDEX IF NOT EXISTS idx_transactions_hh_date ON transactions(household_id, date)`,
+  `CREATE INDEX IF NOT EXISTS idx_transactions_hh_account ON transactions(household_id, account_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_recurring_costs_hh_cat_active ON recurring_costs(household_id, category_id, is_active)`,
+  `CREATE INDEX IF NOT EXISTS idx_notifications_hh_read ON notifications(household_id, is_read)`,
+  `CREATE INDEX IF NOT EXISTS idx_comments_hh_entity ON comments(household_id, entity_type, entity_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_dates_hh_date ON dates(household_id, date)`,
+  `CREATE INDEX IF NOT EXISTS idx_assets_hh_category ON assets(household_id, category)`,
+  `CREATE INDEX IF NOT EXISTS idx_chores_hh_member ON chores(household_id, assigned_member_id)`,
 ];
 
 function initializeGlobalSchema(db) {
@@ -614,6 +673,9 @@ function initializeGlobalSchema(db) {
       ['nightly_version_filter', 'TEXT'],
       ['debug_mode', 'INTEGER DEFAULT 0'],
       ['metadata_schema', 'TEXT'],
+      ['manual_exchange_rates', 'TEXT'],
+      ['guest_token', 'TEXT'],
+      ['guest_token_expires', 'DATETIME'],
     ];
     hhCols.forEach(([col, type]) => {
       db.run(`ALTER TABLE households ADD COLUMN ${col} ${type}`, (err) => {
@@ -671,6 +733,15 @@ function initializeHouseholdSchema(db) {
         ['vehicles', 'current_mileage', 'INTEGER'],
         ['vehicles', 'avg_monthly_mileage', 'INTEGER DEFAULT 1000'],
         ['vehicles', 'service_interval_miles', 'INTEGER DEFAULT 10000'],
+        ['finance_savings', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['finance_current_accounts', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['finance_credit_cards', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['finance_pensions', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['finance_investments', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['finance_savings_goals', 'currency', "TEXT DEFAULT 'GBP'"],
+        ['assets', 'sub_location', 'TEXT'],
+        ['assets', 'quantity', 'INTEGER DEFAULT 1'],
+        ['assets', 'low_stock_threshold', 'INTEGER DEFAULT 0'],
       ];
 
       migrations.forEach(([table, col, type]) => {
@@ -715,6 +786,9 @@ function initializeHouseholdSchema(db) {
         'transactions',
         'webhooks',
         'comments',
+        'mileage_logs',
+        'utility_readings',
+        'finance_savings_goals',
       ];
 
       allTenantTables.forEach((table) => {

@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-02-26T23:10:15.242Z",
+  "timestamp": "2026-02-28T10:05:30.387Z",
   "accounts": {
-    "admin": "admin_1772147412121@test.com",
-    "viewer": "viewer_1772147412121@test.com"
+    "admin": "admin_1772273126529@test.com",
+    "viewer": "viewer_1772273126529@test.com"
   },
   "steps": [
-    "23:10:12: Loading Swagger schema for strict sync enforcement.",
-    "23:10:12: Initializing test environment.",
-    "23:10:15: Cleaning up: Deleting test household."
+    "10:05:26: Loading Swagger schema for strict sync enforcement.",
+    "10:05:26: Initializing test environment.",
+    "10:05:30: Cleaning up: Deleting test household."
   ],
   "summary": {
     "total_endpoints": 75,
     "passed": 69,
     "failed": 6,
-    "swagger_coverage_pct": "79.8"
+    "swagger_coverage_pct": "77.3"
   },
   "results": {
     "POST /households/{id}/finance/recurring-costs": "PASS",
@@ -95,6 +95,9 @@
   "swagger_discrepancies": {
     "missing_in_swagger": [],
     "not_tested_from_swagger": [
+      "GET /households/{hhId}/finance/insights",
+      "GET /households/{hhId}/finance/debt-strategy",
+      "POST /households/{hhId}/uploads",
       "POST /auth/register",
       "POST /auth/login",
       "GET /auth/profile",

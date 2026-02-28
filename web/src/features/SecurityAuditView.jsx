@@ -6,10 +6,12 @@ import { getRelativeTime } from '../utils/date';
 import AppTable from '../components/ui/AppTable';
 import ModuleContainer from '../components/ui/ModuleContainer';
 import EmojiAvatar from '../components/ui/EmojiAvatar';
+import VirtualList from '../components/ui/VirtualList';
 
 /**
  * Security Audit View
  * Displays the immutable audit trail from Postgres.
+ * Item 249: Frontend List Virtualization (via AppTable DataGrid for desktop, VirtualList for mobile)
  */
 export default function SecurityAuditView({ api, householdId }) {
   const { data: logs = [], isLoading } = useQuery({
@@ -89,9 +91,34 @@ export default function SecurityAuditView({ api, householdId }) {
         </Typography>
       </Box>
 
-      <Card variant="soft" sx={{ p: 0, overflow: 'hidden' }}>
+      {/* Desktop View: DataGrid (Virtualized) */}
+      <Card variant="soft" sx={{ p: 0, overflow: 'hidden', display: { xs: 'none', md: 'block' } }}>
         <AppTable rows={logs} columns={columns} loading={isLoading} getRowId={(row) => row.id} />
       </Card>
+
+      {/* Mobile View: VirtualList */}
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <VirtualList
+          data={logs}
+          height={600}
+          itemContent={(index, log) => (
+            <Card variant="outlined" sx={{ mb: 1, p: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Chip variant="soft" color="primary" size="sm" startDecorator={<History />}>
+                  {log.action}
+                </Chip>
+                <Typography level="body-xs">{getRelativeTime(log.createdAt)}</Typography>
+              </Stack>
+              <Typography level="body-sm" sx={{ mt: 1, textTransform: 'capitalize' }}>
+                {log.entityType} (User #{log.userId})
+              </Typography>
+              <Typography level="body-xs" color="neutral">
+                {log.ipAddress}
+              </Typography>
+            </Card>
+          )}
+        />
+      </Box>
     </ModuleContainer>
   );
 }

@@ -4,6 +4,7 @@ const { authenticateToken, requireHouseholdRole } = require('../middleware/auth'
 const { useTenantDb } = require('../middleware/tenant');
 const SqliteShoppingRepository = require('../domain/shopping/adapters/SqliteShoppingRepository');
 const ShoppingService = require('../domain/shopping/application/ShoppingService');
+const { getGrocerySuggestions } = require('../services/grocery_intelligence');
 const response = require('../utils/response');
 const { AppError, NotFoundError } = require('@hearth/shared');
 
@@ -32,6 +33,24 @@ function toApiModel(item) {
     created_at: item.createdAt,
   };
 }
+
+/**
+ * GET /api/households/:id/shopping-list/suggestions
+ */
+router.get(
+  '/suggestions',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const suggestions = await getGrocerySuggestions(req.tenantDb, req.hhId);
+      response.success(res, suggestions);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * GET /api/households/:id/shopping-list
@@ -107,7 +126,8 @@ router.post(
   async (req, res, next) => {
     try {
       const { actions } = req.body;
-      if (!Array.isArray(actions) || actions.length === 0) throw new AppError('Actions required', 400);
+      if (!Array.isArray(actions) || actions.length === 0)
+        throw new AppError('Actions required', 400);
       const service = getShoppingService(req);
       await service.bulkAction(req.hhId, actions);
       response.success(res, { message: 'Bulk action completed', count: actions.length });

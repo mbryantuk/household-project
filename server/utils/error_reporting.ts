@@ -8,7 +8,7 @@ class ErrorReportingService {
   /**
    * Report a non-fatal error
    */
-  report(error: Error, context: any = {}) {
+  report(error: Error, context: Record<string, unknown> = {}) {
     logger.error({
       msg: '[REPORTER] Non-fatal error captured',
       error: error.message,
@@ -22,7 +22,7 @@ class ErrorReportingService {
   /**
    * Report a fatal crash and flush logs
    */
-  async crash(error: Error, context: any = {}) {
+  async crash(error: Error, context: Record<string, unknown> = {}) {
     logger.fatal({
       msg: '[REPORTER] FATAL CRASH',
       error: error.message,

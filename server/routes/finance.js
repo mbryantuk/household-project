@@ -5,10 +5,85 @@ const { useTenantDb } = require('../middleware/tenant');
 const { autoEncrypt, decryptData } = require('../middleware/encryption');
 const { dbAll, dbGet, dbRun } = require('../db');
 const { NotFoundError, AppError } = require('@hearth/shared');
+const { cacheMiddleware, invalidateHouseholdCache } = require('../services/cache');
 const response = require('../utils/response');
+const path = require('path');
+const logger = require('../utils/logger');
 
 const recurringCostsRoutes = require('./recurring_costs');
 const financeImportRoutes = require('./finance_import');
+const { detectAnomalies } = require('../services/intelligence');
+const { calculateDebtStrategy } = require('../services/debt_strategy');
+const { suggestRecurringCosts } = require('../services/recurring_matcher');
+const { getBudgetAdjustmentSuggestions } = require('../services/budget_intelligence');
+const { getNetWorthProjection } = require('../services/net_worth_forecasting');
+
+/**
+ * Item 251, 255 & 263: Finance Insights Endpoint
+ * Includes Anomaly Detection, Recurring Cost Suggestions, and Budget Adjustments.
+ */
+router.get(
+  '/insights',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const [anomalies, suggestions, budgetAdjustments] = await Promise.all([
+        detectAnomalies(req.tenantDb, req.hhId),
+        suggestRecurringCosts(req.tenantDb, req.hhId),
+        getBudgetAdjustmentSuggestions(req.tenantDb, req.hhId),
+      ]);
+      response.success(res, { anomalies, suggestions, budgetAdjustments });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * Item 264: Net Worth Projection Endpoint
+ */
+router.get(
+  '/projection',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const projection = await getNetWorthProjection(
+        req.tenantDb,
+        req.hhId,
+        req.query.financial_profile_id
+      );
+      response.success(res, projection);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * Item 252: Debt Payoff Strategy Endpoint
+ */
+router.get(
+  '/debt-strategy',
+  authenticateToken,
+  requireHouseholdRole('viewer'),
+  useTenantDb,
+  async (req, res, next) => {
+    try {
+      const strategy = await calculateDebtStrategy(
+        req.tenantDb,
+        req.hhId,
+        req.query.financial_profile_id
+      );
+      response.success(res, strategy);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 // ==========================================
 // 🏠 GENERIC CRUD HELPERS
@@ -59,6 +134,7 @@ const handleCreateItem = (table) => async (req, res, next) => {
       `INSERT INTO ${table} (${fields.join(', ')}, version) VALUES (${fields.map(() => '?').join(', ')}, 1)`,
       Object.values(insertData)
     );
+    await invalidateHouseholdCache(req.hhId);
     response.success(res, { id: newId, version: 1, ...insertData }, null, 201);
   } catch (err) {
     next(err);
@@ -82,6 +158,7 @@ const handleUpdateItem = (table) => async (req, res, next) => {
       [...Object.values(updates), req.params.itemId, req.hhId]
     );
     if (result.changes === 0) throw new NotFoundError('Item not found');
+    await invalidateHouseholdCache(req.hhId);
     response.success(res, { message: 'Updated' });
   } catch (err) {
     next(err);
@@ -96,6 +173,7 @@ const handleDeleteItem = (table) => async (req, res, next) => {
       [req.params.itemId, req.hhId]
     );
     if (result.changes === 0) throw new NotFoundError('Item not found');
+    await invalidateHouseholdCache(req.hhId);
     response.success(res, { message: 'Deleted' });
   } catch (err) {
     next(err);
@@ -133,6 +211,7 @@ const handleCreateDebt = (categoryId) => async (req, res, next) => {
       `INSERT INTO recurring_costs (household_id, category_id, name, amount, metadata, version) VALUES (?, ?, ?, ?, ?, 1)`,
       [req.hhId, categoryId, name || 'Debt', amount || 0, JSON.stringify(metadata)]
     );
+    await invalidateHouseholdCache(req.hhId);
     response.success(res, { id: newId, version: 1, ...req.body }, null, 201);
   } catch (err) {
     next(err);
@@ -155,6 +234,7 @@ const handleUpdateDebt = (categoryId) => async (req, res, next) => {
       ]
     );
     if (result.changes === 0) throw new NotFoundError('Debt not found');
+    await invalidateHouseholdCache(req.hhId);
     response.success(res, { message: 'Updated' });
   } catch (err) {
     next(err);
@@ -170,6 +250,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   async (req, res, next) => {
     try {
       const rows = await dbAll(
@@ -189,6 +270,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   async (req, res, next) => {
     try {
       const rows = await dbAll(
@@ -216,6 +298,7 @@ router.post(
         'INSERT INTO finance_savings_pots (savings_id, name, target_amount, current_amount, emoji, notes, version) VALUES (?, ?, ?, ?, ?, ?, 1)',
         [req.params.itemId, name, target_amount || 0, current_amount || 0, emoji, notes]
       );
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, { id: newId, ...req.body }, null, 201);
     } catch (err) {
       next(err);
@@ -241,6 +324,7 @@ router.put(
         [...Object.values(updates), req.params.potId, req.params.itemId]
       );
       if (result.changes === 0) throw new NotFoundError('Pot not found');
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, { message: 'Updated' });
     } catch (err) {
       next(err);
@@ -261,6 +345,7 @@ router.delete(
         [req.params.potId, req.params.itemId]
       );
       if (result.changes === 0) throw new NotFoundError('Pot not found');
+      await invalidateHouseholdCache(req.hhId);
       response.success(res, { message: 'Deleted' });
     } catch (err) {
       next(err);
@@ -283,6 +368,7 @@ const FINANCE_TABLES = [
   { path: 'budget-progress', table: 'finance_budget_progress', encrypt: false },
   { path: 'budget-cycles', table: 'finance_budget_cycles', encrypt: false },
   { path: 'assignments', table: 'finance_assignments', encrypt: false },
+  { path: 'savings-goals', table: 'finance_savings_goals', encrypt: false },
 ];
 
 FINANCE_TABLES.forEach((cfg) => {
@@ -292,6 +378,7 @@ FINANCE_TABLES.forEach((cfg) => {
     authenticateToken,
     requireHouseholdRole('viewer'),
     useTenantDb,
+    cacheMiddleware(300),
     handleGetList(cfg.table)
   );
   router.get(
@@ -331,6 +418,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   handleGetDebtList('mortgage')
 );
 router.post(
@@ -360,6 +448,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   handleGetDebtList('loan')
 );
 router.post(
@@ -389,6 +478,7 @@ router.get(
   authenticateToken,
   requireHouseholdRole('viewer'),
   useTenantDb,
+  cacheMiddleware(300),
   handleGetDebtList('vehicle_finance')
 );
 router.post(

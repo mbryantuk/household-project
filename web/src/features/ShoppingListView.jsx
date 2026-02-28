@@ -25,9 +25,10 @@ import {
   ArrowForward,
   ContentCopy,
   Remove,
+  Lightbulb,
 } from '@mui/icons-material';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import ReceiptImporter from './shopping/components/ReceiptImporter';
@@ -76,6 +77,13 @@ export default function ShoppingListView() {
 
   const weekStr = formatDate(currentWeekStart);
   const { data: items = [], refetch } = useShoppingList(api, householdId, weekStr);
+
+  const { data: suggestions = [] } = useQuery({
+    queryKey: ['households', householdId, 'shopping-suggestions'],
+    queryFn: () =>
+      api.get(`/households/${householdId}/shopping-list/suggestions`).then((res) => res.data || []),
+    enabled: !!householdId,
+  });
 
   // Item 118: Optimistic UI Mutations
   const mutations = useShoppingMutations(api, householdId, weekStr);
@@ -274,6 +282,64 @@ export default function ShoppingListView() {
         <Grid container spacing={3}>
           {/* Main List */}
           <Grid xs={12} md={8}>
+            {suggestions.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  level="title-sm"
+                  startDecorator={<Lightbulb color="warning" />}
+                  sx={{ mb: 1.5 }}
+                >
+                  Suggested for you
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 2,
+                    overflowX: 'auto',
+                    pb: 1,
+                    '&::-webkit-scrollbar': { height: 6 },
+                    '&::-webkit-scrollbar-thumb': {
+                      borderRadius: 10,
+                      bgcolor: 'background.level3',
+                    },
+                  }}
+                >
+                  {suggestions.map((s) => (
+                    <Card
+                      key={s.name}
+                      variant="soft"
+                      size="sm"
+                      sx={{ minWidth: 180, flexShrink: 0 }}
+                    >
+                      <Typography level="title-sm">{s.name}</Typography>
+                      <Typography level="body-xs" sx={{ mb: 1.5 }}>
+                        {s.reason}
+                      </Typography>
+                      <Button
+                        size="sm"
+                        variant="solid"
+                        color="success"
+                        startDecorator={<Add />}
+                        onClick={() => {
+                          mutations.addItem.mutate({
+                            name: s.name,
+                            category: s.category,
+                            quantity: '1',
+                          });
+                          queryClient.setQueryData(
+                            ['households', householdId, 'shopping-suggestions'],
+                            (old) => old.filter((i) => i.name !== s.name)
+                          );
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </Card>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
             <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'md', mb: 3 }}>
               <form onSubmit={handleAddItem}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
